@@ -1,0 +1,243 @@
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarAlClickFuera($event)">
+  <div #modalEditar class="modal-content">
+    <!-- Header Modal -->
+    <div class="modal-header">
+      <h2>✏️ Editar Familiar</h2>
+      <button class="btn-close" (click)="cerrar()">✕</button>
+    </div>
+
+    <!-- Contenido Modal -->
+    <div class="modal-body">
+      <form [formGroup]="formulario" (ngSubmit)="actualizar()">
+        <!-- Información Personal -->
+        <div class="form-section">
+          <h3>Información Personal</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombre">Nombre *</label>
+              <input
+                id="nombre"
+                type="text"
+                formControlName="nombre"
+                placeholder="Ej: Juan"
+                class="form-input"
+                [ngClass]="{ 'input-error': esCampoInvalido('nombre') }"
+              />
+              <span class="error-message" *ngIf="esCampoInvalido('nombre')">
+                {{ obtenerErrorCampo('nombre') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="apellidos">Apellidos *</label>
+              <input
+                id="apellidos"
+                type="text"
+                formControlName="apellidos"
+                placeholder="Ej: Pérez García"
+                class="form-input"
+                [ngClass]="{ 'input-error': esCampoInvalido('apellidos') }"
+              />
+              <span class="error-message" *ngIf="esCampoInvalido('apellidos')">
+                {{ obtenerErrorCampo('apellidos') }}
+              </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaNacimiento">Fecha de Nacimiento *</label>
+              <input
+                id="fechaNacimiento"
+                type="date"
+                formControlName="fechaNacimiento"
+                class="form-input"
+                [ngClass]="{ 'input-error': esCampoInvalido('fechaNacimiento') }"
+              />
+              <span class="error-message" *ngIf="esCampoInvalido('fechaNacimiento')">
+                {{ obtenerErrorCampo('fechaNacimiento') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="tipoSangre">Tipo de Sangre *</label>
+              <select
+                id="tipoSangre"
+                formControlName="tipoSangre"
+                class="form-input"
+                [ngClass]="{ 'input-error': esCampoInvalido('tipoSangre') }"
+              >
+                <option value="">Selecciona tipo de sangre</option>
+                <option *ngFor="let tipo of tiposSangre" [value]="tipo">
+                  {{ tipo }}
+                </option>
+              </select>
+              <span class="error-message" *ngIf="esCampoInvalido('tipoSangre')">
+                {{ obtenerErrorCampo('tipoSangre') }}
+              </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="parentesco">Tipo de Parentesco *</label>
+              <select
+                id="parentesco"
+                formControlName="parentesco"
+                class="form-input"
+                [ngClass]="{ 'input-error': esCampoInvalido('parentesco') }"
+              >
+                <option value="">Selecciona el parentesco</option>
+                <option *ngFor="let tipo of tiposParentesco" [value]="tipo">
+                  {{ tipo }}
+                </option>
+              </select>
+              <span class="error-message" *ngIf="esCampoInvalido('parentesco')">
+                {{ obtenerErrorCampo('parentesco') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de Contacto -->
+        <div class="form-section">
+          <h3>Información de Contacto</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="numeroCelular">Número de Celular *</label>
+              <input
+                id="numeroCelular"
+                type="tel"
+                formControlName="numeroCelular"
+                placeholder="Ej: +52 55 1234 5678"
+                class="form-input"
+                [ngClass]="{ 'input-error': esCampoInvalido('numeroCelular') }"
+              />
+              <span class="error-message" *ngIf="esCampoInvalido('numeroCelular')">
+                {{ obtenerErrorCampo('numeroCelular') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="contactoEmergencia">Número de Emergencia *</label>
+              <input
+                id="contactoEmergencia"
+                type="tel"
+                formControlName="contactoEmergencia"
+                placeholder="Ej: +52 55 9876 5432"
+                class="form-input"
+                [ngClass]="{ 'input-error': esCampoInvalido('contactoEmergencia') }"
+              />
+              <span class="error-message" *ngIf="esCampoInvalido('contactoEmergencia')">
+                {{ obtenerErrorCampo('contactoEmergencia') }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historial Médico -->
+        <div class="form-section">
+          <h3>Historial Médico</h3>
+
+          <!-- Enfermedades -->
+          <div class="form-group">
+            <label>Enfermedades Crónicas</label>
+            <div class="input-with-button">
+              <input
+                type="text"
+                [(ngModel)]="enfermedadInput"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Ej: Diabetes, Hipertensión"
+                class="form-input"
+                (keyup.enter)="agregarEnfermedad()"
+              />
+              <button
+                type="button"
+                (click)="agregarEnfermedad()"
+                class="btn-add"
+              >
+                ➕
+              </button>
+            </div>
+
+            <div class="tags-container" *ngIf="enfermedadesSeleccionadas.length > 0">
+              <span
+                *ngFor="let enfermedad of enfermedadesSeleccionadas"
+                class="tag"
+              >
+                {{ enfermedad }}
+                <button
+                  type="button"
+                  class="btn-remove-tag"
+                  (click)="quitarEnfermedad(enfermedad)"
+                >
+                  ✕
+                </button>
+              </span>
+            </div>
+          </div>
+
+          <!-- Alergias -->
+          <div class="form-group">
+            <label>Alergias</label>
+            <div class="input-with-button">
+              <input
+                type="text"
+                [(ngModel)]="alergiaInput"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Ej: Penicilina, Mariscos"
+                class="form-input"
+                (keyup.enter)="agregarAlergia()"
+              />
+              <button
+                type="button"
+                (click)="agregarAlergia()"
+                class="btn-add"
+              >
+                ➕
+              </button>
+            </div>
+
+            <div class="tags-container" *ngIf="alergiaSeleccionadas.length > 0">
+              <span
+                *ngFor="let alergia of alergiaSeleccionadas"
+                class="tag"
+              >
+                {{ alergia }}
+                <button
+                  type="button"
+                  class="btn-remove-tag"
+                  (click)="quitarAlergia(alergia)"
+                >
+                  ✕
+                </button>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="modal-footer">
+          <button
+            type="button"
+            (click)="cerrar()"
+            class="btn btn-secondary"
+            [disabled]="cargando"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="cargando"
+          >
+            <span *ngIf="!cargando">Actualizar Familiar</span>
+            <span *ngIf="cargando">Actualizando...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

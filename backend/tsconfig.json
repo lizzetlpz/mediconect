@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@database/*": ["BD/SQLite/*"]
+    },
+    "strict": false,  // ✅ Cambiar a false temporalmente
+    "esModuleInterop": true,
+    "skipLibCheck": true,  // ✅ Esto es importante
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "sourceMap": true,
+    "declaration": true
+  },
+  "include": ["src/**/*", "BD/**/*"],
+  "exclude": ["node_modules"]
+}

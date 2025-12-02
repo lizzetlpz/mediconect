@@ -1,0 +1,133 @@
+<div class="modal-overlay" (click)="cancelar()"></div>
+
+<div class="modal-container" (click)="$event.stopPropagation()">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="header-content">
+      <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+      </svg>
+      <h2>Crear Registro Médico</h2>
+    </div>
+    <button class="close-btn" (click)="cancelar()" [disabled]="cargando">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="modal-body">
+    <!-- Foto de la Receta Médica -->
+    <div class="form-section">
+      <h3>📸 Foto de la Receta Médica *</h3>
+      <div class="upload-area">
+        <input
+          type="file"
+          id="fotoReceta"
+          accept="image/*"
+          (change)="onFileSelect($event, 'receta')"
+          hidden>
+        <label for="fotoReceta" class="upload-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <span *ngIf="!fotoReceta">
+            <strong>Haz clic para subir una imagen</strong><br>
+            <small>Soporta PNG, JPG, GIF, etc.</small>
+          </span>
+          <span *ngIf="fotoReceta" class="file-name">
+            <strong>✅ {{ fotoReceta.name }}</strong><br>
+            <small>Haz clic para cambiar</small>
+          </span>
+        </label>
+      </div>
+      
+      <!-- Preview de la imagen -->
+      <div class="image-preview" *ngIf="previewFotoReceta">
+        <div class="preview-header">
+          <h4>📷 Vista previa de la receta</h4>
+          <button type="button" class="btn-remove-preview" (click)="previewFotoReceta = null; fotoReceta = null">✕</button>
+        </div>
+        <img [src]="previewFotoReceta" alt="Preview de la receta" class="preview-img">
+      </div>
+    </div>
+
+    <!-- Laboratorios -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>🧪 Laboratorios y Estudios Clínicos</h3>
+        <button class="btn-add secondary" (click)="agregarEstudio()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Agregar Estudio
+        </button>
+      </div>
+
+      <div class="estudios-list" *ngIf="estudios.length > 0">
+        <div class="estudio-item" *ngFor="let estudio of estudios; let i = index">
+          <div class="estudio-header">
+            <span class="estudio-number">Estudio {{ i + 1 }}</span>
+            <button class="btn-delete" (click)="eliminarEstudio(i)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="estudio-fields">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="estudio.nombre"
+              placeholder="Nombre del estudio">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="estudio.tipo"
+              placeholder="Tipo">
+            <textarea
+              class="form-control full-width"
+              [(ngModel)]="estudio.descripcion"
+              placeholder="Descripción"
+              rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="cancelar()" [disabled]="cargando">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+      Cancelar
+    </button>
+    <button class="btn-save" (click)="crearRegistro()" [disabled]="cargando || !fotoReceta">
+      <span *ngIf="!cargando">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        💾 Guardar Registro
+      </span>
+      <span *ngIf="cargando">
+        ⏳ Guardando...
+      </span>
+    </button>
+  </div>
+

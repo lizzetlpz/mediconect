@@ -1,0 +1,300 @@
+<div class="modal-overlay" (click)="cancelar()"></div>
+
+<div class="modal-container" (click)="$event.stopPropagation()">
+  <!-- Header -->
+  <div class="modal-header">
+    <div class="header-content">
+      <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+      </svg>
+      <h2>Crear Registro Médico</h2>
+    </div>
+    <button class="close-btn" (click)="cancelar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="modal-body">
+
+    <!-- Mensaje de Error -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      {{ errorMessage }}
+    </div>
+
+    <!-- Información Básica -->
+    <div class="form-section">
+      <div class="form-row">
+        <!-- ✅ Input de texto para nombre del paciente -->
+        <div class="form-group">
+          <label>Nombre del Paciente <span class="required">*</span></label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="pacienteNombre"
+            placeholder="Ej: Juan Pérez González"
+            [class.error]="!pacienteNombre && errorMessage">
+          <small class="helper-text">Escribe el nombre completo del paciente</small>
+        </div>
+
+        <!-- ✅ Mostrar nombre del doctor (solo lectura) -->
+        <div class="form-group">
+          <label>Médico Tratante</label>
+          <input
+            type="text"
+            class="form-control"
+            [value]="doctorNombre"
+            disabled
+            readonly>
+          <small class="helper-text">Doctor autenticado actualmente</small>
+        </div>
+
+        <div class="form-group">
+          <label>Fecha de Consulta <span class="required">*</span></label>
+          <input
+            type="date"
+            class="form-control"
+            [(ngModel)]="fechaConsulta"
+            [class.error]="!fechaConsulta && errorMessage">
+        </div>
+      </div>
+    </div>
+
+    <!-- Motivo de Consulta -->
+    <div class="form-section">
+      <div class="form-group">
+        <label>Motivo Principal de Consulta <span class="required">*</span></label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="motivoConsulta"
+          placeholder="Ej: Dolor de cabeza persistente"
+          [class.error]="!motivoConsulta && errorMessage">
+      </div>
+    </div>
+
+    <!-- Síntomas -->
+    <div class="form-section">
+      <div class="form-group">
+        <label>Síntomas</label>
+        <textarea
+          class="form-control textarea-lg"
+          [(ngModel)]="sintomas"
+          placeholder="Describe los síntomas presentados..."
+          rows="4"></textarea>
+      </div>
+    </div>
+
+    <!-- Diagnóstico y Plan de Tratamiento -->
+    <div class="form-section">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Diagnóstico</label>
+          <textarea
+            class="form-control"
+            [(ngModel)]="diagnostico"
+            placeholder="Diagnóstico médico..."
+            rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Plan de Tratamiento</label>
+          <textarea
+            class="form-control"
+            [(ngModel)]="planTratamiento"
+            placeholder="Plan de tratamiento recomendado..."
+            rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prescripciones -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Prescripciones</h3>
+        <button class="btn-add" (click)="agregarMedicamento()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Agregar Medicamento
+        </button>
+      </div>
+
+      <div class="medications-list" *ngIf="medicamentos.length > 0">
+        <div class="medication-item" *ngFor="let med of medicamentos; let i = index">
+          <div class="medication-header">
+            <span class="medication-number">Medicamento {{ i + 1 }}</span>
+            <button class="btn-delete" (click)="eliminarMedicamento(i)" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="medication-fields">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="med.nombre"
+              placeholder="Medicamento">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="med.dosis"
+              placeholder="Dosis (ej: 500mg)">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="med.frecuencia"
+              placeholder="Frecuencia (ej: Cada 8 horas)">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="med.duracion"
+              placeholder="Duración (ej: 7 días)">
+            <input
+              type="text"
+              class="form-control full-width"
+              [(ngModel)]="med.instrucciones"
+              placeholder="Instrucciones especiales">
+          </div>
+        </div>
+      </div>
+
+      <p class="info-text" *ngIf="medicamentos.length === 0">
+        💊 Haz clic en "Agregar Medicamento" para prescribir medicamentos
+      </p>
+    </div>
+
+    <!-- Foto de la Receta Médica -->
+    <div class="form-section">
+      <h3>Foto de la Receta Médica (Opcional)</h3>
+      <div class="upload-area">
+        <input
+          type="file"
+          id="fotoReceta"
+          accept="image/*"
+          (change)="onFileSelect($event, 'receta')"
+          hidden>
+        <label for="fotoReceta" class="upload-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+          <span *ngIf="!fotoReceta">Subir foto de receta</span>
+          <span *ngIf="fotoReceta" class="file-name">📎 {{ fotoReceta.name }}</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Estudios Clínicos -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>Estudios Clínicos y Resultados de Laboratorio</h3>
+        <button class="btn-add secondary" (click)="agregarEstudio()" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Agregar Estudio
+        </button>
+      </div>
+
+      <p class="info-text">
+        💡 Los pacientes pueden compartir fotos de análisis, radiografías, estudios clínicos, etc.
+      </p>
+
+      <div class="estudios-list" *ngIf="estudios.length > 0">
+        <div class="estudio-item" *ngFor="let estudio of estudios; let i = index">
+          <div class="estudio-header">
+            <span class="estudio-number">Estudio {{ i + 1 }}</span>
+            <button class="btn-delete" (click)="eliminarEstudio(i)" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+
+          <div class="estudio-fields">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="estudio.nombre"
+              placeholder="Nombre del estudio (ej: Hemograma completo)">
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="estudio.tipo"
+              placeholder="Tipo (ej: Laboratorio, Radiografía)">
+            <textarea
+              class="form-control full-width"
+              [(ngModel)]="estudio.descripcion"
+              placeholder="Descripción o resultados..."
+              rows="2"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Requiere Seguimiento -->
+    <div class="form-section">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="requiereSeguimiento">
+        <span>✅ Requiere seguimiento médico</span>
+      </label>
+    </div>
+
+    <!-- Notas del Médico -->
+    <div class="form-section">
+      <div class="form-group">
+        <label>Notas del Médico</label>
+        <textarea
+          class="form-control textarea-lg"
+          [(ngModel)]="notasMedico"
+          placeholder="Observaciones adicionales, recomendaciones especiales..."
+          rows="4"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button class="btn-cancel" (click)="cancelar()" type="button" [disabled]="isLoading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+      Cancelar
+    </button>
+    <button class="btn-save" (click)="crearRegistro()" type="button" [disabled]="isLoading">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" *ngIf="!isLoading">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+      </svg>
+      <span *ngIf="!isLoading">Crear Registro</span>
+      <span *ngIf="isLoading">
+        <svg class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+        </svg>
+        Guardando...
+      </span>
+    </button>
+  </div>
+</div>

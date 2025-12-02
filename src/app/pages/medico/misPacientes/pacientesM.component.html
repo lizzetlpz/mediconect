@@ -1,0 +1,209 @@
+<div class="dashboard-layout">
+  <!-- Sidebar Izquierdo -->
+  <aside class="sidebar">
+    <appD/>
+
+    <!-- User Profile -->
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">
+          D
+        </div>
+        <div class="user-info">
+          <p class="user-name">doc</p>
+          <p class="user-role">Médico</p>
+        </div>
+      </div>
+      <button class="btn-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Contenido Principal -->
+  <main class="main-content">
+    <div class="gestion-pacientes-container">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-content">
+          <h1>Gestión de Pacientes</h1>
+          <p>Administra los perfiles y datos de los pacientes registrados</p>
+        </div>
+        <button class="btn-agregar" (click)="abrirModalRegistro()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Agregar Paciente
+        </button>
+      </div>
+
+      <!-- Tarjetas de Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card stat-total">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Total Pacientes</p>
+            <p class="stat-value">{{ totalPacientes }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-alergias">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Con Alergias</p>
+            <p class="stat-value">{{ pacientesConAlergias }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-cronicas">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Cond. Crónicas</p>
+            <p class="stat-value">{{ pacientesConCondicionesCronicas }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-seguro">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <p class="stat-label">Con Seguro</p>
+            <p class="stat-value">{{ pacientesConSeguro }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Búsqueda -->
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input
+          type="text"
+          placeholder="Buscar paciente por nombre o teléfono..."
+          #searchInput
+          (input)="buscarPacientes(searchInput.value)">
+      </div>
+
+      <!-- Mensaje de Carga -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Cargando pacientes...</p>
+      </div>
+
+      <!-- Mensaje de Error -->
+      <div *ngIf="errorMessage && !isLoading" class="error-container">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>{{ errorMessage }}</p>
+        <button class="btn-retry" (click)="cargarPacientes()">Reintentar</button>
+      </div>
+
+      <!-- Lista de Pacientes -->
+      <div *ngIf="!isLoading && !errorMessage" class="pacientes-grid">
+        <!-- Sin Pacientes -->
+        <div *ngIf="pacientes.length === 0" class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <line x1="20" y1="8" x2="20" y2="14"></line>
+            <line x1="23" y1="11" x2="17" y2="11"></line>
+          </svg>
+          <h3>No hay pacientes registrados</h3>
+          <p>Comienza agregando tu primer paciente</p>
+          <button class="btn-primary" (click)="abrirModalRegistro()">
+            Agregar Primer Paciente
+          </button>
+        </div>
+
+        <!-- Tarjetas de Pacientes -->
+        <div *ngFor="let paciente of pacientes" class="paciente-card">
+          <!-- Avatar -->
+          <div class="paciente-avatar">
+            <div class="avatar-circle">
+              {{ paciente.iniciales }}
+            </div>
+          </div>
+
+          <!-- Información -->
+          <div class="paciente-info">
+            <h3 class="paciente-nombre">{{ paciente.nombre }}</h3>
+            <p class="paciente-edad">{{ paciente.edad }} años</p>
+          </div>
+
+          <!-- Tipo de Sangre -->
+          <div class="paciente-sangre" *ngIf="paciente.tipoSangre">
+            <span class="badge badge-sangre">{{ paciente.tipoSangre }}</span>
+          </div>
+
+          <!-- Contacto -->
+          <div class="paciente-contacto">
+            <div class="contacto-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              <span>{{ paciente.telefono }}</span>
+            </div>
+          </div>
+
+          <!-- Badges de Condiciones -->
+          <div class="paciente-badges">
+            <span *ngIf="paciente.tieneAlergias" class="badge badge-warning">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              </svg>
+              Alergias
+            </span>
+            <span *ngIf="paciente.tieneCondicionCronica" class="badge badge-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              Crónica
+            </span>
+            <span *ngIf="paciente.tieneSeguro" class="badge badge-success">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Seguro
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal de Registro -->
+<app-registrar-paciente
+  (pacienteRegistrado)="onPacienteRegistrado($event)">
+</app-registrar-paciente>

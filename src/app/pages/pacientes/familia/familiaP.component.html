@@ -1,0 +1,124 @@
+<div class="familiaP-container">
+  <appP></appP>
+
+  <!-- Header -->
+  <div class="family-header">
+    <div class="header-left">
+      <span class="header-icon">👥</span>
+      <div class="header-title">
+        <h1>Plan Familiar</h1>
+        <p class="header-subtitle">Gestiona la salud de toda tu familia desde una sola cuenta</p>
+      </div>
+    </div>
+    <div class="buttons-header">
+      <button class="btn-registrar" (click)="registrarFamiliar()">
+        <span>👨‍👩‍👧</span>
+        <span>Agregar Familiar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div
+      class="stat-card"
+      *ngFor="let stat of statCards"
+      [ngClass]="stat.colorClass"
+    >
+      <div class="stat-content">
+        <h3>{{ stat.title }}</h3>
+        <div class="stat-value">{{ stat.value }}</div>
+      </div>
+      <div class="stat-icon">{{ stat.icon }}</div>
+    </div>
+  </div>
+
+  <!-- Benefits Card -->
+  <div class="benefits-card">
+    <div class="benefits-header">
+      <div class="benefits-icon">🛡️</div>
+      <h2 class="benefits-title">
+        <span>✨</span>
+        <span>Beneficios del Plan Familiar</span>
+      </h2>
+    </div>
+    <div class="benefits-grid">
+      <div class="benefit-item" *ngFor="let benefit of benefits">
+        <span class="benefit-icon">{{ benefit.icon }}</span>
+        <span class="benefit-text">{{ benefit.text }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Familiares List -->
+  <div class="familiares-section">
+    <h2 class="familiares-title">Mis Familiares</h2>
+    
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="familiares.length === 0">
+      <div class="empty-icon">👥</div>
+      <h2 class="empty-title">¡Comienza tu Plan Familiar!</h2>
+      <p class="empty-description">
+        Agrega a tus hijos, pareja o familiares para gestionar la salud<br />
+        de toda tu familia desde una sola cuenta
+      </p>
+    </div>
+
+    <!-- Familiares Grid -->
+    <div class="familiares-grid" *ngIf="familiares.length > 0">
+      <div class="familiar-card" *ngFor="let familiar of familiares">
+        <div class="familiar-header">
+          <div class="familiar-icon">👤</div>
+          <div class="familiar-info">
+            <h3 class="familiar-name">{{ familiar.nombre }}</h3>
+            <p class="familiar-relation">{{ familiar.relacion }}</p>
+          </div>
+        </div>
+        
+        <div class="familiar-details">
+          <div class="detail-row" *ngIf="familiar.fechaNacimiento">
+            <span class="detail-label">📅 Nacimiento:</span>
+            <span class="detail-value">{{ familiar.fechaNacimiento }}</span>
+          </div>
+          <div class="detail-row" *ngIf="familiar.tipoSangre">
+            <span class="detail-label">🩸 Tipo de sangre:</span>
+            <span class="detail-value">{{ familiar.tipoSangre }}</span>
+          </div>
+          <div class="detail-row" *ngIf="familiar.numeroCelular">
+            <span class="detail-label">📱 Teléfono:</span>
+            <span class="detail-value">{{ familiar.numeroCelular }}</span>
+          </div>
+          <div class="detail-row" *ngIf="familiar.enfermedades && familiar.enfermedades.length > 0">
+            <span class="detail-label">🏥 Enfermedades:</span>
+            <span class="detail-value">{{ familiar.enfermedades.join(', ') }}</span>
+          </div>
+          <div class="detail-row" *ngIf="familiar.alergias && familiar.alergias.length > 0">
+            <span class="detail-label">⚠️ Alergias:</span>
+            <span class="detail-value">{{ familiar.alergias.join(', ') }}</span>
+          </div>
+        </div>
+
+        <div class="familiar-permissions">
+          <div class="permission" *ngIf="familiar.puedeAgendarCitas">
+            <span class="permission-badge">✅ Puede agendar citas</span>
+          </div>
+          <div class="permission" *ngIf="familiar.puedeVerHistorial">
+            <span class="permission-badge">✅ Ver historial</span>
+          </div>
+        </div>
+
+        <div class="familiar-actions">
+          <button class="btn-action btn-edit" (click)="editarFamiliar(familiar)">✏️ Editar</button>
+          <button class="btn-action btn-delete" (click)="eliminarFamiliar(familiar)">🗑️ Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Registrar Familiar -->
+<app-registrar-familiar (familiarAgregado)="onFamiliarAgregado($event)"></app-registrar-familiar>
+
+<!-- Modal Editar Familiar -->
+<app-editar-familiar (familiarActualizado)="onFamiliarActualizado($event)"></app-editar-familiar>
+

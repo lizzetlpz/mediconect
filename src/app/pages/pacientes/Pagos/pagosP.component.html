@@ -1,0 +1,177 @@
+<appP/>
+<div class="container">
+    <div class="header">
+        <h1 class="title">Mis Pagos</h1>
+        <p class="subtitle">Historial de tus pagos y facturas de consultas</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card stat-card-green">
+            <div class="stat-content">
+                <div>
+                    <p class="stat-label">Total Pagado</p>
+                    <p class="stat-value">{{ estadisticas.totalPagado | currency:'MXN':'symbol-narrow' }}</p>
+                </div>
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="stat-card stat-card-blue">
+            <div class="stat-content">
+                <div>
+                    <p class="stat-label">Completados</p>
+                    <p class="stat-value">{{ estadisticas.completados }}</p>
+                </div>
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div class="stat-card stat-card-yellow">
+            <div class="stat-content">
+                <div>
+                    <p class="stat-label">Pendientes</p>
+                    <p class="stat-value">{{ estadisticas.pendientes }}</p>
+                </div>
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+            </div>
+        </div>
+
+        <div class="stat-card stat-card-red">
+            <div class="stat-content">
+                <div>
+                    <p class="stat-label">Fallidos</p>
+                    <p class="stat-value">{{ estadisticas.fallidos }}</p>
+                </div>
+                <svg class="stat-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="search-section">
+        <div class="search-input-wrapper">
+            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input
+                type="text"
+                class="search-input"
+                placeholder="Buscar por descripción, transacción o factura..."
+                [(ngModel)]="searchQuery"
+                (input)="onSearch()"
+            />
+        </div>
+
+        <div class="filters">
+            <button
+                class="filter-btn"
+                [class.filter-btn-active]="activeFilter === 'Todos'"
+                (click)="setFilter('Todos')">
+                Todos
+            </button>
+            <button
+                class="filter-btn"
+                [class.filter-btn-active]="activeFilter === 'Completados'"
+                (click)="setFilter('Completados')">
+                Completados
+            </button>
+            <button
+                class="filter-btn"
+                [class.filter-btn-active]="activeFilter === 'Pendientes'"
+                (click)="setFilter('Pendientes')">
+                Pendientes
+            </button>
+            <button
+                class="filter-btn"
+                [class.filter-btn-active]="activeFilter === 'Fallidos'"
+                (click)="setFilter('Fallidos')">
+                Fallidos
+            </button>
+        </div>
+    </div>
+
+    <!-- Payments List -->
+    <div class="payments-list">
+        <ng-container *ngIf="pagosFiltrados.length > 0; else emptyState">
+            <div class="payment-card" *ngFor="let pago of pagosFiltrados">
+                <div class="payment-header">
+                    <div class="payment-amount-section">
+                        <span class="payment-amount">{{ pago.monto | currency:'MXN':'symbol-narrow' }}</span>
+                        <span class="payment-status" [ngClass]="getStatusClass(pago.estado)">
+                            <span [innerHTML]="getStatusIcon(pago.estado)"></span>
+                            {{ pago.estado }}
+                        </span>
+                    </div>
+                    <button class="btn-factura" (click)="descargarFactura(pago)">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Factura
+                    </button>
+                </div>
+
+                <p class="payment-description">{{ pago.descripcion }}</p>
+
+                <div class="payment-details">
+                    <div class="details-section">
+                        <h4 class="section-title">Detalles del Pago</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">ID Transacción:</span>
+                            <span class="detail-value">{{ pago.transaccion }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Método:</span>
+                            <span class="detail-value">{{ pago.metodo }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Fecha:</span>
+                            <span class="detail-value">{{ pago.fecha }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Factura:</span>
+                            <span class="detail-value">{{ pago.factura }}</span>
+                        </div>
+                    </div>
+
+                    <div class="details-section">
+                        <h4 class="section-title">Información de la Consulta</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">Médico:</span>
+                            <span class="detail-value">{{ pago.medico }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Fecha Cita:</span>
+                            <span class="detail-value">{{ pago.fechaCita }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Motivo:</span>
+                            <span class="detail-value">{{ pago.motivo }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-template #emptyState>
+            <div class="empty-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p>No se encontraron pagos</p>
+            </div>
+        </ng-template>
+    </div>
+</div>

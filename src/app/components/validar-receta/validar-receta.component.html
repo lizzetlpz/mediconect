@@ -1,0 +1,275 @@
+<div class="validar-receta-container">
+  <!-- Header -->
+  <div class="header-section">
+    <h2>🏥 Validación de Recetas Médicas</h2>
+    <p class="subtitle">Sistema de verificación para farmacias</p>
+  </div>
+
+  <!-- Formulario de validación -->
+  <div class="validation-form">
+    <div class="form-group">
+      <label for="codigo">Código de Validación:</label>
+      <div class="input-group">
+        <input 
+          type="text" 
+          id="codigo" 
+          [(ngModel)]="codigoValidacion" 
+          placeholder="RX-XXXXXX-XXXXXX"
+          class="form-control"
+          [disabled]="cargando"
+          (keyup.enter)="validarReceta()"
+          maxlength="20">
+        <button 
+          (click)="validarReceta()" 
+          [disabled]="cargando || !codigoValidacion.trim()"
+          class="btn btn-primary">
+          <span *ngIf="cargando">⏳ Validando...</span>
+          <span *ngIf="!cargando">🔍 Validar</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mensaje de validación -->
+    <div *ngIf="mensajeValidacion" 
+         class="alert" 
+         [class.alert-success]="esValida" 
+         [class.alert-danger]="!esValida">
+      {{ mensajeValidacion }}
+    </div>
+  </div>
+
+  <!-- Información de la receta validada -->
+  <div *ngIf="recetaValidada && esValida" class="receta-info">
+    
+    <!-- Datos generales -->
+    <div class="info-card">
+      <h3>📋 Información de la Receta</h3>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Código:</span>
+          <span class="value codigo">{{ recetaValidada.codigo_validacion }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="label">Estado:</span>
+          <span class="value estado" [class]="'estado-' + recetaValidada.estado">
+            {{ recetaValidada.estado | uppercase }}
+          </span>
+        </div>
+        
+        <div class="info-item">
+          <span class="label">Médico:</span>
+          <span class="value">{{ recetaValidada.medico_nombre || 'No disponible' }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="label">Paciente:</span>
+          <span class="value">{{ recetaValidada.paciente_nombre || 'No disponible' }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="label">Fecha Emisión:</span>
+          <span class="value">{{ formatearFecha(recetaValidada.fecha_emision) }}</span>
+        </div>
+        
+        <div class="info-item">
+          <span class="label">Fecha Vencimiento:</span>
+          <span class="value" [class.text-warning]="estaPorVencer(recetaValidada)" 
+                [class.text-danger]="getDiasRestantes(recetaValidada) <= 0">
+            {{ formatearFecha(recetaValidada.fecha_vencimiento) }}
+            <small *ngIf="getDiasRestantes(recetaValidada) > 0" class="dias-restantes">
+              ({{ getDiasRestantes(recetaValidada) }} días restantes)
+            </small>
+            <small *ngIf="getDiasRestantes(recetaValidada) <= 0" class="dias-restantes text-danger">
+              (VENCIDA)
+            </small>
+          </span>
+        </div>
+      </div>
+
+      <!-- Alerta si está por vencer -->
+      <div *ngIf="estaPorVencer(recetaValidada)" class="alert alert-warning">
+        ⚠️ Esta receta está próxima a vencer. Proceda con precaución.
+      </div>
+    </div>
+
+    <!-- Medicamentos -->
+    <div class="info-card">
+      <h3>💊 Medicamentos Prescritos</h3>
+      
+      <div *ngIf="recetaValidada.medicamentos && recetaValidada.medicamentos.length > 0; else noMedicamentos" 
+           class="medicamentos-list">
+        <div *ngFor="let med of recetaValidada.medicamentos; let i = index" 
+             class="medicamento-item">
+          <div class="medicamento-header">
+            <span class="medicamento-numero">{{ i + 1 }}</span>
+            <h4>{{ med.nombre }}</h4>
+            <span *ngIf="med.concentracion" class="concentracion">{{ med.concentracion }}</span>
+          </div>
+          
+          <div class="medicamento-details">
+            <div class="detail-row">
+              <span class="detail-label">Forma:</span>
+              <span class="detail-value">{{ med.forma_farmaceutica || 'No especificada' }}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span class="detail-label">Cantidad:</span>
+              <span class="detail-value cantidad">{{ med.cantidad }}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span class="detail-label">Vía:</span>
+              <span class="detail-value">{{ med.via_administracion || 'No especificada' }}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span class="detail-label">Frecuencia:</span>
+              <span class="detail-value frecuencia">{{ med.frecuencia }}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span class="detail-label">Duración:</span>
+              <span class="detail-value duracion">{{ med.duracion }}</span>
+            </div>
+            
+            <div *ngIf="med.indicaciones_especiales" class="detail-row indicaciones">
+              <span class="detail-label">Indicaciones:</span>
+              <span class="detail-value">{{ med.indicaciones_especiales }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <ng-template #noMedicamentos>
+        <p class="no-data">No hay medicamentos registrados en esta receta.</p>
+      </ng-template>
+    </div>
+
+    <!-- Instrucciones generales -->
+    <div *ngIf="recetaValidada.instrucciones" class="info-card">
+      <h3>📝 Instrucciones Generales</h3>
+      <div class="instrucciones-content">
+        {{ recetaValidada.instrucciones }}
+      </div>
+    </div>
+
+    <!-- Observaciones médicas -->
+    <div *ngIf="recetaValidada.observaciones" class="info-card">
+      <h3>🩺 Observaciones Médicas</h3>
+      <div class="observaciones-content">
+        {{ recetaValidada.observaciones }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de farmacia -->
+  <div *ngIf="mostrarFormularioFarmacia && recetaValidada?.estado === 'activa'" class="farmacia-form">
+    <div class="info-card">
+      <h3>🏪 Información de Dispensación</h3>
+      
+      <form (ngSubmit)="utilizarReceta()" #farmaciaForm="ngForm">
+        <div class="form-group">
+          <label for="nombreFarmacia">Nombre de la Farmacia *:</label>
+          <input 
+            type="text" 
+            id="nombreFarmacia"
+            [(ngModel)]="farmaciaInfo.nombre_farmacia"
+            name="nombreFarmacia"
+            class="form-control"
+            required
+            placeholder="Ej: Farmacia Central, Cruz Verde, etc."
+            [disabled]="cargando">
+        </div>
+
+        <div class="form-group">
+          <label for="farmaceutico">Farmacéutico Responsable *:</label>
+          <input 
+            type="text" 
+            id="farmaceutico"
+            [(ngModel)]="farmaciaInfo.farmaceutico_responsable"
+            name="farmaceutico"
+            class="form-control"
+            required
+            placeholder="Nombre completo del farmacéutico"
+            [disabled]="cargando">
+        </div>
+
+        <div class="form-group">
+          <label for="observaciones">Observaciones (opcional):</label>
+          <textarea 
+            id="observaciones"
+            [(ngModel)]="farmaciaInfo.observaciones"
+            name="observaciones"
+            class="form-control"
+            rows="3"
+            placeholder="Observaciones sobre la dispensación..."
+            [disabled]="cargando"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="button" 
+            (click)="resetearFormulario()" 
+            class="btn btn-secondary"
+            [disabled]="cargando">
+            🔄 Cancelar
+          </button>
+          
+          <button 
+            type="submit" 
+            class="btn btn-success"
+            [disabled]="cargando || farmaciaForm.invalid">
+            <span *ngIf="cargando">⏳ Dispensando...</span>
+            <span *ngIf="!cargando">✅ Dispensar Medicamentos</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Advertencia importante -->
+      <div class="alert alert-warning mt-3">
+        <strong>⚠️ IMPORTANTE:</strong> Una vez dispensados los medicamentos, la receta será marcada como utilizada 
+        y NO podrá ser usada nuevamente. Asegúrese de que toda la información sea correcta antes de continuar.
+      </div>
+    </div>
+  </div>
+
+  <!-- Información si ya fue utilizada -->
+  <div *ngIf="recetaValidada && recetaValidada.estado === 'utilizada'" class="info-card dispensacion-info">
+    <h3>✅ Receta Ya Dispensada</h3>
+    
+    <div class="dispensacion-details">
+      <div class="detail-row">
+        <span class="detail-label">Farmacia:</span>
+        <span class="detail-value">{{ recetaValidada.farmacia_utilizada || 'No registrada' }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <span class="detail-label">Farmacéutico:</span>
+        <span class="detail-value">{{ recetaValidada.farmaceutico_responsable || 'No registrado' }}</span>
+      </div>
+      
+      <div class="detail-row">
+        <span class="detail-label">Fecha de dispensación:</span>
+        <span class="detail-value">{{ formatearFecha(recetaValidada.fecha_utilizacion) }}</span>
+      </div>
+      
+      <div *ngIf="recetaValidada.observaciones_farmacia" class="detail-row">
+        <span class="detail-label">Observaciones:</span>
+        <span class="detail-value">{{ recetaValidada.observaciones_farmacia }}</span>
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <strong>ℹ️ Esta receta ya fue utilizada</strong> y no puede ser dispensada nuevamente.
+    </div>
+  </div>
+
+  <!-- Botón para nueva búsqueda -->
+  <div *ngIf="recetaValidada" class="actions-section">
+    <button (click)="resetearFormulario()" class="btn btn-outline-primary">
+      🔍 Validar Nueva Receta
+    </button>
+  </div>
+</div>

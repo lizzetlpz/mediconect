@@ -1,0 +1,187 @@
+<!-- Layout con Sidebar -->
+<div class="dashboard-layout">
+  <!-- Sidebar del Paciente -->
+  <appP/>
+  
+  <div class="consultas-container">
+    <div class="header">
+      <h1><i class="fas fa-comments"></i>Mis Consultas</h1>
+      <p class="subtitle">Consultas activas y chat con tu médico</p>
+    </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando consultas...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-container">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>{{ error }}</p>
+    <button (click)="cargarConsultas()" class="btn-retry">
+      <i class="fas fa-redo"></i>
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Layout principal -->
+  <div *ngIf="!loading && !error" class="main-layout">
+    <!-- Lista de consultas -->
+    <div class="consultas-list">
+      <div class="list-header">
+        <h2>Consultas Disponibles</h2>
+        <span class="count">{{ consultasFiltradas.length }} consulta(s)</span>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="consultasFiltradas.length === 0 && !searchQuery" class="empty-state">
+        <i class="fas fa-calendar-plus"></i>
+        <h3>No hay consultas activas</h3>
+        <p>No tienes consultas confirmadas o en progreso en este momento.</p>
+      </div>
+
+      <!-- Empty Search Results -->
+      <div *ngIf="consultasFiltradas.length === 0 && searchQuery" class="empty-state">
+        <i class="fas fa-search"></i>
+        <h3>No se encontraron consultas</h3>
+        <p>No hay consultas que coincidan con "{{ searchQuery }}"</p>
+      </div>
+
+      <!-- Lista de consultas -->
+      <div class="consultas-grid">
+        <div
+          *ngFor="let consulta of consultasFiltradas"
+          class="consulta-card"
+          [class.active]="isConsultaActive(consulta)"
+          (click)="selectConsulta(consulta)">
+          
+          <!-- Header de la consulta -->
+          <div class="consulta-header">
+            <div class="medico-info">
+              <div class="medico-avatar">
+                {{ getMedicoIniciales(consulta.medico.nombre) }}
+              </div>
+              <div class="medico-details">
+                <h4>{{ consulta.medico.nombre }}</h4>
+                <span class="especialidad">{{ consulta.medico.especialidad || 'Medicina General' }}</span>
+              </div>
+            </div>
+            <div class="consulta-status">
+              <span class="status-badge" [ngClass]="getStatusClass(consulta.estado)">
+                {{ getStatusText(consulta.estado) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Información de la consulta -->
+          <div class="consulta-info">
+            <div class="info-row">
+              <i class="fas fa-calendar"></i>
+              <span>{{ consulta.fecha }} - {{ consulta.hora }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fas fa-stethoscope"></i>
+              <span>{{ consulta.motivo }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fas" [class.fa-video]="esVideollamada(consulta)" [class.fa-comments]="!esVideollamada(consulta)"></i>
+              <span>{{ esVideollamada(consulta) ? 'Videollamada' : 'Chat' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de chat -->
+    <div class="chat-panel">
+      <!-- Estado sin consulta seleccionada -->
+      <div *ngIf="!consultaActiva" class="no-consulta-selected">
+        <div class="empty-state">
+          <i class="fas fa-comments"></i>
+          <h3>Selecciona una consulta</h3>
+          <p>Elige una consulta de la lista para comenzar el chat con tu médico</p>
+        </div>
+      </div>
+
+          <!-- Chat activo -->
+          <div *ngIf="consultaActiva">
+            <!-- Header del chat -->
+            <div class="chat-header">
+              <div class="chat-info">
+                <div class="medico-avatar-small">
+                  {{ getMedicoIniciales(consultaActiva.medico.nombre) }}
+                </div>
+                <div class="chat-details">
+                  <h3>{{ consultaActiva.medico.nombre }}</h3>
+                  <p>{{ consultaActiva.motivo }}</p>
+                </div>
+              </div>
+              <div class="chat-status">
+                <div class="connection-indicator" [class.connected]="chatConectado" [class.disconnected]="!chatConectado">
+                  <i class="fas fa-circle"></i>
+                  {{ chatConectado ? 'Conectado' : 'Desconectado' }}
+                </div>
+                
+                <button class="btn-close" (click)="salirDeConsulta()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>        <!-- Mensajes del chat -->
+        <div class="chat-messages" #chatMessages>
+          <!-- Estado vacío del chat -->
+          <div *ngIf="mensajes.length === 0" class="chat-empty">
+            <i class="fas fa-comments"></i>
+            <h4>Inicia la conversación</h4>
+            <p *ngIf="consultaActiva.estado === 'confirmada'">
+              Espera a que tu médico inicie la consulta para comenzar el chat.
+            </p>
+            <p *ngIf="consultaActiva.estado === 'en_progreso'">
+              Puedes empezar a escribir mensajes ahora.
+            </p>
+          </div>
+
+          <!-- Lista de mensajes -->
+          <div *ngFor="let mensaje of mensajes" class="message" [class.own]="mensaje.remitente === 'paciente'" [class.other]="mensaje.remitente === 'medico'">
+            <div class="message-avatar">
+              {{ getIniciales(mensaje.nombre) }}
+            </div>
+            <div class="message-content">
+              <div class="message-header">
+                <span class="message-author">{{ mensaje.nombre }}</span>
+                <span class="message-time">{{ formatearTiempoMensaje(mensaje.timestamp) }}</span>
+              </div>
+              <div class="message-text">{{ mensaje.texto }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input para nuevos mensajes -->
+        <div class="chat-input-container">
+          <!-- Mensaje de estado si no puede chatear -->
+          <div *ngIf="!puedeIniciarChat()" class="chat-disabled">
+            <i class="fas fa-info-circle"></i>
+            <span>Espera a que el médico inicie la consulta para poder chatear</span>
+          </div>
+
+          <!-- Input de chat activo -->
+          <div *ngIf="puedeIniciarChat()" class="chat-input">
+            <textarea
+              [(ngModel)]="nuevoMensaje"
+              (keydown)="onKeyPress($event)"
+              placeholder="Escribe tu mensaje..."
+              rows="2"
+              [disabled]="!chatConectado">
+            </textarea>
+            <button 
+              (click)="sendMessage()"
+              [disabled]="!nuevoMensaje.trim() || !chatConectado"
+              class="btn-send">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

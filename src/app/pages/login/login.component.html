@@ -1,0 +1,73 @@
+<div class="login-container">
+  <div class="login-box">
+    <div class="logo-section">
+      <h1 class="logo">MediConnect</h1>
+      <p class="subtitle">Inicia sesión en tu cuenta</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+      <!-- CORREO -->
+      <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="tu@email.com"
+          class="input-field"
+          [class.error]="email?.invalid && email?.touched">
+        <span class="error-text" *ngIf="email?.hasError('required') && email?.touched">
+          El correo es requerido
+        </span>
+        <span class="error-text" *ngIf="email?.hasError('email') && email?.touched">
+          Ingresa un correo válido
+        </span>
+      </div>
+
+      <!-- CONTRASEÑA -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="••••••••"
+          class="input-field"
+          [class.error]="password?.invalid && password?.touched">
+        <span class="error-text" *ngIf="password?.hasError('required') && password?.touched">
+          La contraseña es requerida
+        </span>
+        <span class="error-text" *ngIf="password?.hasError('minlength') && password?.touched">
+          Mínimo 8 caracteres
+        </span>
+      </div>
+
+      <!-- MENSAJE DE ERROR GENERAL -->
+      <div class="alert alert-error" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- BOTÓN LOGIN -->
+      <button type="submit" class="submit-btn" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Iniciar Sesión</span>
+        <span *ngIf="isLoading">Iniciando sesión...</span>
+      </button>
+
+      <!-- DIVIDER -->
+      <div class="divider">
+        <span>o</span>
+      </div>
+
+      <!-- GOOGLE LOGIN -->
+      <button type="button" class="google-btn" (click)="loginWithGoogle()">
+        <img src="assets/google-icon.svg" alt="Google" *ngIf="false">
+        Continuar con Google
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <p>¿No tienes cuenta? <a routerLink="/register">Regístrate aquí</a></p>
+    </div>
+  </div>
+</div>

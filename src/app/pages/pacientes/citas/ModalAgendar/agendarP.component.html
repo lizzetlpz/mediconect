@@ -1,0 +1,207 @@
+<!-- Modal Nueva Cita -->
+<div class="modal-overlay" *ngIf="show" (click)="onOverlayClick($event)">
+  <div class="modal-container">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="modal-title-wrapper">
+        <svg class="modal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <h2 class="modal-title">Nueva Cita Médica</h2>
+      </div>
+      <button class="modal-close-btn" type="button" (click)="closeModal()">
+        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <form class="modal-form">
+        <!-- Row 1: Paciente y Médico -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              Paciente <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="nuevaCita.paciente"
+              name="paciente"
+              placeholder="Nombre del paciente"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              Médico <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="nuevaCita.medico"
+              name="medico"
+              placeholder="Nombre del médico"
+              required>
+          </div>
+        </div>
+
+        <!-- Row 2: Fecha y Hora -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              Fecha de la Cita <span class="required">*</span>
+            </label>
+            <input
+              type="date"
+              class="form-input"
+              [(ngModel)]="nuevaCita.fecha"
+              name="fecha"
+              required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              Hora <span class="required">*</span>
+            </label>
+            <input
+              type="time"
+              class="form-input"
+              [(ngModel)]="nuevaCita.hora"
+              name="hora"
+              required>
+          </div>
+        </div>
+
+        <!-- Row 3: Tipo de Consulta y Motivo -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tipo de Consulta</label>
+            <select
+              class="form-select"
+              [(ngModel)]="nuevaCita.tipoConsulta"
+              name="tipoConsulta">
+              <option value="Chat de Texto">Chat de Texto</option>
+              <option value="Videollamada">Videollamada</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              Motivo de la Consulta <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="nuevaCita.motivo"
+              name="motivo"
+              placeholder="Ej: Consulta general, dolor de cabeza..."
+              required>
+          </div>
+        </div>
+
+        <!-- Row 4: Síntomas -->
+        <div class="form-group">
+          <label class="form-label">Síntomas</label>
+          <textarea
+            class="form-textarea"
+            [(ngModel)]="nuevaCita.sintomas"
+            name="sintomas"
+            rows="3"
+            placeholder="Describe los síntomas que presentas..."></textarea>
+        </div>
+
+        <!-- Row 5: Tipo de Sangre y Dirección -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tipo de Sangre</label>
+            <select
+              class="form-select"
+              [(ngModel)]="nuevaCita.tipoSangre"
+              name="tipoSangre">
+              <option value="">Seleccionar tipo de sangre</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Dirección</label>
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="nuevaCita.direccion"
+              name="direccion"
+              placeholder="Dirección completa">
+          </div>
+        </div>
+
+        <!-- Row 6: Contacto de Emergencia y Teléfono -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Contacto de Emergencia</label>
+            <input
+              type="text"
+              class="form-input"
+              [(ngModel)]="nuevaCita.contactoEmergencia"
+              name="contactoEmergencia"
+              placeholder="Nombre completo">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Teléfono de Emergencia</label>
+            <input
+              type="tel"
+              class="form-input"
+              [(ngModel)]="nuevaCita.telefonoEmergencia"
+              name="telefonoEmergencia"
+              placeholder="+52 55 1234 5678">
+          </div>
+        </div>
+
+        <!-- Row 6: Notas Adicionales -->
+        <div class="form-group">
+          <label class="form-label">Notas Adicionales</label>
+          <textarea
+            class="form-textarea"
+            [(ngModel)]="nuevaCita.notas"
+            name="notas"
+            rows="3"
+            placeholder="Información adicional relevante para el médico..."></textarea>
+        </div>
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-cancelar" type="button" (click)="closeModal()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Cancelar
+      </button>
+      <button class="btn-crear" type="button" (click)="crearCita()">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        Crear Cita
+      </button>
+    </div>
+  </div>
+</div>

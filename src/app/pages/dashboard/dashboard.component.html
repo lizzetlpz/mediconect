@@ -1,0 +1,151 @@
+<div class="dashboard-wrapper">
+<appP/>
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="dashboard-container">
+      <!-- Header -->
+      <div class="dashboard-header">
+        <div>
+          <h1>Hola de nuevo, {{ currentUser?.nombre || 'Usuario' }} 👋</h1>
+          <p class="subtitle">Tu salud es nuestra prioridad. Aquí tienes un resumen de tu actividad.</p>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="dashboard-grid">
+        <!-- Left Column -->
+        <div class="left-column">
+          <!-- Next Appointment Card -->
+          <div class="card appointment-card">
+            <div class="card-header">
+              <div class="header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+              <h2>Tu Próxima Cita</h2>
+            </div>
+
+            <div class="card-content">
+              <div class="empty-state" *ngIf="!nextAppointment">
+                <p class="empty-message">No tienes citas programadas.</p>
+                <button class="btn-primary" (click)="searchSpecialist()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                  </svg>
+                  Agendar Cita
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medical History Card -->
+          <div class="card history-card">
+            <div class="card-header">
+              <div class="header-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              </div>
+              <h2>Historial Reciente</h2>
+              <button class="btn-link" (click)="goTo('/paciente/historial')">Ver Todo</button>
+            </div>
+
+            <div class="card-content">
+              <div class="empty-state history-empty" *ngIf="recentRecords.length === 0">
+                <p class="empty-message-dark">No hay registros médicos.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+          <!-- Activity Summary Card -->
+          <div class="card activity-card">
+            <div class="card-header">
+              <div class="header-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+              </div>
+              <h2>Resumen de Actividad</h2>
+            </div>
+
+            <div class="card-content">
+              <div class="chart-container">
+                <div class="chart">
+                  <div class="chart-bars">
+                    <div class="bar-wrapper" *ngFor="let data of activityData">
+                      <div class="bar" [style.height]="getChartHeight(data.value)">
+                        <div class="bar-fill"></div>
+                        <div class="bar-dot"></div>
+                      </div>
+                      <span class="bar-label">{{ data.month }}</span>
+                    </div>
+                  </div>
+
+                  <div class="chart-grid">
+                    <div class="grid-line" *ngFor="let i of [0,1,2,3,4]"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions Card -->
+          <div class="card actions-card">
+            <div class="card-header">
+              <h2>Acciones Rápidas</h2>
+            </div>
+
+            <div class="card-content">
+              <div class="actions-list">
+                <button
+                  class="action-item"
+                  *ngFor="let action of quickActions"
+                  (click)="goTo(action.route)"
+                >
+                  <div class="action-icon" [style.background-color]="action.bgColor">
+                    <span [style.color]="action.iconColor">{{ action.icon }}</span>
+                  </div>
+                  <div class="action-content">
+                    <h3>{{ action.title }}</h3>
+                    <p>{{ action.subtitle }}</p>
+                  </div>
+                  <svg class="action-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Medical Assistant Card -->
+          <div class="card ai-chat-card">
+            <div class="card-header">
+              <div class="header-icon ai-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                </svg>
+              </div>
+              <h2>Asistente Médico IA</h2>
+            </div>
+
+            <div class="card-content ai-chat-content">
+              <app-medical-ai-chat></app-medical-ai-chat>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

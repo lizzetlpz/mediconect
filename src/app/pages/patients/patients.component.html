@@ -1,0 +1,75 @@
+<!-- patients.component.html -->
+<div class="patients-container">
+  <appD></appD>
+
+  <div class="main-content">
+    <app-navbar></app-navbar>
+
+    <!-- Header -->
+    <div class="patients-header">
+      <h1>Mis Pacientes</h1>
+      <div class="search-box">
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          placeholder="Buscar por nombre o email..."
+          class="search-input">
+      </div>
+    </div>
+
+    <!-- Lista de Pacientes -->
+    <div class="patients-grid">
+      <div
+        *ngFor="let patient of filteredPatients"
+        class="patient-card"
+        [class.selected]="selectedPatient?.usuario_id === patient.usuario_id"
+        (click)="selectPatient(patient)">
+
+        <div class="patient-avatar">
+          {{ patient.nombre.charAt(0) }}{{ patient.apellido_paterno.charAt(0) }}
+        </div>
+
+        <div class="patient-info">
+          <h3>{{ getFullName(patient) }}</h3>
+          <p class="email">{{ patient.email }}</p>
+        </div>
+
+        <div class="patient-actions">
+          <button class="btn-view">Ver Perfil</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje si no hay pacientes -->
+    <div *ngIf="filteredPatients.length === 0" class="no-patients">
+      <p>No se encontraron pacientes</p>
+    </div>
+
+    <!-- Panel de detalles del paciente seleccionado -->
+    <div *ngIf="selectedPatient" class="patient-details-panel">
+      <div class="panel-header">
+        <h2>{{ getFullName(selectedPatient) }}</h2>
+        <button class="btn-close" (click)="selectedPatient = null">✕</button>
+      </div>
+
+      <div class="panel-content">
+        <div class="detail-row">
+          <span class="label">Email:</span>
+          <span>{{ selectedPatient.email }}</span>
+        </div>
+
+        <div class="detail-row" *ngIf="selectedPatient.fecha_registro">
+          <span class="label">Registrado:</span>
+          <span>{{ selectedPatient.fecha_registro | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <div class="detail-row">
+          <span class="label">Estado:</span>
+          <span class="badge" [class.active]="selectedPatient.activo === 1">
+            {{ selectedPatient.activo === 1 ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,180 @@
+<div class="video-call-container" *ngIf="isCallActive">
+  <!-- Header de la videollamada -->
+  <div class="call-header">
+    <div class="call-info">
+      <div class="participant-info">
+        <i class="fas fa-video"></i>
+        <span>Videollamada con {{ participantName }}</span>
+      </div>
+      <div class="call-duration">
+        {{ formatCallDuration(callStartTime) }}
+      </div>
+    </div>
+    <div class="call-status">
+      <span class="status-indicator" [class]="connectionState">
+        {{ getConnectionStatusText() }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Videos -->
+  <div class="videos-container">
+    <!-- Video remoto (principal) -->
+    <div class="remote-video-container">
+      <video 
+        #remoteVideo 
+        class="remote-video"
+        autoplay 
+        playsinline>
+      </video>
+      <div class="remote-video-overlay" *ngIf="!remoteStream">
+        <div class="waiting-message">
+          <i class="fas fa-user-circle"></i>
+          <p>Esperando a {{ participantName }}...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video local (miniatura) -->
+    <div class="local-video-container" [class.screen-sharing]="isScreenSharing">
+      <video 
+        #localVideo 
+        class="local-video"
+        autoplay 
+        playsinline 
+        muted>
+      </video>
+      <div class="local-video-overlay" *ngIf="!isVideoEnabled">
+        <i class="fas fa-video-slash"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controles de la llamada -->
+  <div class="call-controls">
+    <div class="primary-controls">
+      <!-- Control de video -->
+      <button 
+        class="control-btn video-btn"
+        [class.disabled]="!isVideoEnabled"
+        (click)="toggleVideo()"
+        title="{{ isVideoEnabled ? 'Desactivar video' : 'Activar video' }}">
+        <i class="fas" [class.fa-video]="isVideoEnabled" [class.fa-video-slash]="!isVideoEnabled"></i>
+      </button>
+
+      <!-- Control de audio -->
+      <button 
+        class="control-btn audio-btn"
+        [class.disabled]="!isAudioEnabled"
+        (click)="toggleAudio()"
+        title="{{ isAudioEnabled ? 'Silenciar micrófono' : 'Activar micrófono' }}">
+        <i class="fas" [class.fa-microphone]="isAudioEnabled" [class.fa-microphone-slash]="!isAudioEnabled"></i>
+      </button>
+
+      <!-- Compartir pantalla -->
+      <button 
+        class="control-btn screen-btn"
+        [class.active]="isScreenSharing"
+        (click)="toggleScreenShare()"
+        title="{{ isScreenSharing ? 'Dejar de compartir' : 'Compartir pantalla' }}">
+        <i class="fas fa-desktop"></i>
+      </button>
+
+      <!-- Terminar llamada -->
+      <button 
+        class="control-btn end-call-btn"
+        (click)="endCall()"
+        title="Terminar llamada">
+        <i class="fas fa-phone"></i>
+      </button>
+    </div>
+
+    <div class="secondary-controls">
+      <!-- Chat toggle -->
+      <button 
+        class="control-btn chat-btn"
+        [class.active]="showChat"
+        (click)="toggleChat()"
+        title="Mostrar/ocultar chat">
+        <i class="fas fa-comments"></i>
+        <span class="notification-badge" *ngIf="unreadMessages > 0">{{ unreadMessages }}</span>
+      </button>
+
+      <!-- Configuraciones -->
+      <button 
+        class="control-btn settings-btn"
+        (click)="openSettings()"
+        title="Configuraciones">
+        <i class="fas fa-cog"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Panel de chat lateral -->
+  <div class="chat-panel" [class.visible]="showChat">
+    <div class="chat-header">
+      <h3>Chat</h3>
+      <button class="close-chat" (click)="toggleChat()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="chat-messages" #chatMessagesContainer>
+      <div *ngFor="let mensaje of chatMessages" 
+           class="chat-message" 
+           [class.own]="mensaje.remitente === currentUserRole">
+        <div class="message-content">
+          <span class="sender-name">{{ mensaje.nombre }}</span>
+          <p class="message-text">{{ mensaje.texto }}</p>
+          <span class="message-time">{{ formatTime(mensaje.timestamp) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input">
+      <input 
+        type="text" 
+        [(ngModel)]="newMessage" 
+        (keydown.enter)="sendChatMessage()"
+        placeholder="Escribe un mensaje..."
+        maxlength="500">
+      <button (click)="sendChatMessage()" [disabled]="!newMessage.trim()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de llamada entrante -->
+<div class="incoming-call-modal" *ngIf="incomingCall">
+  <div class="modal-content">
+    <div class="caller-info">
+      <div class="caller-avatar">
+        <i class="fas fa-user-md" *ngIf="incomingCall.role === 'medico'"></i>
+        <i class="fas fa-user" *ngIf="incomingCall.role === 'paciente'"></i>
+      </div>
+      <h3>{{ incomingCall.callerName }}</h3>
+      <p>Videollamada entrante</p>
+    </div>
+
+    <div class="call-actions">
+      <button class="accept-btn" (click)="acceptCall()">
+        <i class="fas fa-video"></i>
+        Aceptar
+      </button>
+      <button class="decline-btn" (click)="declineCall()">
+        <i class="fas fa-phone"></i>
+        Rechazar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Botón flotante para iniciar videollamada -->
+<button 
+  class="start-video-call-btn"
+  *ngIf="canStartVideoCall && !isCallActive"
+  (click)="startVideoCall()"
+  title="Iniciar videollamada">
+  <i class="fas fa-video"></i>
+</button>

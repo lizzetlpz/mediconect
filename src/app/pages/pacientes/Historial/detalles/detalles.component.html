@@ -1,0 +1,75 @@
+<div class="modal-overlay" *ngIf="esVisible && registro" (click)="cerrar()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="header-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>Foto de la Receta</span>
+      </div>
+      <button class="close-btn" (click)="cerrar()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Foto de Receta Section -->
+      <div class="foto-receta-section" *ngIf="registroActual.fotoReceta">
+        <div class="foto-container">
+          <img [src]="registroActual.fotoReceta" alt="Foto de la receta" class="foto-receta">
+        </div>
+        
+        <!-- Download Button -->
+        <button class="btn-descargar" (click)="descargarFoto()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Descargar Imagen
+        </button>
+      </div>
+
+      <!-- Estudios Clínicos Section -->
+      <div class="estudios-section" *ngIf="registroActual.estudios && registroActual.estudios.length > 0">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="1"></circle>
+            <path d="M12 1v6m0 6v6"></path>
+            <path d="M4.22 4.22l4.24 4.24m5.08 0l4.24 4.24"></path>
+            <path d="M1 12h6m6 0h6"></path>
+            <path d="M4.22 19.78l4.24-4.24m5.08 0l4.24-4.24"></path>
+          </svg>
+          Laboratorios y Estudios Clínicos
+        </h2>
+        <div class="estudios-list">
+          <div class="estudio-card" *ngFor="let estudio of registroActual.estudios">
+            <div class="estudio-header">
+              <h3>{{ estudio.nombre }}</h3>
+            </div>
+            <div class="estudio-info">
+              <div class="info-item" *ngIf="estudio.tipo">
+                <span class="label">Tipo:</span>
+                <span class="value">{{ estudio.tipo }}</span>
+              </div>
+              <div class="info-item" *ngIf="estudio.descripcion">
+                <span class="label">Descripción:</span>
+                <span class="value">{{ estudio.descripcion }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="close-footer-btn" (click)="cerrar()">
+        &times; Cerrar
+      </button>
+    </div>
+
+  </div>
+</div>

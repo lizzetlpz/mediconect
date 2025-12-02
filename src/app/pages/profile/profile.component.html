@@ -1,0 +1,223 @@
+<!-- profile.component.html -->
+<app-navbar></app-navbar>
+
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="profile-header">
+      <div class="avatar-section">
+        <div class="avatar-circle">
+          {{ currentUser?.nombre?.charAt(0) }}{{ currentUser?.apellido_paterno?.charAt(0) }}
+        </div>
+        <div class="user-info">
+          <h2>{{ currentUser?.nombre }} {{ currentUser?.apellido_paterno }}</h2>
+          <p class="role-badge">{{ getRoleName() }}</p>
+          <p class="user-email">{{ currentUser?.email }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info-section" *ngIf="currentUser">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Usuario ID:</span>
+          <span class="value">{{ currentUser.usuario_id }}</span>
+        </div>
+        <div class="info-item" *ngIf="currentUser.fecha_nacimiento">
+          <span class="label">Edad:</span>
+          <span class="value">{{ calculateAge() }} años</span>
+        </div>
+        <div class="info-item" *ngIf="currentUser.fecha_registro">
+          <span class="label">Miembro desde:</span>
+          <span class="value">{{ currentUser.fecha_registro | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Estado:</span>
+          <span class="badge" [class.active]="currentUser.activo === 1">
+            {{ currentUser.activo === 1 ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de edición -->
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+      <h3>Editar Perfil</h3>
+
+      <!-- Fila de nombres -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre">Nombre *</label>
+          <input
+            id="nombre"
+            type="text"
+            formControlName="nombre"
+            placeholder="Juan"
+            [class.error]="nombre?.invalid && nombre?.touched">
+          <span class="error-text" *ngIf="nombre?.hasError('required') && nombre?.touched">
+            El nombre es requerido
+          </span>
+          <span class="error-text" *ngIf="nombre?.hasError('minlength') && nombre?.touched">
+            Mínimo 2 caracteres
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="apellido_paterno">Apellido Paterno *</label>
+          <input
+            id="apellido_paterno"
+            type="text"
+            formControlName="apellido_paterno"
+            placeholder="Pérez"
+            [class.error]="apellido_paterno?.invalid && apellido_paterno?.touched">
+          <span class="error-text" *ngIf="apellido_paterno?.hasError('required') && apellido_paterno?.touched">
+            El apellido paterno es requerido
+          </span>
+          <span class="error-text" *ngIf="apellido_paterno?.hasError('minlength') && apellido_paterno?.touched">
+            Mínimo 2 caracteres
+          </span>
+        </div>
+      </div>
+
+      <!-- Apellido materno -->
+      <div class="form-group">
+        <label for="apellido_materno">Apellido Materno</label>
+        <input
+          id="apellido_materno"
+          type="text"
+          formControlName="apellido_materno"
+          placeholder="González">
+      </div>
+
+      <!-- Email (deshabilitado) -->
+      <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          class="disabled-input">
+        <small class="helper-text">El correo electrónico no se puede modificar</small>
+      </div>
+
+      <!-- Teléfono -->
+      <div class="form-group">
+        <label for="telefono">Teléfono</label>
+        <input
+          id="telefono"
+          type="tel"
+          formControlName="telefono"
+          placeholder="6671234567"
+          [class.error]="telefono?.invalid && telefono?.touched">
+        <span class="error-text" *ngIf="telefono?.hasError('pattern') && telefono?.touched">
+          Formato inválido (10 dígitos)
+        </span>
+      </div>
+
+      <!-- Fecha de nacimiento -->
+      <div class="form-group">
+        <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+        <input
+          id="fecha_nacimiento"
+          type="date"
+          formControlName="fecha_nacimiento">
+      </div>
+
+      <!-- Mensajes -->
+      <div class="alert alert-success" *ngIf="successMessage">
+        ✓ {{ successMessage }}
+      </div>
+
+      <div class="alert alert-error" *ngIf="errorMessage">
+        ✗ {{ errorMessage }}
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <button type="submit" class="btn-primary" [disabled]="profileForm.invalid || isLoading">
+          <span *ngIf="!isLoading">Guardar Cambios</span>
+          <span *ngIf="isLoading">Guardando...</span>
+        </button>
+        <button type="button" class="btn-secondary" (click)="ngOnInit()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Historial de Pagos (Solo para pacientes) -->
+  <div class="historial-pagos-card" *ngIf="isPaciente">
+    <div class="historial-header">
+      <h3>📋 Historial de Pagos</h3>
+      <div class="filtro-state">
+        <button 
+          *ngFor="let estado of estadosFiltro" 
+          [class.activo]="filtroSeleccionado === estado"
+          (click)="actualizarFiltroSeleccion(estado)"
+          class="filtro-btn">
+          {{ estado === 'todos' ? 'Todos' : estado === 'completado' ? 'Completados' : 'Pendientes' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Resumen de pagos -->
+    <div class="pagos-resumen" *ngIf="pagosFiltrados.length > 0">
+      <div class="resumen-card">
+        <div class="resumen-item">
+          <span class="label">Total Pagado:</span>
+          <span class="valor">{{ totalPagado | currency }}</span>
+        </div>
+        <div class="resumen-item">
+          <span class="label">Total Pendiente:</span>
+          <span class="valor pendiente">{{ totalPendiente | currency }}</span>
+        </div>
+        <div class="resumen-item">
+          <span class="label">Número de Consultas:</span>
+          <span class="valor">{{ pagosFiltrados.length }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de pagos -->
+    <div class="pagos-tabla" *ngIf="pagosFiltrados.length > 0">
+      <div class="tabla-header">
+        <div class="col-fecha">Fecha Pago</div>
+        <div class="col-motivo">Consulta</div>
+        <div class="col-medico">Médico</div>
+        <div class="col-monto">Monto</div>
+        <div class="col-metodo">Método</div>
+        <div class="col-estado">Estado</div>
+        <div class="col-acciones">Acciones</div>
+      </div>
+
+      <div class="tabla-body">
+        <div class="tabla-row" *ngFor="let pago of pagosFiltrados">
+          <div class="col-fecha">{{ pago.fecha_pago | date:'dd/MM/yyyy' }}</div>
+          <div class="col-motivo">
+            <span class="motivo-text" [title]="pago.concepto">{{ pago.concepto | slice:0:30 }}</span>
+          </div>
+          <div class="col-medico">{{ pago.medico_nombre || 'Dr. Médico' }}</div>
+          <div class="col-monto"><strong>${{ pago.monto | number:'1.2-2' }}</strong></div>
+          <div class="col-metodo">
+            <span class="metodo-badge">{{ pago.metodo_pago }}</span>
+          </div>
+          <div class="col-estado">
+            <span [ngClass]="'estado-' + pago.estado" class="estado-badge">
+              {{ pago.estado | uppercase }}
+            </span>
+          </div>
+          <div class="col-acciones">
+            <button class="btn-descargar" (click)="descargarFactura(pago)" title="Descargar Factura">
+              ⬇️ Factura
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje vacío -->
+    <div class="pagos-vacio" *ngIf="pagosFiltrados.length === 0">
+      <p>📭 No hay pagos registrados</p>
+    </div>
+  </div>
+</div>

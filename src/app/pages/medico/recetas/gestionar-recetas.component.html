@@ -1,0 +1,407 @@
+<!-- Barra Lateral del Doctor -->
+<appD></appD>
+
+<div class="recetas-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <h1>📋 Gestión de Recetas</h1>
+      <p>Crear y administrar recetas médicas electrónicas</p>
+    </div>
+    <button 
+      class="btn-nuevo"
+      (click)="mostrarFormulario = !mostrarFormulario"
+      [class.activo]="mostrarFormulario">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              [attr.d]="mostrarFormulario ? 'M6 18L18 6M6 6l12 12' : 'M12 4v16m8-8H4'">
+        </path>
+      </svg>
+      {{ mostrarFormulario ? 'Cancelar' : 'Nueva Receta' }}
+    </button>
+  </div>
+
+  <!-- Formulario de Nueva Receta -->
+  <div class="formulario-container" *ngIf="mostrarFormulario">
+    <div class="formulario-card">
+      <h2>✨ Crear Nueva Receta</h2>
+      
+      <form [formGroup]="recetaForm" (ngSubmit)="crearReceta()">
+        <!-- Información del Paciente -->
+        <div class="seccion">
+          <h3>👤 Información del Paciente</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="paciente">Paciente *</label>
+              <select 
+                id="paciente"
+                formControlName="paciente_id"
+                (change)="onPacienteSeleccionado()"
+                [class.error]="recetaForm.get('paciente_id')?.invalid && recetaForm.get('paciente_id')?.touched">
+                <option value="">Seleccionar paciente</option>
+                <option *ngFor="let paciente of pacientes" [value]="paciente.id">
+                  {{ paciente.nombre }} (ID: {{ paciente.id }})
+                </option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="cita">Cita Relacionada (Opcional)</label>
+              <select id="cita" formControlName="cita_id">
+                <option value="">Sin cita específica</option>
+                <option *ngFor="let cita of citas" [value]="cita.id">
+                  {{ cita.fecha }} - {{ cita.motivo }}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medicamentos -->
+        <div class="seccion">
+          <h3>💊 Medicamentos</h3>
+          <div formArrayName="medicamentos">
+            <div 
+              *ngFor="let medicamento of medicamentos.controls; let i = index"
+              [formGroupName]="i"
+              class="medicamento-card">
+              
+              <div class="medicamento-header">
+                <h4>Medicamento {{ i + 1 }}</h4>
+                <button 
+                  type="button"
+                  class="btn-eliminar"
+                  (click)="eliminarMedicamento(i)"
+                  *ngIf="medicamentos.length > 1">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Nombre del Medicamento *</label>
+                  <input 
+                    type="text"
+                    formControlName="nombre"
+                    placeholder="Ej: Amoxicilina"
+                    [class.error]="medicamento.get('nombre')?.invalid && medicamento.get('nombre')?.touched">
+                </div>
+                
+                <div class="form-group">
+                  <label>Concentración *</label>
+                  <input 
+                    type="text"
+                    formControlName="concentracion"
+                    placeholder="Ej: 500mg, 250mg/5ml"
+                    [class.error]="medicamento.get('concentracion')?.invalid && medicamento.get('concentracion')?.touched">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Forma Farmacéutica *</label>
+                  <select 
+                    formControlName="forma_farmaceutica"
+                    [class.error]="medicamento.get('forma_farmaceutica')?.invalid && medicamento.get('forma_farmaceutica')?.touched">
+                    <option value="">Seleccionar</option>
+                    <option *ngFor="let forma of formasFarmaceuticas" [value]="forma">
+                      {{ forma }}
+                    </option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Cantidad *</label>
+                  <input 
+                    type="text"
+                    formControlName="cantidad"
+                    placeholder="Ej: 21 tabletas, 100ml"
+                    [class.error]="medicamento.get('cantidad')?.invalid && medicamento.get('cantidad')?.touched">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Vía de Administración *</label>
+                  <select 
+                    formControlName="via_administracion"
+                    [class.error]="medicamento.get('via_administracion')?.invalid && medicamento.get('via_administracion')?.touched">
+                    <option value="">Seleccionar</option>
+                    <option *ngFor="let via of viasAdministracion" [value]="via">
+                      {{ via }}
+                    </option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label>Frecuencia *</label>
+                  <input 
+                    type="text"
+                    formControlName="frecuencia"
+                    placeholder="Ej: Cada 8 horas, 3 veces al día"
+                    [class.error]="medicamento.get('frecuencia')?.invalid && medicamento.get('frecuencia')?.touched">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Duración del Tratamiento *</label>
+                  <input 
+                    type="text"
+                    formControlName="duracion"
+                    placeholder="Ej: 7 días, 2 semanas"
+                    [class.error]="medicamento.get('duracion')?.invalid && medicamento.get('duracion')?.touched">
+                </div>
+                
+                <div class="form-group">
+                  <label>Indicaciones Especiales</label>
+                  <input 
+                    type="text"
+                    formControlName="indicaciones_especiales"
+                    placeholder="Ej: Tomar con alimentos">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button 
+            type="button"
+            class="btn-agregar-medicamento"
+            (click)="agregarMedicamento()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M12 4v16m8-8H4">
+              </path>
+            </svg>
+            Agregar otro medicamento
+          </button>
+        </div>
+
+        <!-- Instrucciones -->
+        <div class="seccion">
+          <h3>📝 Instrucciones y Observaciones</h3>
+          
+          <div class="form-group">
+            <label for="instrucciones">Instrucciones Generales *</label>
+            <textarea 
+              id="instrucciones"
+              formControlName="instrucciones"
+              rows="4"
+              placeholder="Instrucciones generales para el paciente..."
+              [class.error]="recetaForm.get('instrucciones')?.invalid && recetaForm.get('instrucciones')?.touched">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="observaciones">Observaciones Adicionales</label>
+            <textarea 
+              id="observaciones"
+              formControlName="observaciones"
+              rows="3"
+              placeholder="Observaciones adicionales o advertencias...">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="validez">Días de Validez *</label>
+            <input 
+              type="number"
+              id="validez"
+              formControlName="dias_validez"
+              min="1"
+              max="365"
+              [class.error]="recetaForm.get('dias_validez')?.invalid && recetaForm.get('dias_validez')?.touched">
+            <small>La receta será válida durante este período (máximo 365 días)</small>
+          </div>
+        </div>
+
+        <!-- Foto de Receta Manuscrita -->
+        <div class="seccion">
+          <h3>📸 Foto de Receta Manuscrita</h3>
+          <p class="seccion-descripcion">Sube una foto de la receta escrita a mano con tu firma médica</p>
+          
+          <div class="foto-upload-container">
+            <div class="upload-zone" [class.has-image]="previewFotoReceta">
+              <div *ngIf="!previewFotoReceta" class="upload-placeholder">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2h4a1 1 0 011 1v1a1 1 0 01-1 1v11a2 2 0 01-2 2H5a2 2 0 01-2-2V7a1 1 0 01-1-1V5a1 1 0 011-1h4zM9 4h6V3H9v1zm3 8l4-4m0 0l-4-4m4 4H8">
+                  </path>
+                </svg>
+                <p>Haz clic o arrastra una imagen aquí</p>
+                <small>PNG, JPG hasta 5MB</small>
+              </div>
+              
+              <div *ngIf="previewFotoReceta" class="image-preview">
+                <img [src]="previewFotoReceta" alt="Preview de receta">
+                <div class="image-overlay">
+                  <button type="button" class="btn-eliminar-foto" (click)="eliminarFoto()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                      </path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <input 
+                type="file" 
+                id="foto-receta" 
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                #fileInput
+                style="display: none;">
+            </div>
+            
+            <button 
+              type="button" 
+              class="btn-seleccionar-archivo"
+              (click)="fileInput.click()">
+              {{ previewFotoReceta ? 'Cambiar Imagen' : 'Seleccionar Imagen' }}
+            </button>
+          </div>
+
+          <!-- Autenticación Médica -->
+          <div class="autenticacion-medica">
+            <h4>🔐 Autenticación Médica</h4>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="codigo-medico">Código Médico *</label>
+                <input 
+                  type="text"
+                  id="codigo-medico"
+                  formControlName="codigo_medico"
+                  placeholder="Ingresa tu código médico profesional"
+                  [class.error]="recetaForm.get('codigo_medico')?.invalid && recetaForm.get('codigo_medico')?.touched">
+              </div>
+              
+              <div class="form-group">
+                <label for="firma-digital">Firma Digital</label>
+                <input 
+                  type="text"
+                  id="firma-digital"
+                  formControlName="firma_digital"
+                  readonly
+                  placeholder="Se generará automáticamente">
+              </div>
+            </div>
+
+            <div *ngIf="autenticacionMedica" class="autenticacion-status">
+              <div class="status-icon">✅</div>
+              <div class="status-text">
+                <strong>Autenticación Médica Válida</strong>
+                <p>Código médico verificado y firma digital generada</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="form-actions">
+          <button 
+            type="button"
+            class="btn-cancelar"
+            (click)="mostrarFormulario = false">
+            Cancelar
+          </button>
+          <button 
+            type="submit"
+            class="btn-crear"
+            [disabled]="recetaForm.invalid || cargando">
+            <span *ngIf="cargando">Creando...</span>
+            <span *ngIf="!cargando">✅ Crear Receta</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista de Recetas -->
+  <div class="recetas-lista">
+    <h2>📋 Recetas Creadas</h2>
+    
+    <div class="recetas-grid" *ngIf="!cargando && recetas.length > 0">
+      <div 
+        *ngFor="let receta of recetas"
+        class="receta-card"
+        [class]="'estado-' + receta.estado">
+        
+        <div class="receta-header">
+          <div class="receta-codigo">
+            <strong>{{ receta.codigo_validacion }}</strong>
+            <span class="estado" [style.color]="getEstadoColor(receta.estado)">
+              {{ getEstadoTexto(receta.estado) }}
+            </span>
+          </div>
+          <div class="receta-fecha">
+            {{ formatearFecha(receta.fecha_emision) }}
+          </div>
+        </div>
+
+        <div class="receta-paciente">
+          <strong>Paciente:</strong> {{ receta.paciente_nombre || 'ID: ' + receta.paciente_id }}
+        </div>
+
+        <div class="receta-medicamentos">
+          <strong>Medicamentos ({{ receta.medicamentos.length }}):</strong>
+          <ul>
+            <li *ngFor="let med of receta.medicamentos.slice(0, 2)">
+              {{ med.nombre }} {{ med.concentracion }}
+            </li>
+            <li *ngIf="receta.medicamentos.length > 2">
+              ... y {{ receta.medicamentos.length - 2 }} más
+            </li>
+          </ul>
+        </div>
+
+        <div class="receta-vencimiento">
+          <strong>Vence:</strong> 
+          {{ formatearFecha(receta.fecha_vencimiento) }}
+        </div>
+
+        <div class="receta-actions">
+          <button 
+            class="btn-descargar"
+            (click)="descargarReceta(receta)"
+            title="Descargar receta">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2z">
+              </path>
+            </svg>
+          </button>
+          
+          <button 
+            *ngIf="puedeEditarse(receta)"
+            class="btn-cancelar"
+            (click)="cancelarReceta(receta)"
+            title="Cancelar receta">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M6 18L18 6M6 6l12 12">
+              </path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estados vacíos -->
+    <div class="estado-vacio" *ngIf="cargando">
+      <div class="loading">⏳ Cargando recetas...</div>
+    </div>
+
+    <div class="estado-vacio" *ngIf="!cargando && recetas.length === 0">
+      <div class="empty-message">
+        <h3>📋 Sin recetas creadas</h3>
+        <p>No has creado ninguna receta aún. Haz clic en "Nueva Receta" para comenzar.</p>
+      </div>
+    </div>
+  </div>
+</div>

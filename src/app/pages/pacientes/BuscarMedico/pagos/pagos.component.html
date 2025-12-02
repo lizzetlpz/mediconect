@@ -1,0 +1,250 @@
+<div class="modal-overlay" *ngIf="mostrarModal" (click)="cerrarAlClickFuera($event)">
+  <div class="modal-content">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>💳 Confirmar Pago</h2>
+      <button class="btn-close" (click)="cerrar()">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Mensajes de Error/Éxito -->
+      <div class="mensaje-exito" *ngIf="mensajeExito">
+        {{ mensajeExito }}
+      </div>
+      
+      <div class="mensaje-error" *ngIf="mensajeError">
+        {{ mensajeError }}
+      </div>
+
+      <!-- Resumen de Pago -->
+      <div class="resumen-pago">
+        <div class="resumen-item">
+          <span class="resumen-label">Monto a Pagar:</span>
+          <span class="resumen-valor">${{ montoPago | number: '1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Métodos de Pago -->
+      <div class="form-section">
+        <h3>Método de Pago</h3>
+        <div class="metodos-pago">
+          <button
+            *ngFor="let metodo of metodosPago"
+            type="button"
+            class="metodo-pago"
+            [class.activo]="metodoPagoSeleccionado === metodo.id"
+            (click)="metodoPagoSeleccionado = metodo.id"
+          >
+            <span class="metodo-icono">{{ metodo.icono }}</span>
+            <span class="metodo-label">{{ metodo.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulario de Pago -->
+      <form [formGroup]="formularioPago" (ngSubmit)="procesarPago()">
+        <div class="form-section">
+          <h3>Información de Pago</h3>
+
+          <div class="form-group">
+            <label for="nombreTitular">Nombre del Titular *</label>
+            <input
+              id="nombreTitular"
+              type="text"
+              formControlName="nombreTitular"
+              placeholder="Juan Pérez García"
+              class="form-input"
+              [ngClass]="{ 'input-error': esCampoInvalido('nombreTitular') }"
+            />
+            <span class="error-message" *ngIf="esCampoInvalido('nombreTitular')">
+              {{ obtenerErrorCampo('nombreTitular') }}
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="numeroTarjeta">Número de Tarjeta *</label>
+            <input
+              id="numeroTarjeta"
+              type="text"
+              formControlName="numeroTarjeta"
+              placeholder="1234 5678 9012 3456"
+              class="form-input"
+              maxlength="16"
+              inputmode="numeric"
+              [ngClass]="{ 'input-error': esCampoInvalido('numeroTarjeta') }"
+            />
+            <span class="error-message" *ngIf="esCampoInvalido('numeroTarjeta')">
+              {{ obtenerErrorCampo('numeroTarjeta') }}
+            </span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaExpiracion">Fecha de Expiración *</label>
+              <input
+                id="fechaExpiracion"
+                type="text"
+                formControlName="fechaExpiracion"
+                placeholder="MM/AA"
+                class="form-input"
+                maxlength="5"
+                [ngClass]="{ 'input-error': esCampoInvalido('fechaExpiracion') }"
+              />
+              <span class="error-message" *ngIf="esCampoInvalido('fechaExpiracion')">
+                {{ obtenerErrorCampo('fechaExpiracion') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="cvv">CVV *</label>
+              <input
+                id="cvv"
+                type="password"
+                formControlName="cvv"
+                placeholder="123"
+                class="form-input"
+                maxlength="4"
+                inputmode="numeric"
+                [ngClass]="{ 'input-error': esCampoInvalido('cvv') }"
+              />
+              <span class="error-message" *ngIf="esCampoInvalido('cvv')">
+                {{ obtenerErrorCampo('cvv') }}
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email de Confirmación *</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="tu@email.com"
+              class="form-input"
+              [ngClass]="{ 'input-error': esCampoInvalido('email') }"
+            />
+            <span class="error-message" *ngIf="esCampoInvalido('email')">
+              {{ obtenerErrorCampo('email') }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Aviso de Seguridad -->
+        <div class="seguridad-aviso">
+          <span class="icono">🔒</span>
+          <span class="texto">Tu información de pago está protegida y encriptada</span>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="cerrar()"
+            [disabled]="cargando"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="cargando || formularioPago.invalid"
+          >
+            <span *ngIf="!cargando">Pagar ${{ montoPago | number: '1.2-2' }}</span>
+            <span *ngIf="cargando">Procesando...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Historial de Pagos -->
+<div class="modal-overlay" *ngIf="mostrarHistorial" (click)="cerrarHistorial()">
+  <div class="modal-content modal-historial">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>📊 Historial de Pagos</h2>
+      <button class="btn-close" (click)="cerrarHistorial()">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="modal-body">
+      <!-- Resumen Total -->
+      <div class="resumen-total">
+        <div class="resumen-card">
+          <div class="resumen-icon">💰</div>
+          <div class="resumen-info">
+            <span class="resumen-label">Total Pagado</span>
+            <span class="resumen-monto">${{ totalPagado | number: '1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="resumen-card">
+          <div class="resumen-icon">📝</div>
+          <div class="resumen-info">
+            <span class="resumen-label">Número de Pagos</span>
+            <span class="resumen-monto">{{ pagosPaciente.length }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla de Pagos -->
+      <div class="pagos-table-container" *ngIf="!cargandoHistorial">
+        <div *ngIf="pagosPaciente.length > 0" class="pagos-table">
+          <div class="table-header">
+            <div class="col-fecha">Fecha</div>
+            <div class="col-concepto">Concepto</div>
+            <div class="col-monto">Monto</div>
+            <div class="col-metodo">Método</div>
+            <div class="col-estado">Estado</div>
+          </div>
+
+          <div class="table-body">
+            <div class="table-row" *ngFor="let pago of pagosPaciente">
+              <div class="col-fecha">
+                {{ formatearFecha(pago.fecha || pago.creado_en) }}
+              </div>
+              <div class="col-concepto">
+                <div class="concepto-info">
+                  <span class="concepto-title">{{ pago.descripcion || 'Pago de cita' }}</span>
+                  <span class="concepto-doctor" *ngIf="pago.medico_nombre">
+                    Dr(a). {{ pago.medico_nombre }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-monto">
+                <span class="monto-valor">${{ pago.monto | number: '1.2-2' }}</span>
+              </div>
+              <div class="col-metodo">
+                <span class="metodo-badge">{{ pago.metodo || '-' }}</span>
+              </div>
+              <div class="col-estado">
+                <span class="estado-badge" [ngClass]="obtenerEstadoClase(pago.estado || 'pendiente')">
+                  {{ pago.estado || 'Pendiente' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sin-pagos" *ngIf="pagosPaciente.length === 0">
+          <div class="sin-pagos-icon">📭</div>
+          <p>No tienes pagos registrados</p>
+        </div>
+      </div>
+
+      <!-- Cargando -->
+      <div class="cargando" *ngIf="cargandoHistorial">
+        <p>Cargando historial de pagos...</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="cerrarHistorial()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
