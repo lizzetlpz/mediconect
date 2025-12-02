@@ -1,11 +1,21 @@
 {
-  "name": "nombre-proyecto",
+  "name": "mediconect-root",
   "version": "0.0.0",
+  "description": "MediConnect - Sistema médico integral",
+  "main": "backend/dist/src/server.js",
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
   "scripts": {
+    "install": "cd backend && npm install",
+    "build": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "build:prod": "ng build --configuration production",
+    "ng:serve": "ng serve",
+    "ng:build": "ng build",
+    "ng:build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:nombre-proyecto": "node dist/nombre-proyecto/server/server.mjs",

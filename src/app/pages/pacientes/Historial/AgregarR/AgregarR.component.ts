@@ -30,8 +30,8 @@ interface Estudio {
   selector: 'app-AgregarRegistro',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './agregarR.component.html',
-  styleUrls: ['./agregarR.component.css']
+  templateUrl: './AgregarR.component.html',
+  styleUrls: ['./AgregarR.component.css']
 })
 export class RegistroComponent implements OnInit {
   @Output() cerrar = new EventEmitter<void>();

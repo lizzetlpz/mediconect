@@ -1,0 +1,11 @@
+# Ignorar frontend de Angular - solo deployar backend
+src/
+dist/
+node_modules/
+angular.json
+tsconfig*.json
+*.spec.ts
+*.config.ts
+.angular/
+chat-window.html
+medicom/
