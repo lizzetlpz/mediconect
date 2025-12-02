@@ -15,8 +15,8 @@ console.log('   EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? '***configurado**
 import { getConnection } from '../BD/SQLite/database';
 import { ChatWebSocketServer } from './websocket/ChatWebSocketServer';
 import authRoutes from '../routes/login/login.routes';
-import historialRoutes from '../routes/medico/Historial.routes';
-import agregarPacienteRoutes from '../routes/medico/agregarPaciente.route'; // Maneja ambos endpoints
+import historialRoutes from '../routes/medico/historial.routes';
+import agregarPacienteRoutes from '../routes/medico/agregarPaciente.route';
 import consultasRoutes from '../routes/consultas/consultas.routes';
 import prescripcionesRoutes from '../routes/prescripciones/prescripciones.routes';
 import citasRoutes from '../routes/citas/citas.routes';
