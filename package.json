@@ -5,9 +5,14 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:nombre-proyecto": "node dist/nombre-proyecto/server/server.mjs"
+    "serve:ssr:nombre-proyecto": "node dist/nombre-proyecto/server/server.mjs",
+    "backend:install": "cd backend && npm install",
+    "backend:build": "cd backend && npm run build",
+    "backend:start": "cd backend && npm start",
+    "backend:dev": "cd backend && npm run dev"
   },
   "private": true,
   "dependencies": {
