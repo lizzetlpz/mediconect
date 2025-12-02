@@ -4,12 +4,15 @@
   "description": "Backend API para MediConnect",
   "main": "index.js",
   "type": "commonjs",
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
   "scripts": {
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
     "start": "node dist/src/server.js",
-    "start:prod": "npm run build && npm run start",
-    "postinstall": "npm run build"
+    "start:prod": "npm run build && npm run start"
   },
   "keywords": [],
   "author": "",
