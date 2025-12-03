@@ -3,14 +3,13 @@ nixPkgs = ['nodejs-18_x']
 
 [phases.install]
 cmds = [
-    'npm install',
-    'cd backend && npm install'
+    'npm ci --only=production',
+    'cd backend && npm ci --only=production'
 ]
 
 [phases.build]
 cmds = [
-    'ng build --configuration production',
-    'cd backend && npm run build'
+    'npm run build:prod'
 ]
 
 [start]
@@ -18,3 +17,4 @@ cmd = 'cd backend && npm start'
 
 [variables]
 NODE_ENV = 'production'
+NIXPACKS_NO_CACHE = 'true'
