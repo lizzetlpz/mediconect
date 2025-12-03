@@ -1,4 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: '/api'  // Usar ruta relativa ya que frontend y backend están en el mismo dominio
+  apiUrl: 'https://mediconect-production.up.railway.app/api',
+  wsUrl: 'wss://mediconect-production.up.railway.app',
+  frontendUrl: 'http://localhost:4200'
 };
