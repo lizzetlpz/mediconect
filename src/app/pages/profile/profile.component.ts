@@ -74,7 +74,7 @@ export class ProfileComponent implements OnInit {
 
       // Verificar si es paciente
       this.isPaciente = this.currentUser.rol_id === 2;
-      
+
       // Cargar pagos si es paciente
       if (this.isPaciente) {
         this.cargarPagos();
@@ -132,7 +132,7 @@ export class ProfileComponent implements OnInit {
 
   descargarFactura(pago: Pago): void {
     console.log('📥 Descargando factura del pago:', pago.id);
-    
+
     const token = this.authService.getToken();
     if (!token) {
       alert('No tienes autorización. Inicia sesión nuevamente.');
@@ -156,23 +156,23 @@ Medicom - Telemedicina Profesional`;
 
     // Crear blob con el contenido de texto
     const blob = new Blob([contenidoFactura], { type: 'text/plain;charset=utf-8' });
-    
+
     // Crear enlace de descarga
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `Factura-${pago.id}.txt`;
-    
+
     // Forzar descarga
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Limpiar URL
     setTimeout(() => {
       window.URL.revokeObjectURL(url);
     }, 1000);
-    
+
     console.log('✅ Factura .txt descargada exitosamente');
   }
 

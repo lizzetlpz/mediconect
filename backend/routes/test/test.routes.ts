@@ -7,10 +7,10 @@ const router = Router();
 router.get('/test-email', async (req, res): Promise<void> => {
   try {
     console.log('🧪 Probando configuración de email...');
-    
+
     // Verificar configuración
     const configOk = await emailService.verificarConfiguracion();
-    
+
     if (!configOk) {
       res.status(500).json({
         success: false,
@@ -22,7 +22,7 @@ router.get('/test-email', async (req, res): Promise<void> => {
 
     // Enviar email de prueba
     const testEmail = (req.query['email'] as string) || 'medicoomx@gmail.com';
-    
+
     const emailEnviado = await emailService.enviarNotificacionCita({
       paciente_nombre: 'Usuario de Prueba',
       paciente_email: testEmail,

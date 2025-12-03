@@ -16,7 +16,7 @@ router.get('/', async (req: AuthRequest, res) => {
     const pool = getConnection();
 
     const [pacientes]: any = await pool.query(
-      `SELECT usuario_id, nombre, apellido_paterno, apellido_materno, email, telefono, 
+      `SELECT usuario_id, nombre, apellido_paterno, apellido_materno, email, telefono,
               fecha_nacimiento, rol_id, activo, fecha_registro
        FROM usuarios
        WHERE rol_id = 2 AND activo = 1
@@ -39,7 +39,7 @@ router.get('/:usuario_id', async (req: AuthRequest, res) => {
   try {
     const { usuario_id } = req.params;
     console.log(`📋 GET /api/pacientes/${usuario_id}`);
-    
+
     const pool = getConnection();
 
     const [pacientes]: any = await pool.query(

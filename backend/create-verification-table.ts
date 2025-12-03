@@ -16,7 +16,7 @@ async function crearTablaVerificacion(): Promise<void> {
     try {
         // Crear tabla de verificaciones pendientes
         console.log('📋 Creando tabla verificaciones_pendientes...');
-        
+
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS verificaciones_pendientes (
                 id INT AUTO_INCREMENT PRIMARY KEY,

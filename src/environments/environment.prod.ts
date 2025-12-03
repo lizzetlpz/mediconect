@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tu-app-backend.up.railway.app/api',
-  wsUrl: 'wss://tu-app-backend.up.railway.app',
-  frontendUrl: 'https://tu-app-frontend.up.railway.app'
+  apiUrl: '/api',  // Usar ruta relativa ya que frontend y backend están en el mismo dominio
+  wsUrl: 'wss://tu-app.up.railway.app',
+  frontendUrl: 'https://tu-app.up.railway.app'
 };

@@ -58,20 +58,20 @@ export class RegisterComponent implements OnInit {
   emailValidator(control: any) {
     const email = control.value;
     if (!email) return null;
-    
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const valid = emailRegex.test(email);
-    
+
     if (!valid) {
       return { invalidEmail: true };
     }
-    
+
     // Verificar que no tenga caracteres especiales peligrosos
     const dangerousChars = /[<>"'&]/;
     if (dangerousChars.test(email)) {
       return { dangerousChars: true };
     }
-    
+
     return null;
   }
 
@@ -79,18 +79,18 @@ export class RegisterComponent implements OnInit {
   passwordStrengthValidator(control: any) {
     const password = control.value;
     if (!password) return null;
-    
+
     const hasLowerCase = /[a-z]/.test(password);
     const hasUpperCase = /[A-Z]/.test(password);
     const hasNumbers = /\d/.test(password);
     const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    
+
     const isStrong = hasLowerCase && hasUpperCase && hasNumbers && hasSpecialChars;
-    
+
     if (!isStrong) {
       return { weakPassword: true };
     }
-    
+
     return null;
   }
 
@@ -98,13 +98,13 @@ export class RegisterComponent implements OnInit {
   cedulaProfesionalValidator(control: any) {
     const cedula = control.value;
     if (!cedula) return null;
-    
+
     // Formato: 8-12 dígitos
     const cedulaRegex = /^\d{8,12}$/;
     if (!cedulaRegex.test(cedula)) {
       return { invalidCedula: true };
     }
-    
+
     return null;
   }
 

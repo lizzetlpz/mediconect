@@ -470,37 +470,37 @@
   .validar-receta-container {
     padding: 15px;
   }
-  
+
   .header-section h2 {
     font-size: 1.8rem;
   }
-  
+
   .input-group {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .medicamento-details {
     grid-template-columns: 1fr;
   }
-  
+
   .dispensacion-details {
     grid-template-columns: 1fr;
   }
-  
+
   .form-actions {
     flex-direction: column;
   }
-  
+
   .medicamento-header {
     flex-wrap: wrap;
     gap: 10px;
   }
-  
+
   .medicamento-header h4 {
     flex-basis: 100%;
   }

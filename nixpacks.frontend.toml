@@ -1,0 +1,16 @@
+[phases.setup]
+nixPkgs = ['nodejs-18_x', 'npm-9_x']
+
+[phases.install]
+cmds = [
+    'npm install -g @angular/cli@17',
+    'npm ci'
+]
+
+[phases.build]
+cmds = [
+    'ng build --configuration production'
+]
+
+[start]
+cmd = 'npx http-server dist/nombre-proyecto -p $PORT --cors -c-1'

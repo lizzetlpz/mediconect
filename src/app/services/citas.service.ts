@@ -20,7 +20,7 @@ export interface CitaMedica {
   modalidad: 'video' | 'texto' | 'videollamada';
   creado_en?: string;
   numero?: string;
-  
+
   // Campos que pueden venir directamente de la consulta JOIN
   paciente_nombre?: string;
   paciente_apellido?: string;
@@ -29,7 +29,7 @@ export interface CitaMedica {
   medico_nombre?: string;
   medico_apellido?: string;
   medico_especialidad?: string;
-  
+
   // Objetos anidados (procesados en el frontend)
   paciente: {
     nombre: string;
@@ -91,9 +91,9 @@ export class CitasService {
   // Obtener consultas activas (citas confirmadas, en progreso o pendientes)
   obtenerConsultasActivas(): Observable<CitaMedica[]> {
     return this.http.get<CitaMedica[]>(`${this.apiUrl}`).pipe(
-      map(citas => citas.filter(cita => 
-        cita.estado === 'confirmada' || 
-        cita.estado === 'en_progreso' || 
+      map(citas => citas.filter(cita =>
+        cita.estado === 'confirmada' ||
+        cita.estado === 'en_progreso' ||
         cita.estado === 'pendiente'
       ))
     );

@@ -19,7 +19,7 @@ export class VideoCallService {
   private localStream?: MediaStream;
   private remoteStream?: MediaStream;
   private socket?: WebSocket;
-  
+
   private videoCallStateSubject = new BehaviorSubject<VideoCallState>({
     isInCall: false,
     isVideoEnabled: false,
@@ -40,7 +40,7 @@ export class VideoCallService {
 
   private initializeWebSocket(): void {
     this.socket = new WebSocket('ws://localhost:3001/video');
-    
+
     this.socket.onopen = () => {
       console.log('🎥 Conectado al servidor de videollamadas');
     };
@@ -96,7 +96,7 @@ export class VideoCallService {
   async startCall(consultaId: number, usuarioId: number, rol: string): Promise<void> {
     try {
       console.log('📞 Iniciando videollamada:', { consultaId, usuarioId, rol });
-      
+
       this.currentCallId = consultaId;
       this.currentUserId = usuarioId;
       this.currentRole = rol;
@@ -130,7 +130,7 @@ export class VideoCallService {
   async joinCall(consultaId: number, usuarioId: number, rol: string): Promise<void> {
     try {
       console.log('🤝 Uniéndose a videollamada:', { consultaId, usuarioId, rol });
-      
+
       this.currentCallId = consultaId;
       this.currentUserId = usuarioId;
       this.currentRole = rol;
@@ -175,7 +175,7 @@ export class VideoCallService {
 
       // Limpiar streams
       this.stopLocalStream();
-      
+
       // Cerrar peer connection
       if (this.peerConnection) {
         this.peerConnection.close();
@@ -184,7 +184,7 @@ export class VideoCallService {
 
       this.remoteStream = undefined;
       this.currentCallId = undefined;
-      
+
       this.updateVideoState({
         isInCall: false,
         isVideoEnabled: false,
@@ -215,7 +215,7 @@ export class VideoCallService {
 
       this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log('📹 Stream local obtenido');
-      
+
       this.updateVideoState({
         localVideoStream: this.localStream,
         isVideoEnabled: video,
@@ -269,7 +269,7 @@ export class VideoCallService {
       // Reemplazar el track de video
       if (this.peerConnection && this.localStream) {
         const videoTrack = screenStream.getVideoTracks()[0];
-        const sender = this.peerConnection.getSenders().find(s => 
+        const sender = this.peerConnection.getSenders().find(s =>
           s.track?.kind === 'video'
         );
 
@@ -280,8 +280,8 @@ export class VideoCallService {
         // Actualizar stream local
         const audioTrack = this.localStream.getAudioTracks()[0];
         this.localStream = new MediaStream([videoTrack, audioTrack]);
-        
-        this.updateVideoState({ 
+
+        this.updateVideoState({
           isScreenSharing: true,
           localVideoStream: this.localStream
         });
@@ -301,10 +301,10 @@ export class VideoCallService {
     try {
       // Volver a la cámara
       await this.getLocalStream(true, true);
-      
+
       if (this.peerConnection && this.localStream) {
         const videoTrack = this.localStream.getVideoTracks()[0];
-        const sender = this.peerConnection.getSenders().find(s => 
+        const sender = this.peerConnection.getSenders().find(s =>
           s.track?.kind === 'video'
         );
 
@@ -356,7 +356,7 @@ export class VideoCallService {
   private async handleIncomingCall(message: any): Promise<void> {
     // Mostrar notificación de llamada entrante
     const accept = confirm(`${message.callerName} te está llamando. ¿Aceptar videollamada?`);
-    
+
     if (accept) {
       await this.joinCall(message.consultaId, this.currentUserId!, this.currentRole!);
       await this.createOffer();
@@ -372,7 +372,7 @@ export class VideoCallService {
     if (this.peerConnection) {
       const offer = await this.peerConnection.createOffer();
       await this.peerConnection.setLocalDescription(offer);
-      
+
       this.sendSignalingMessage({
         type: 'offer',
         offer: offer
@@ -383,10 +383,10 @@ export class VideoCallService {
   private async handleOffer(offer: RTCSessionDescriptionInit): Promise<void> {
     if (this.peerConnection) {
       await this.peerConnection.setRemoteDescription(offer);
-      
+
       const answer = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(answer);
-      
+
       this.sendSignalingMessage({
         type: 'answer',
         answer: answer

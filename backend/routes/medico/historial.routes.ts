@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
@@ -521,7 +521,7 @@ router.post('/paciente/registro', upload.single('foto_receta'), async (req: Auth
         });
 
         const [result] = await pool.query(
-            `INSERT INTO historial_medico 
+            `INSERT INTO historial_medico
             (paciente_id, doctor_id, fecha_consulta, motivo_consulta, foto_receta)
             VALUES (?, ?, ?, ?, ?)`,
             [paciente_id, 1, new Date().toISOString().split('T')[0], 'Registro de laboratorios', fotoPath]
@@ -533,7 +533,7 @@ router.post('/paciente/registro', upload.single('foto_receta'), async (req: Auth
         if (estudiosStr) {
             try {
                 const estudios = typeof estudiosStr === 'string' ? JSON.parse(estudiosStr) : estudiosStr;
-                
+
                 if (Array.isArray(estudios) && estudios.length > 0) {
                     console.log(`🔬 Insertando ${estudios.length} estudios...`);
 

@@ -171,7 +171,7 @@ export class MisPagosComponent implements OnInit {
 
   descargarFactura(pago: Pago): void {
     console.log('📥 Descargando factura:', pago.factura);
-    
+
     // Crear contenido de texto plano como en la imagen
     const contenidoFactura = `FACTURA: INV-${pago.id}
 Fecha: ${new Date().toLocaleDateString('es-ES')}
@@ -189,23 +189,23 @@ Medicom - Telemedicina Profesional`;
 
     // Crear blob con el contenido de texto
     const blob = new Blob([contenidoFactura], { type: 'text/plain;charset=utf-8' });
-    
+
     // Crear enlace de descarga
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `Factura-${pago.id}.txt`;
-    
+
     // Forzar descarga
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Limpiar URL
     setTimeout(() => {
       window.URL.revokeObjectURL(url);
     }, 1000);
-    
+
     console.log('✅ Factura .txt descargada exitosamente');
   }
 

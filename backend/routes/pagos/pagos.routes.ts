@@ -39,7 +39,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     }
 
     const pool = getConnection();
-    
+
     // Construir descripción con información de la cita
     let descripcionFinal = descripcion || 'Pago de cita médica';
     if (cita_motivo) {
@@ -57,7 +57,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
     // Obtener el pago creado para devolverlo
     const [pagos] = await pool.query('SELECT * FROM pagos WHERE pago_id = ?', [pagoId]);
-    
+
     if ((pagos as any[]).length > 0) {
       const pagCreado = (pagos as any[])[0];
       console.log('📦 Pago retornado:', pagCreado);
@@ -78,13 +78,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       });
     }
 
-    return res.status(201).json({ 
-      message: 'Pago registrado', 
+    return res.status(201).json({
+      message: 'Pago registrado',
       pago_id: pagoId
     });
   } catch (error) {
     console.error('❌ Error creando pago:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: 'Error al procesar el pago',
       error: error instanceof Error ? error.message : 'Error desconocido'
     });
@@ -123,11 +123,11 @@ router.get('/paciente/:paciente_id', async (req: AuthRequest, res: Response) => 
 
     const pool = getConnection();
     const [rows] = await pool.query(
-      `SELECT p.*, u.nombre as medico_nombre, u.apellido_paterno 
-       FROM pagos p 
-       LEFT JOIN usuarios u ON p.medico_id = u.usuario_id 
-       WHERE p.paciente_id = ? 
-       ORDER BY p.creado_en DESC`, 
+      `SELECT p.*, u.nombre as medico_nombre, u.apellido_paterno
+       FROM pagos p
+       LEFT JOIN usuarios u ON p.medico_id = u.usuario_id
+       WHERE p.paciente_id = ?
+       ORDER BY p.creado_en DESC`,
       [paciente_id]
     );
     return res.status(200).json(rows);
@@ -160,7 +160,7 @@ router.post('/factura/:pago_id', async (req: AuthRequest, res: Response) => {
 
     // Obtener datos del pago con información del paciente y médico
     const [pagos] = await pool.query(
-      `SELECT p.*, 
+      `SELECT p.*,
               pac.nombre as paciente_nombre, pac.email as paciente_email,
               med.nombre as medico_nombre, med.apellido_paterno as medico_apellido,
               prof.especialidad, prof.tarifa_consulta

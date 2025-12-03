@@ -43,12 +43,12 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
     loading: boolean = false;
     error: string = '';
     searchQuery: string = '';
-    
+
     // Chat en tiempo real
     mensajes: MensajeChat[] = [];
     chatConectado: boolean = false;
     usuarioActual: any = null;
-    
+
     private shouldScrollToBottom = false;
     private subscriptions: Subscription[] = [];
 
@@ -106,19 +106,19 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
         this.citasService.obtenerCitasPaciente().subscribe({
             next: (citas: CitaMedica[]) => {
                 console.log('📋 Citas del paciente cargadas:', citas);
-                
+
                 // Filtrar citas confirmadas y en progreso para mostrar en consultas
-                const citasActivas = citas.filter(cita => 
+                const citasActivas = citas.filter(cita =>
                     cita.estado === 'en_progreso' || cita.estado === 'confirmada'
                 );
-                
+
                 console.log('📊 Citas activas filtradas:', citasActivas);
-                
+
                 this.consultas = citasActivas.map((cita: any) => this.transformarCitaAConsulta(cita));
                 this.loading = false;
-                
+
                 console.log('✅ Consultas transformadas:', this.consultas);
-                
+
                 if (this.consultas.length === 0) {
                     console.log('ℹ️ No hay consultas activas disponibles para el paciente');
                 }
@@ -179,7 +179,7 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
 
         this.consultaActiva = consulta;
         this.shouldScrollToBottom = true;
-        
+
         // Limpiar mensajes anteriores
         this.mensajes = [];
 
@@ -242,7 +242,7 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
 
         // Enviar mensaje a través del chat service
         const nombreCompleto = `${this.usuarioActual.nombre} ${this.usuarioActual.apellido_paterno}`;
-        
+
         this.chatService.enviarMensaje(this.nuevoMensaje, nombreCompleto);
 
         console.log('✅ Mensaje enviado, limpiando campo de texto');
@@ -270,9 +270,9 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
 
     formatearTiempoMensaje(timestamp: Date): string {
         const fecha = new Date(timestamp);
-        return fecha.toLocaleTimeString('es-ES', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return fecha.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
         });
     }
 
@@ -345,8 +345,8 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
 
     puedeIniciarVideollamada(): boolean {
         if (!this.consultaActiva) return false;
-        
-        return this.esVideollamada(this.consultaActiva) && 
+
+        return this.esVideollamada(this.consultaActiva) &&
                this.consultaActiva.estado === 'en_progreso' &&
                this.chatConectado;
     }

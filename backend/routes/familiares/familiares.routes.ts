@@ -60,12 +60,12 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       fechaFormato = fecha_nacimiento.split('T')[0];
     }
 
-    console.log('✅ Validación pasada. Insertando familiar:', { 
-      nombre, 
-      apellido_paterno, 
-      relacion, 
+    console.log('✅ Validación pasada. Insertando familiar:', {
+      nombre,
+      apellido_paterno,
+      relacion,
       puede_agendar,
-      puede_ver_historial 
+      puede_ver_historial
     });
 
     const pool = getConnection();

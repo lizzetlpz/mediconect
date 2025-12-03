@@ -27,11 +27,11 @@ export class ChatWebSocketServer {
   private consultasActivas = new Map<number, Set<number>>();
 
   constructor() {
-    this.wss = new WebSocketServer({ 
+    this.wss = new WebSocketServer({
       port: 3001,
       path: '/chat'
     });
-    
+
     this.wss.on('connection', this.handleConnection.bind(this));
     console.log('🔌 Servidor WebSocket de chat iniciado en puerto 3001');
   }
@@ -85,24 +85,24 @@ export class ChatWebSocketServer {
         'SELECT nombre, apellido_paterno FROM usuarios WHERE usuario_id = ?',
         [usuarioId]
       );
-      
+
       if (!Array.isArray(usuarios) || usuarios.length === 0) {
         this.enviarError(socket, 'Usuario no encontrado');
         return;
       }
-      
+
       const usuario = (usuarios as any[])[0];
       const nombreCompleto = `${usuario.nombre} ${usuario.apellido_paterno}`;
-      
+
       this.usuariosConectados.set(usuarioId, {
         id: usuarioId,
         socket: socket,
         rol: rol,
         nombre: nombreCompleto
       });
-      
+
       console.log(`✅ Usuario identificado: ${nombreCompleto} (${rol})`);
-      
+
       socket.send(JSON.stringify({
         tipo: 'identificado',
         usuario: { id: usuarioId, nombre: nombreCompleto, rol }
@@ -117,21 +117,21 @@ export class ChatWebSocketServer {
     try {
       const { consultaId, usuarioId } = mensaje;
       const usuario = this.usuariosConectados.get(usuarioId);
-      
+
       if (!usuario) {
         this.enviarError(socket, 'Usuario no identificado');
         return;
       }
-      
+
       usuario.consultaId = consultaId;
-      
+
       if (!this.consultasActivas.has(consultaId)) {
         this.consultasActivas.set(consultaId, new Set());
       }
       this.consultasActivas.get(consultaId)!.add(usuarioId);
-      
+
       console.log(`👥 ${usuario.nombre} se unió a la consulta ${consultaId}`);
-      
+
       socket.send(JSON.stringify({
         tipo: 'historial_mensajes',
         mensajes: []
@@ -145,17 +145,17 @@ export class ChatWebSocketServer {
   private salirDeConsulta(socket: WebSocket, mensaje: any): void {
     const { consultaId, usuarioId } = mensaje;
     const usuario = this.usuariosConectados.get(usuarioId);
-    
+
     if (usuario) {
       usuario.consultaId = undefined;
-      
+
       if (this.consultasActivas.has(consultaId)) {
         this.consultasActivas.get(consultaId)!.delete(usuarioId);
         if (this.consultasActivas.get(consultaId)!.size === 0) {
           this.consultasActivas.delete(consultaId);
         }
       }
-      
+
       console.log(`👋 ${usuario.nombre} salió de la consulta ${consultaId}`);
     }
   }
@@ -163,7 +163,7 @@ export class ChatWebSocketServer {
   private async procesarNuevoMensaje(socket: WebSocket, data: any): Promise<void> {
     try {
       const mensajeData = data.mensaje;
-      
+
       console.log('💬 Procesando nuevo mensaje:', {
         consultaId: mensajeData.consultaId,
         texto: mensajeData.texto,
@@ -171,7 +171,7 @@ export class ChatWebSocketServer {
         remitenteId: mensajeData.remitenteId,
         nombre: mensajeData.nombre
       });
-      
+
       const mensajeCompleto: MensajeChat = {
         id: Date.now(),
         consultaId: mensajeData.consultaId,
@@ -182,16 +182,16 @@ export class ChatWebSocketServer {
         timestamp: new Date(),
         leido: false
       };
-      
+
       console.log('📤 Enviando mensaje a participantes de consulta', mensajeData.consultaId);
       const participantes = this.consultasActivas.get(mensajeData.consultaId);
       console.log('👥 Participantes en consulta:', participantes ? Array.from(participantes) : 'ninguno');
-      
+
       this.enviarAConsulta(mensajeData.consultaId, {
         tipo: 'nuevo_mensaje',
         mensaje: mensajeCompleto
       });
-      
+
       console.log('✅ Mensaje procesado y enviado correctamente');
     } catch (error) {
       console.error('❌ Error procesando nuevo mensaje:', error);
@@ -206,7 +206,7 @@ export class ChatWebSocketServer {
       participantes: participantes ? Array.from(participantes) : 'ninguno',
       totalParticipantes: participantes?.size || 0
     });
-    
+
     if (participantes) {
       participantes.forEach(usuarioId => {
         const usuario = this.usuariosConectados.get(usuarioId);
@@ -233,14 +233,14 @@ export class ChatWebSocketServer {
     for (const [usuarioId, usuario] of this.usuariosConectados.entries()) {
       if (usuario.socket === socket) {
         console.log(`👋 Usuario ${usuario.nombre} desconectado`);
-        
+
         if (usuario.consultaId) {
           this.salirDeConsulta(socket, {
             consultaId: usuario.consultaId,
             usuarioId: usuarioId
           });
         }
-        
+
         this.usuariosConectados.delete(usuarioId);
         break;
       }

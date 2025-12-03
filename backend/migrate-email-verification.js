@@ -14,10 +14,10 @@ async function actualizarBaseDatos() {
     try {
         // Agregar columnas para verificación
         console.log('📋 Agregando columnas token_verificacion y token_expiracion...');
-        
+
         await new Promise((resolve, reject) => {
             connection.query(`
-                ALTER TABLE usuarios 
+                ALTER TABLE usuarios
                 ADD COLUMN token_verificacion VARCHAR(64) NULL,
                 ADD COLUMN token_expiracion TIMESTAMP NULL
             `, (error, results) => {
@@ -69,8 +69,8 @@ async function actualizarBaseDatos() {
         // Mostrar usuarios existentes
         const [usuarios] = await new Promise((resolve, reject) => {
             connection.query(`
-                SELECT usuario_id, nombre, email, activo, token_verificacion, fecha_registro 
-                FROM usuarios 
+                SELECT usuario_id, nombre, email, activo, token_verificacion, fecha_registro
+                FROM usuarios
                 LIMIT 3
             `, (error, results) => {
                 if (error) {

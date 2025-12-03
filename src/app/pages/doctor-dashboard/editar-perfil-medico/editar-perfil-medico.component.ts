@@ -27,7 +27,7 @@ interface PerfilMedico {
 })
 export class EditarPerfilMedicoComponent implements OnInit {
   @Output() cerrar = new EventEmitter<void>();
-  
+
   mostrarModal = false;
   cargando = false;
   formulario: FormGroup;

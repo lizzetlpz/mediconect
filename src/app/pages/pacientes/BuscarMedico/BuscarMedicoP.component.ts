@@ -93,7 +93,7 @@ export class BuscarMedicoComponent implements OnInit {
           ubicacion: r.universidad || 'Virtual'
         }));
         console.log('📊 Médicos mapeados para UI:', this.medicos);
-        
+
         // Actualizar especialidades dinámicamente
         this.updateEspecialidades();
       },
@@ -111,10 +111,10 @@ export class BuscarMedicoComponent implements OnInit {
   private updateEspecialidades(): void {
     // Obtener especialidades únicas de los médicos cargados
     const especialidadesUnicas = [...new Set(this.medicos.map(m => m.especialidad))];
-    
+
     // Mantener "Todas" al inicio y agregar las especialidades reales
     this.especialidades = ['Todas', ...especialidadesUnicas.filter(e => e !== 'Todas')];
-    
+
     console.log('📋 Especialidades actualizadas:', this.especialidades);
   }
 

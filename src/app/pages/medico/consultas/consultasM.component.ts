@@ -55,16 +55,16 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
     nuevoMensaje: string = '';
     loading: boolean = false;
     error: string = '';
-    
+
     // Chat en tiempo real
     mensajes: MensajeChat[] = [];
     chatConectado: boolean = false;
     usuarioActual: any = null;
-    
+
     // Video call state
     mostrarVideollamada: boolean = false;
     llamadaEnProgreso: boolean = false;
-    
+
     private shouldScrollToBottom = false;
     private subscriptions: Subscription[] = [];
 
@@ -120,14 +120,14 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
             next: (citas: CitaMedica[]) => {
                 console.log('📋 Citas cargadas para consultas:', citas);
                 // Filtrar SOLO las citas en progreso (iniciadas)
-                const citasActivas = citas.filter(cita => 
+                const citasActivas = citas.filter(cita =>
                     cita.estado === 'en_progreso'
                 );
-                
+
                 // Transformar las citas reales a formato de consulta
                 this.consultas = citasActivas.map((cita: any) => this.transformarCitaAConsulta(cita));
                 this.loading = false;
-                
+
                 if (this.consultas.length === 0) {
                     console.log('ℹ️ No hay consultas activas (en progreso) disponibles');
                 }
@@ -288,14 +288,14 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
     }
 
     // ============== FUNCIONALIDADES DE VIDEOLLAMADA ==============
-    
+
     iniciarVideollamada(): void {
         if (this.consultaActiva && this.chatConectado) {
             console.log('Iniciando videollamada para consulta:', this.consultaActiva.id);
-            
+
             // Notificar al paciente que se está iniciando la videollamada
             this.chatService.iniciarVideollamada(this.consultaActiva.id);
-            
+
             // Iniciar videollamada como médico (caller)
             this.videoCallService.startCall(
                 this.consultaActiva.id,
@@ -306,21 +306,21 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
             this.llamadaEnProgreso = true;
         }
     }
-    
+
     cerrarVideollamada(): void {
         this.mostrarVideollamada = false;
         this.llamadaEnProgreso = false;
         this.videoCallService.endCall();
     }
 
-    
+
     // ============== UTILIDADES ==============
-    
+
     formatearTiempoMensaje(timestamp: Date): string {
         const fecha = new Date(timestamp);
-        return fecha.toLocaleTimeString('es-ES', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return fecha.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
         });
     }
 

@@ -24,7 +24,7 @@ export class ModalPagoComponent implements OnInit {
   mensajeError = '';
   mensajeExito = '';
   citaActual: any = null; // Agregar para guardar la info de la cita
-  
+
   // Historial de pagos
   pagosPaciente: PagoBackend[] = [];
   cargandoHistorial = false;
@@ -70,12 +70,12 @@ export class ModalPagoComponent implements OnInit {
           const fechaB = new Date(b.creado_en || b.fecha || 0).getTime();
           return fechaB - fechaA; // Orden descendente
         });
-        
+
         // Calcular total pagado
         this.totalPagado = this.pagosPaciente
           .filter(p => p.estado === 'completado' || p.estado !== 'cancelado')
           .reduce((sum, pago) => sum + (Number(pago.monto) || 0), 0);
-        
+
         this.cargandoHistorial = false;
       },
       error: (error) => {
@@ -158,15 +158,15 @@ export class ModalPagoComponent implements OnInit {
         this.mensajeExito = '✅ ¡Pago procesado exitosamente!';
         this.mensajeError = '';
         this.cargando = false;
-        
+
         // Agregar el email del formulario a la respuesta para que se use en la cita
         const respuestaConEmail = {
           ...response,
           email_notificacion: this.formularioPago.get('email')?.value
         };
-        
+
         this.pagoCompletado.emit(respuestaConEmail);
-        
+
         // Esperar 2 segundos y cerrar
         setTimeout(() => {
           this.cargarHistorialPagos();
@@ -177,7 +177,7 @@ export class ModalPagoComponent implements OnInit {
         console.error('❌ Error procesando pago:', error);
         console.error('Respuesta del servidor:', error.error);
         console.error('Status:', error.status);
-        
+
         const mensajeError = error.error?.message || error.message || 'Error al procesar el pago. Intenta de nuevo.';
         this.mensajeError = `❌ ${mensajeError}`;
         this.mensajeExito = '';

@@ -29,7 +29,7 @@ export class ChatService {
   private mensajesSubject = new BehaviorSubject<MensajeChat[]>([]);
   private notificacionesSubject = new BehaviorSubject<NotificacionChat | null>(null);
   private conectadoSubject = new BehaviorSubject<boolean>(false);
-  
+
   private consultaActivaId: number | null = null;
   private usuarioId: number | null = null;
   private rol: string | null = null;
@@ -54,7 +54,7 @@ export class ChatService {
   }
 
   // ============== CONEXIÓN WEBSOCKET ==============
-  
+
   conectar(): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       console.log('🔄 Ya conectado al WebSocket');
@@ -68,12 +68,12 @@ export class ChatService {
     this.socket.onopen = () => {
       console.log('🟢 Conectado al chat WebSocket');
       this.conectadoSubject.next(true);
-      
+
       // Asegurar que tenemos datos de usuario
       if (!this.usuarioId || !this.rol) {
         this.inicializarDatosUsuario();
       }
-      
+
       // Enviar identificación del usuario
       if (this.usuarioId && this.rol) {
         const identificacion = {
@@ -100,7 +100,7 @@ export class ChatService {
     this.socket.onclose = () => {
       console.log('🔴 Desconectado del chat WebSocket');
       this.conectadoSubject.next(false);
-      
+
       // Intentar reconectar después de 5 segundos
       setTimeout(() => {
         if (this.consultaActivaId) {
@@ -125,7 +125,7 @@ export class ChatService {
   }
 
   // ============== GESTIÓN DE CONSULTAS ==============
-  
+
   unirseAConsulta(consultaId: number): void {
     console.log('🏥 Intentando unirse a consulta:', {
       consultaId,
@@ -135,11 +135,11 @@ export class ChatService {
     });
 
     this.consultaActivaId = consultaId;
-    
+
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       console.log('🔌 Socket no conectado, conectando primero...');
       this.conectar();
-      
+
       // Esperar a que se conecte y luego unirse
       setTimeout(() => {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
@@ -171,14 +171,14 @@ export class ChatService {
         usuarioId: this.usuarioId
       });
     }
-    
+
     this.consultaActivaId = null;
     this.mensajesSubject.next([]);
     this.desconectar();
   }
 
   // ============== ENVÍO DE MENSAJES ==============
-  
+
   enviarMensaje(texto: string, nombre: string): void {
     console.log('📤 Intentando enviar mensaje:', {
       texto: texto,
@@ -222,7 +222,7 @@ export class ChatService {
     };
 
     console.log('📝 Agregando mensaje local temporalmente:', mensajeLocal);
-    
+
     // Agregar mensaje inmediatamente a la lista local
     const mensajesActuales = this.mensajesSubject.value;
     this.mensajesSubject.next([...mensajesActuales, mensajeLocal]);
@@ -251,7 +251,7 @@ export class ChatService {
         readyState: this.socket?.readyState,
         OPEN: WebSocket.OPEN
       });
-      
+
       // Intentar reconectar
       console.log('🔄 Intentando reconectar...');
       this.conectar();
@@ -265,51 +265,51 @@ export class ChatService {
   }
 
   // ============== PROCESAMIENTO DE MENSAJES ==============
-  
+
   private procesarMensajeRecibido(data: any): void {
     console.log('📬 Mensaje recibido del WebSocket:', data);
-    
+
     switch (data.tipo) {
       case 'historial_mensajes':
         console.log('📄 Cargando historial de mensajes:', data.mensajes?.length || 0, 'mensajes');
         this.mensajesSubject.next(data.mensajes || []);
         break;
-        
+
       case 'nuevo_mensaje':
         console.log('💬 Nuevo mensaje recibido:', data.mensaje);
         const mensajesActuales = this.mensajesSubject.value;
-        
+
         // Evitar duplicados removiendo mensaje temporal si existe
-        const mensajesFiltrados = mensajesActuales.filter(m => 
-          !m.id?.toString().startsWith('temp-') || 
+        const mensajesFiltrados = mensajesActuales.filter(m =>
+          !m.id?.toString().startsWith('temp-') ||
           m.texto !== data.mensaje.texto ||
           m.remitenteId !== data.mensaje.remitenteId
         );
-        
+
         this.mensajesSubject.next([...mensajesFiltrados, data.mensaje]);
         console.log('📋 Total de mensajes ahora:', this.mensajesSubject.value.length);
         break;
-        
+
       case 'identificado':
         console.log('👤 Usuario identificado en WebSocket:', data.usuario);
         break;
-        
+
       case 'notificacion':
         console.log('🔔 Notificación recibida:', data.notificacion);
         this.notificacionesSubject.next(data.notificacion);
         break;
-        
+
       case 'error':
         console.error('❌ Error del servidor WebSocket:', data.mensaje);
         break;
-        
+
       default:
         console.log('📨 Mensaje WebSocket no manejado:', data);
     }
   }
 
   // ============== OBSERVABLES PÚBLICOS ==============
-  
+
   getMensajes(): Observable<MensajeChat[]> {
     return this.mensajesSubject.asObservable();
   }
@@ -327,7 +327,7 @@ export class ChatService {
   }
 
   // ============== UTILIDADES ==============
-  
+
   marcarMensajesComoLeidos(consultaId: number): void {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.enviarMensajeSocket({

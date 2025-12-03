@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api'
+  apiUrl: '/api'  // Usar ruta relativa ya que frontend y backend están en el mismo dominio
 };

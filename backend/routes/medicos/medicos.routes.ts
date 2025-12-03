@@ -36,10 +36,10 @@ router.get('/profiles', async (req: AuthRequest, res) => {
     const pool = getConnection();
 
     const [rows]: any = await pool.query(
-      `SELECT 
-        u.usuario_id, u.nombre, u.apellido_paterno, u.apellido_materno, 
+      `SELECT
+        u.usuario_id, u.nombre, u.apellido_paterno, u.apellido_materno,
         u.email, u.telefono,
-        mp.especialidad, mp.anos_experiencia, mp.universidad, 
+        mp.especialidad, mp.anos_experiencia, mp.universidad,
         mp.cedula_profesional, mp.descripcion, mp.tarifa_consulta
       FROM usuarios u
       LEFT JOIN medicos_profesionales mp ON u.usuario_id = mp.usuario_id

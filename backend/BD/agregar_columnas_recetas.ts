@@ -14,7 +14,7 @@ async function agregarColumnasRecetas() {
     // Agregar columna para foto de receta
     try {
       await connection.execute(`
-        ALTER TABLE recetas 
+        ALTER TABLE recetas
         ADD COLUMN foto_receta VARCHAR(255) DEFAULT NULL COMMENT 'Ruta de la foto de la receta manuscrita'
       `);
       console.log('✅ Columna foto_receta agregada exitosamente');
@@ -29,7 +29,7 @@ async function agregarColumnasRecetas() {
     // Agregar columna para código médico
     try {
       await connection.execute(`
-        ALTER TABLE recetas 
+        ALTER TABLE recetas
         ADD COLUMN codigo_medico VARCHAR(100) DEFAULT NULL COMMENT 'Código de identificación médica'
       `);
       console.log('✅ Columna codigo_medico agregada exitosamente');
@@ -44,7 +44,7 @@ async function agregarColumnasRecetas() {
     // Agregar columna para firma digital
     try {
       await connection.execute(`
-        ALTER TABLE recetas 
+        ALTER TABLE recetas
         ADD COLUMN firma_digital TEXT DEFAULT NULL COMMENT 'Firma digital del médico'
       `);
       console.log('✅ Columna firma_digital agregada exitosamente');
@@ -59,7 +59,7 @@ async function agregarColumnasRecetas() {
     // Agregar columna para estado de autenticación médica
     try {
       await connection.execute(`
-        ALTER TABLE recetas 
+        ALTER TABLE recetas
         ADD COLUMN autenticacion_medica BOOLEAN DEFAULT FALSE COMMENT 'Indica si la receta tiene autenticación médica válida'
       `);
       console.log('✅ Columna autenticacion_medica agregada exitosamente');

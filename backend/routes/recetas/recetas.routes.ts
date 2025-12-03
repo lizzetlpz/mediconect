@@ -47,17 +47,17 @@ const upload = multer({
 // ============== CREAR RECETA CON FOTO (Solo médicos) ==============
 router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (req: AuthRequest, res: Response) => {
   try {
-    const { 
-      paciente_id, 
-      cita_id, 
-      medicamentos, 
-      instrucciones, 
-      observaciones, 
+    const {
+      paciente_id,
+      cita_id,
+      medicamentos,
+      instrucciones,
+      observaciones,
       dias_validez = 30,
       codigo_medico,
       firma_digital
     } = req.body;
-    
+
     // Verificar que el usuario es médico
     if (req.rol_id !== 3) {
       return res.status(403).json({ message: 'Solo los médicos pueden crear recetas' });
@@ -74,7 +74,7 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
     const codigo_validacion = `RX-${timestamp.substr(-6)}-${random}`;
 
     const pool = getConnection();
-    
+
     // Calcular fecha de vencimiento
     const fecha_emision = new Date();
     const fecha_vencimiento = new Date();
@@ -86,8 +86,8 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
     // Insertar receta principal con foto
     const [recetaResult] = await pool.query(`
       INSERT INTO recetas (
-        medico_id, paciente_id, cita_id, codigo_validacion, 
-        instrucciones, observaciones, dias_validez, 
+        medico_id, paciente_id, cita_id, codigo_validacion,
+        instrucciones, observaciones, dias_validez,
         fecha_emision, fecha_vencimiento, estado,
         foto_receta, codigo_medico, firma_digital
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?)
@@ -105,7 +105,7 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
     for (const med of medicamentosArray) {
       await pool.query(`
         INSERT INTO receta_medicamentos (
-          receta_id, nombre, concentracion, forma_farmaceutica, 
+          receta_id, nombre, concentracion, forma_farmaceutica,
           cantidad, via_administracion, frecuencia, duracion, indicaciones_especiales
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
@@ -129,7 +129,7 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
 
   } catch (error) {
     console.error('Error al crear receta con foto:', error);
-    
+
     // Eliminar archivo subido si hubo error
     if (req.file) {
       try {
@@ -138,8 +138,8 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
         console.error('Error al eliminar archivo:', unlinkError);
       }
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       message: 'Error interno del servidor',
       error: process.env.NODE_ENV === 'development' ? error : undefined
     });
@@ -150,7 +150,7 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
 router.post('/', verificarToken, async (req: AuthRequest, res: Response) => {
   try {
     const { paciente_id, cita_id, medicamentos, instrucciones, observaciones, dias_validez = 30 } = req.body;
-    
+
     // Verificar que el usuario es médico
     if (req.rol_id !== 3) {
       return res.status(403).json({ message: 'Solo los médicos pueden crear recetas' });
@@ -162,7 +162,7 @@ router.post('/', verificarToken, async (req: AuthRequest, res: Response) => {
     const codigo_validacion = `RX-${timestamp.substr(-6)}-${random}`;
 
     const pool = getConnection();
-    
+
     // Calcular fecha de vencimiento
     const fecha_emision = new Date();
     const fecha_vencimiento = new Date();
@@ -206,7 +206,7 @@ router.post('/', verificarToken, async (req: AuthRequest, res: Response) => {
     `, [receta_id]);
 
     const receta = (recetas as RowDataPacket[])[0];
-    
+
     // Obtener medicamentos
     const [medicamentosResult] = await pool.query(`
       SELECT * FROM receta_medicamentos WHERE receta_id = ?
@@ -366,7 +366,7 @@ router.post('/utilizar/:codigo', async (req: Request, res: Response) => {
     const { nombre_farmacia, farmaceutico_responsable, observaciones } = req.body;
 
     const pool = getConnection();
-    
+
     // Verificar que la receta existe y está activa
     const [recetas] = await pool.query(`
       SELECT * FROM recetas WHERE codigo_validacion = ? AND estado = 'activa'
@@ -386,9 +386,9 @@ router.post('/utilizar/:codigo', async (req: Request, res: Response) => {
 
     // Marcar como utilizada
     await pool.query(`
-      UPDATE recetas 
-      SET estado = 'utilizada', 
-          farmacia_utilizada = ?, 
+      UPDATE recetas
+      SET estado = 'utilizada',
+          farmacia_utilizada = ?,
           farmaceutico_responsable = ?,
           fecha_utilizacion = ?,
           observaciones_farmacia = ?
@@ -415,7 +415,7 @@ router.put('/:id/cancelar', verificarToken, async (req: AuthRequest, res: Respon
     }
 
     const pool = getConnection();
-    
+
     // Verificar que la receta pertenece al médico
     const [recetas] = await pool.query(`
       SELECT * FROM recetas WHERE id = ? AND medico_id = ?
@@ -433,8 +433,8 @@ router.put('/:id/cancelar', verificarToken, async (req: AuthRequest, res: Respon
 
     // Cancelar receta
     await pool.query(`
-      UPDATE recetas 
-      SET estado = 'cancelada', 
+      UPDATE recetas
+      SET estado = 'cancelada',
           motivo_cancelacion = ?,
           fecha_cancelacion = ?
       WHERE id = ?

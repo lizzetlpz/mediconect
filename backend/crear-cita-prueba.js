@@ -14,7 +14,7 @@ async function crearCitaDePrueba() {
     try {
         // Buscar un paciente y un médico existentes
         console.log('👥 Buscando usuarios existentes...');
-        
+
         const [pacientes] = await connection.promise().query(
             'SELECT usuario_id, nombre, apellido_paterno FROM usuarios WHERE rol_id = 2 LIMIT 1'
         );
@@ -25,31 +25,31 @@ async function crearCitaDePrueba() {
 
         if (pacientes.length === 0) {
             console.log('❌ No se encontraron pacientes. Creando uno...');
-            
+
             const bcrypt = require('bcrypt');
             const hashedPassword = await bcrypt.hash('password123', 10);
-            
+
             await connection.promise().query(`
-                INSERT INTO usuarios 
+                INSERT INTO usuarios
                 (nombre, apellido_paterno, email, contraseña, rol_id, activo)
                 VALUES ('Paciente', 'Prueba', 'paciente@test.com', ?, 2, 1)
             `, [hashedPassword]);
-            
+
             console.log('✅ Paciente de prueba creado');
         }
 
         if (medicos.length === 0) {
             console.log('❌ No se encontraron médicos. Creando uno...');
-            
+
             const bcrypt = require('bcrypt');
             const hashedPassword = await bcrypt.hash('password123', 10);
-            
+
             await connection.promise().query(`
-                INSERT INTO usuarios 
+                INSERT INTO usuarios
                 (nombre, apellido_paterno, email, contraseña, rol_id, activo)
                 VALUES ('Dr. Juan', 'Pérez', 'medico@test.com', ?, 3, 1)
             `, [hashedPassword]);
-            
+
             console.log('✅ Médico de prueba creado');
         }
 
@@ -73,7 +73,7 @@ async function crearCitaDePrueba() {
         fechaCita.setHours(fechaCita.getHours() + 1); // 1 hora desde ahora
 
         const [citaResult] = await connection.promise().query(`
-            INSERT INTO citas 
+            INSERT INTO citas
             (paciente_id, medico_id, fecha_cita, hora_cita, motivo, estado, modalidad)
             VALUES (?, ?, ?, ?, ?, 'en_progreso', 'texto')
         `, [

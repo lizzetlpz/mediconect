@@ -98,7 +98,7 @@ export class EditarFamiliarComponent {
   abrir(familiar: FamilyMember): void {
     this.familiarEditando = familiar;
     this.mostrarModal = true;
-    
+
     // Convertir fecha a formato YYYY-MM-DD para el input date
     let fechaFormato = '';
     if (familiar.fechaNacimiento) {
@@ -112,7 +112,7 @@ export class EditarFamiliarComponent {
         }
       }
     }
-    
+
     // Precarga los datos del familiar
     this.formulario.patchValue({
       nombre: familiar.nombre.split(' ')[0],

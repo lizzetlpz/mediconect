@@ -13,15 +13,15 @@ async function crearTablas() {
 
   try {
     console.log('📋 Conectando a la base de datos...');
-    
+
     // Leer el archivo SQL
     const sqlFile = fs.readFileSync(path.join(__dirname, 'tablas_recetas.sql'), 'utf8');
-    
+
     // Dividir en comandos individuales (separados por ;)
     const commands = sqlFile.split(';').filter(cmd => cmd.trim().length > 0);
-    
+
     console.log(`📝 Ejecutando ${commands.length} comandos SQL...`);
-    
+
     for (let i = 0; i < commands.length; i++) {
       const command = commands[i].trim();
       if (command.length > 0) {
@@ -44,39 +44,39 @@ async function crearTablas() {
         }
       }
     }
-    
+
     // Verificar las tablas creadas
     console.log('\n📋 Verificando tablas creadas:');
-    
+
     const [recetas] = await connection.execute('SELECT COUNT(*) as count FROM recetas');
     console.log(`✅ Tabla 'recetas': ${recetas[0].count} registros`);
-    
+
     const [medicamentos] = await connection.execute('SELECT COUNT(*) as count FROM receta_medicamentos');
     console.log(`💊 Tabla 'receta_medicamentos': ${medicamentos[0].count} registros`);
-    
+
     // Mostrar estructura de las tablas
     console.log('\n🗂️ ESTRUCTURA DE TABLA: recetas');
     const [recetasStruct] = await connection.execute('DESCRIBE recetas');
-    console.table(recetasStruct.map(col => ({ 
-      Campo: col.Field, 
-      Tipo: col.Type, 
+    console.table(recetasStruct.map(col => ({
+      Campo: col.Field,
+      Tipo: col.Type,
       Null: col.Null,
       Key: col.Key,
       Default: col.Default
     })));
-    
+
     console.log('\n💊 ESTRUCTURA DE TABLA: receta_medicamentos');
     const [medicamentosStruct] = await connection.execute('DESCRIBE receta_medicamentos');
-    console.table(medicamentosStruct.map(col => ({ 
-      Campo: col.Field, 
-      Tipo: col.Type, 
+    console.table(medicamentosStruct.map(col => ({
+      Campo: col.Field,
+      Tipo: col.Type,
       Null: col.Null,
       Key: col.Key,
       Default: col.Default
     })));
-    
+
     console.log('\n🎉 ¡Todas las tablas se crearon exitosamente!');
-    
+
   } catch (error) {
     console.error('❌ Error creando tablas:', error);
   } finally {

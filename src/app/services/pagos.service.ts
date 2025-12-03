@@ -36,47 +36,47 @@ export class PagosService {
     let headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
-    
+
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     }
-    
+
     return headers;
   }
 
   getPagos(): Observable<PagoBackend[]> {
-    return this.http.get<PagoBackend[]>(this.api, { 
-      headers: this.getHeaders() 
+    return this.http.get<PagoBackend[]>(this.api, {
+      headers: this.getHeaders()
     });
   }
 
   getPagosByPaciente(pacienteId: number): Observable<PagoBackend[]> {
-    return this.http.get<PagoBackend[]>(`${this.api}/paciente/${pacienteId}`, { 
-      headers: this.getHeaders() 
+    return this.http.get<PagoBackend[]>(`${this.api}/paciente/${pacienteId}`, {
+      headers: this.getHeaders()
     });
   }
 
   getPago(pagoId: number): Observable<PagoBackend> {
-    return this.http.get<PagoBackend>(`${this.api}/${pagoId}`, { 
-      headers: this.getHeaders() 
+    return this.http.get<PagoBackend>(`${this.api}/${pagoId}`, {
+      headers: this.getHeaders()
     });
   }
 
   createPago(payload: Partial<PagoBackend>) {
-    return this.http.post(this.api, payload, { 
-      headers: this.getHeaders() 
+    return this.http.post(this.api, payload, {
+      headers: this.getHeaders()
     });
   }
 
   updatePago(pagoId: number, payload: Partial<PagoBackend>) {
-    return this.http.put(`${this.api}/${pagoId}`, payload, { 
-      headers: this.getHeaders() 
+    return this.http.put(`${this.api}/${pagoId}`, payload, {
+      headers: this.getHeaders()
     });
   }
 
   deletePago(pagoId: number) {
-    return this.http.delete(`${this.api}/${pagoId}`, { 
-      headers: this.getHeaders() 
+    return this.http.delete(`${this.api}/${pagoId}`, {
+      headers: this.getHeaders()
     });
   }
 }

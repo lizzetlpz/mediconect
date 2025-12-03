@@ -35,18 +35,18 @@
 </head>
 <body>
     <h1>Test de Descarga de Facturas</h1>
-    
+
     <div>
         <label for="pagoId">ID del Pago:</label>
         <input type="number" id="pagoId" value="1" min="1">
         <button class="test-button" onclick="testDownload()">Descargar Factura</button>
     </div>
-    
+
     <div>
         <button class="test-button" onclick="testConnection()">Test Conexión Backend</button>
         <button class="test-button" onclick="clearLog()">Limpiar Log</button>
     </div>
-    
+
     <div class="log" id="log"></div>
 
     <script>
@@ -63,7 +63,7 @@
 
         async function testConnection() {
             log('🔄 Probando conexión con el backend...');
-            
+
             try {
                 const response = await fetch('http://localhost:3000/api/pagos', {
                     method: 'GET',
@@ -71,7 +71,7 @@
                         'Authorization': 'Bearer ' + localStorage.getItem('token') || 'test'
                     }
                 });
-                
+
                 log(`✅ Conexión exitosa. Status: ${response.status}`);
                 const data = await response.json();
                 log(`📊 Datos recibidos: ${JSON.stringify(data).substring(0, 100)}...`);
@@ -83,12 +83,12 @@
         async function testDownload() {
             const pagoId = document.getElementById('pagoId').value;
             log(`🔄 Iniciando descarga para pago ID: ${pagoId}`);
-            
+
             const token = localStorage.getItem('token') || 'test';
-            
+
             try {
                 log('📤 Enviando petición POST...');
-                
+
                 const response = await fetch(`http://localhost:3000/api/pagos/factura/${pagoId}`, {
                     method: 'POST',
                     headers: {
@@ -97,20 +97,20 @@
                     },
                     body: JSON.stringify({})
                 });
-                
+
                 log(`📥 Respuesta recibida. Status: ${response.status}`);
                 log(`📋 Content-Type: ${response.headers.get('content-type')}`);
                 log(`📏 Content-Length: ${response.headers.get('content-length')}`);
-                
+
                 if (!response.ok) {
                     const errorText = await response.text();
                     log(`❌ Error del servidor: ${errorText}`);
                     return;
                 }
-                
+
                 const blob = await response.blob();
                 log(`✅ Blob recibido. Tamaño: ${blob.size} bytes, Tipo: ${blob.type}`);
-                
+
                 // Crear enlace de descarga
                 const url = window.URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -120,9 +120,9 @@
                 link.click();
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
-                
+
                 log('🎉 ¡Descarga iniciada exitosamente!');
-                
+
             } catch (error) {
                 log(`❌ Error durante la descarga: ${error.message}`);
                 console.error('Error completo:', error);

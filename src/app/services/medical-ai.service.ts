@@ -83,7 +83,7 @@ export class MedicalAIService {
       duracion: '',
       intensidad: 0
     };
-    
+
     const mensajes: MensajeIA[] = [{
       id: this.generarId(),
       texto: this.preguntasIA[0],
@@ -91,7 +91,7 @@ export class MedicalAIService {
       timestamp: new Date(),
       tipo: 'pregunta'
     }];
-    
+
     this.mensajes.next(mensajes);
     this.conversacionActiva.next(true);
   }
@@ -101,7 +101,7 @@ export class MedicalAIService {
     if (!respuesta.trim()) return;
 
     const mensajesActuales = this.mensajes.value;
-    
+
     // Agregar respuesta del paciente
     const mensajePaciente: MensajeIA = {
       id: this.generarId(),
@@ -110,12 +110,12 @@ export class MedicalAIService {
       timestamp: new Date(),
       tipo: 'respuesta'
     };
-    
+
     mensajesActuales.push(mensajePaciente);
 
     // Procesar respuesta según el paso actual
     this.procesarRespuesta(respuesta.trim());
-    
+
     this.pasoActual++;
 
     // Generar siguiente pregunta o diagnóstico
@@ -128,7 +128,7 @@ export class MedicalAIService {
           timestamp: new Date(),
           tipo: 'pregunta'
         };
-        
+
         const mensajesActualizados = this.mensajes.value;
         mensajesActualizados.push(siguientePregunta);
         this.mensajes.next([...mensajesActualizados]);
@@ -139,7 +139,7 @@ export class MedicalAIService {
         this.generarDiagnostico();
       }, 1500);
     }
-    
+
     this.mensajes.next([...mensajesActuales]);
   }
 
@@ -167,11 +167,11 @@ export class MedicalAIService {
   // Extraer síntomas del texto
   private extraerSintomas(texto: string): string[] {
     const sintomasComunes = [
-      'dolor de cabeza', 'fiebre', 'tos', 'dolor abdominal', 'náuseas', 
+      'dolor de cabeza', 'fiebre', 'tos', 'dolor abdominal', 'náuseas',
       'vómitos', 'diarrea', 'dolor de garganta', 'congestión nasal',
       'dolor muscular', 'fatiga', 'mareos'
     ];
-    
+
     const textoLower = texto.toLowerCase();
     return sintomasComunes.filter(sintoma => textoLower.includes(sintoma));
   }
@@ -185,7 +185,7 @@ export class MedicalAIService {
   // Generar diagnóstico basado en síntomas
   private generarDiagnostico(): void {
     let diagnostico = "Basado en tus síntomas, aquí está mi evaluación:\n\n";
-    
+
     if (this.sintomasRecolectados.sintomas.length === 0) {
       diagnostico += "⚠️ No pude identificar síntomas específicos. Te recomiendo que consultes con un médico para una evaluación adecuada.\n\n";
     } else {
@@ -194,17 +194,17 @@ export class MedicalAIService {
         if (this.baseDiagnosticos[sintoma as keyof typeof this.baseDiagnosticos]) {
           const intensidad = this.sintomasRecolectados.intensidad;
           let nivel: 'leve' | 'moderado' | 'severo';
-          
+
           if (intensidad <= 3) nivel = 'leve';
           else if (intensidad <= 7) nivel = 'moderado';
           else nivel = 'severo';
-          
+
           const recomendacion = this.baseDiagnosticos[sintoma as keyof typeof this.baseDiagnosticos][nivel];
           diagnostico += `🔸 **${sintoma.toUpperCase()}**: ${recomendacion}\n\n`;
         }
       }
     }
-    
+
     diagnostico += "⚠️ **IMPORTANTE**: Este es solo un análisis preliminar. Para un diagnóstico profesional y tratamiento adecuado, te recomiendo agendar una cita con uno de nuestros médicos.\n\n";
     diagnostico += "¿Te gustaría agendar una consulta médica ahora?";
 
@@ -215,7 +215,7 @@ export class MedicalAIService {
       timestamp: new Date(),
       tipo: 'diagnostico'
     };
-    
+
     const mensajesActuales = this.mensajes.value;
     mensajesActuales.push(mensajeDiagnostico);
     this.mensajes.next([...mensajesActuales]);

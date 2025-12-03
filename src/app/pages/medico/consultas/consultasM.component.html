@@ -109,37 +109,37 @@
                         <div class="chat-details">
                             <h3>{{ consultaActiva.motivo }}</h3>
                             <p>{{ consultaActiva.paciente.nombre }} • {{ consultaActiva.medico.nombre }}</p>
-                            
+
                             <!-- Estado de conexión -->
                             <div class="connection-status">
-                                <span class="status-indicator" 
-                                      [class.connected]="chatConectado" 
+                                <span class="status-indicator"
+                                      [class.connected]="chatConectado"
                                       [class.disconnected]="!chatConectado">
                                 </span>
                                 <span class="status-text">{{ chatConectado ? 'En línea' : 'Desconectado' }}</span>
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="chat-actions">
                         <!-- Iniciar videollamada (solo para modalidad video) -->
-                        <button *ngIf="esVideollamada(consultaActiva)" 
-                                class="action-btn video-btn" 
+                        <button *ngIf="esVideollamada(consultaActiva)"
+                                class="action-btn video-btn"
                                 (click)="iniciarVideollamada()"
                                 [disabled]="!chatConectado || llamadaEnProgreso"
                                 title="Iniciar videollamada">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
                                 </path>
                             </svg>
                             {{ llamadaEnProgreso ? 'En llamada' : 'Videollamada' }}
                         </button>
-                        
+
                         <!-- Finalizar consulta -->
                         <button class="action-btn end-btn" (click)="finalizarConsulta()">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
                                 </path>
                             </svg>
@@ -161,7 +161,7 @@
                             <div class="message-bubble">{{ mensaje.texto }}</div>
                         </div>
                     </div>
-                    
+
                     <!-- Mensaje de estado si no hay mensajes -->
                     <div *ngIf="mensajes.length === 0" class="no-messages">
                         <p>La consulta ha comenzado. Envía un mensaje para iniciar la conversación.</p>
@@ -189,9 +189,9 @@
             </ng-container>
         </div>
     </div>
-    
+
     <!-- Video Call Component (Modal) -->
-    <app-video-call 
+    <app-video-call
         *ngIf="mostrarVideollamada && consultaActiva"
         [consultaId]="consultaActiva.id"
         [participantName]="consultaActiva.paciente.nombre"

@@ -82,7 +82,7 @@ export class CitasComponent implements OnInit {
 
   ngOnInit(): void {
     console.log('🎯 CitasComponent.ngOnInit iniciado');
-    
+
     // Siempre refrescar desde el servidor cuando entras a la página de Agenda
     this.appointmentService.getAppointments().subscribe({
       next: (appointments) => {
@@ -92,7 +92,7 @@ export class CitasComponent implements OnInit {
         console.error('❌ Error refrescando citas:', err);
       }
     });
-    
+
     // Escuchar cambios en tiempo real desde el AppointmentService
     this.appointmentService.appointments$.subscribe((appointments: any[]) => {
       console.log('🔄 Cambios en appointments$ detectados:', appointments);

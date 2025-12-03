@@ -25,7 +25,7 @@ export class EmailService {
     console.log('🔧 Inicializando EmailService...');
     console.log('   EMAIL_USER:', process.env.EMAIL_USER || 'NO CONFIGURADO');
     console.log('   EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? '***configurado***' : 'NO CONFIGURADO');
-    
+
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -41,7 +41,7 @@ export class EmailService {
   async enviarEmail(data: EmailData): Promise<boolean> {
     try {
       console.log(`📧 Enviando email a: ${data.to}`);
-      
+
       const info = await this.transporter.sendMail({
         from: `"MediConnect" <${process.env.EMAIL_USER}>`,
         to: data.to,
@@ -88,7 +88,7 @@ export class EmailService {
    */
   private generarHTMLCita(data: CitaEmailData): string {
     const fechaFormateada = this.formatearFecha(data.fecha_cita);
-    
+
     return `
       <!DOCTYPE html>
       <html lang="es">
@@ -187,7 +187,7 @@ export class EmailService {
           </div>
 
           <p>Hola <strong>${data.paciente_nombre}</strong>,</p>
-          
+
           <p>Tu cita médica ha sido confirmada. A continuación encontrarás los detalles:</p>
 
           <div class="info-box">
@@ -338,17 +338,17 @@ export class EmailService {
           </div>
 
           <p>Hola <strong>${nombre}</strong>,</p>
-          
+
           <p>¡Gracias por registrarte en MediConnect! Para completar tu registro y comenzar a usar nuestra plataforma, necesitamos verificar tu dirección de correo electrónico.</p>
 
           <div class="verification-box">
             <h3 style="margin-top: 0; color: #28a745;">🔐 Código de Verificación</h3>
             <p>Para verificar tu cuenta, ingresa a la plataforma MediConnect y utiliza el siguiente código:</p>
-            
+
             <div style="background: #f8f9fa; border: 2px dashed #28a745; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
               <h2 style="margin: 0; font-size: 32px; letter-spacing: 4px; color: #28a745; font-family: 'Courier New', monospace;">${tokenVerificacion}</h2>
             </div>
-            
+
             <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 20px 0;">
               <h4 style="margin: 0 0 10px 0; color: #1976d2;">📱 Cómo verificar tu cuenta:</h4>
               <ol style="margin: 0; padding-left: 20px; color: #1976d2;">
@@ -361,7 +361,7 @@ export class EmailService {
           </div>
 
           <div class="warning">
-            <strong>⚠️ Importante:</strong> 
+            <strong>⚠️ Importante:</strong>
             <ul style="margin: 10px 0; padding-left: 20px;">
               <li>Este código es válido por <strong>24 horas</strong></li>
               <li>Si no verificas tu cuenta, no podrás acceder a todas las funciones</li>
@@ -419,7 +419,7 @@ export class EmailService {
   async testearEnvioEmail(emailDestino: string = 'medicoomx@gmail.com'): Promise<boolean> {
     try {
       console.log(`🧪 Probando envío de email a: ${emailDestino}`);
-      
+
       const configOk = await this.verificarConfiguracion();
       if (!configOk) {
         console.error('❌ Error en la configuración de email');

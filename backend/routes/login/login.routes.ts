@@ -120,8 +120,8 @@ router.post('/register', async (req: Request, res: Response) => {
     if (rolFinal === 'doctor' && cedulaProfesional) {
       try {
         await pool.query(
-          `INSERT INTO medicos_profesionales 
-          (usuario_id, especialidad, anos_experiencia, universidad, cedula_profesional, descripcion, tarifa_consulta, creado_en) 
+          `INSERT INTO medicos_profesionales
+          (usuario_id, especialidad, anos_experiencia, universidad, cedula_profesional, descripcion, tarifa_consulta, creado_en)
           VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
           [
             usuario_id,
@@ -143,7 +143,7 @@ router.post('/register', async (req: Request, res: Response) => {
     // Enviar email de verificación
     try {
       const { default: emailService } = await import('../../src/services/email.service');
-      
+
       const emailEnviado = await emailService.enviarEmail({
         to: emailFinal.toLowerCase(),
         subject: 'Verificar tu cuenta en MediConnect',
@@ -152,23 +152,23 @@ router.post('/register', async (req: Request, res: Response) => {
             <h2 style="color: #0066cc;">Bienvenido a MediConnect</h2>
             <p>Hola <strong>${nombreFinal}</strong>,</p>
             <p>Gracias por registrarte en MediConnect. Para completar tu registro, por favor verifica tu correo electrónico.</p>
-            
+
             <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
               <h3 style="margin: 0; color: #0066cc;">Tu código de verificación:</h3>
               <div style="font-size: 32px; font-weight: bold; color: #0066cc; letter-spacing: 4px; margin: 10px 0;">
                 ${codigoVerificacion}
               </div>
             </div>
-            
+
             <p>Este código expira en <strong>24 horas</strong>.</p>
             <p>Si no solicitaste esta cuenta, puedes ignorar este email.</p>
-            
+
             <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
             <p style="font-size: 12px; color: #6b7280;">MediConnect - Plataforma médica profesional</p>
           </div>
         `
       });
-      
+
       if (emailEnviado) {
         console.log('✅ Email de verificación enviado a:', emailFinal);
       } else {

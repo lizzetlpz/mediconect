@@ -193,20 +193,20 @@ export class RecetaService {
 
     const contenidoReceta = this.generarTextoReceta(receta);
     const blob = new Blob([contenidoReceta], { type: 'text/plain;charset=utf-8' });
-    
+
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
     link.download = `Receta-${receta.codigo_validacion}.txt`;
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     setTimeout(() => {
       window.URL.revokeObjectURL(url);
     }, 1000);
-    
+
     console.log('✅ Receta descargada exitosamente');
   }
 
@@ -239,7 +239,7 @@ MEDICAMENTOS PRESCRITOS:
    Vía: ${med.via_administracion}
    Frecuencia: ${med.frecuencia}
    Duración: ${med.duracion}`;
-      
+
       if (med.indicaciones_especiales) {
         contenido += `\n   Indicaciones: ${med.indicaciones_especiales}`;
       }

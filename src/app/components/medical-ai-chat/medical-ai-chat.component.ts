@@ -65,7 +65,7 @@ export class MedicalAIChatComponent implements OnInit, OnDestroy, AfterViewCheck
     this.escribiendo = true;
     this.medicalAIService.enviarRespuesta(this.nuevaRespuesta);
     this.nuevaRespuesta = '';
-    
+
     // Simular que la IA está "escribiendo"
     setTimeout(() => {
       this.escribiendo = false;
@@ -93,9 +93,9 @@ export class MedicalAIChatComponent implements OnInit, OnDestroy, AfterViewCheck
 
   // Formatear tiempo del mensaje
   formatearTiempo(timestamp: Date): string {
-    return new Date(timestamp).toLocaleTimeString('es-ES', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return new Date(timestamp).toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 

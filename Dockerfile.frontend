@@ -1,0 +1,29 @@
+# Dockerfile para Angular Frontend
+FROM node:18-alpine
+
+# Instalar Angular CLI globalmente
+RUN npm install -g @angular/cli
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar package.json
+COPY package.json package-lock.json ./
+
+# Instalar dependencias
+RUN npm ci --only=production
+
+# Copiar código fuente
+COPY . .
+
+# Construir aplicación para producción
+RUN ng build --configuration production
+
+# Instalar servidor web estático
+RUN npm install -g http-server
+
+# Exponer puerto
+EXPOSE $PORT
+
+# Comando para ejecutar la aplicación
+CMD ["sh", "-c", "http-server dist/nombre-proyecto -p $PORT --cors"]

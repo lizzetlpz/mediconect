@@ -46,7 +46,7 @@ export class CitasMedicasComponent implements OnInit {
                 // Procesar las citas para asegurar formato correcto
                 this.citas = citas.map(cita => this.procesarCita(cita));
                 this.loading = false;
-                
+
                 console.log(`✅ Total de citas procesadas: ${this.citas.length}`);
             },
             error: (error) => {
@@ -117,11 +117,11 @@ export class CitasMedicasComponent implements OnInit {
     }
 
     // ============== MÉTODOS AUXILIARES ==============
-    
+
     getCitaId(cita: any): number {
         return cita.id || cita.cita_id || 0;
     }
-    
+
     getStatusClass(estado: string): string {
         switch (estado) {
             case 'en_progreso':
@@ -161,7 +161,7 @@ export class CitasMedicasComponent implements OnInit {
     }
 
     // ============== NUEVOS MÉTODOS DE GESTIÓN DE CITAS ==============
-    
+
     toggleDropdown(citaId: number): void {
         this.dropdownOpenId = this.dropdownOpenId === citaId ? null : citaId;
     }
@@ -174,7 +174,7 @@ export class CitasMedicasComponent implements OnInit {
     iniciarConsulta(citaId: number): void {
         this.updateEstadoCita(citaId, 'en_progreso');
         this.dropdownOpenId = null;
-        
+
         // Navegar a la sección de consultas después de un pequeño delay
         setTimeout(() => {
             this.router.navigate(['/doctor/consultas']);
@@ -202,21 +202,21 @@ export class CitasMedicasComponent implements OnInit {
 
     private updateEstadoCita(citaId: number, nuevoEstado: string): void {
         console.log(`🔄 Actualizando cita ${citaId} a estado: ${nuevoEstado}`);
-        
+
         this.citasService.actualizarEstadoCita(citaId, nuevoEstado).subscribe({
             next: () => {
                 console.log(`✅ Cita ${citaId} actualizada a ${nuevoEstado}`);
-                
+
                 // Actualizar la cita en la lista local
                 const cita = this.citas.find(c => (c.id || c.cita_id) === citaId);
                 if (cita) {
                     cita.estado = nuevoEstado as any;
                 }
-                
+
                 // Recargar las citas y estadísticas
                 this.cargarCitas();
                 this.cargarEstadisticas();
-                
+
                 // Mensaje de éxito
                 const mensaje = {
                     'confirmada': 'Cita confirmada exitosamente',
@@ -224,7 +224,7 @@ export class CitasMedicasComponent implements OnInit {
                     'completada': 'Cita completada y movida al historial',
                     'cancelada': 'Cita cancelada'
                 }[nuevoEstado];
-                
+
                 console.log('✅', mensaje);
             },
             error: (error) => {

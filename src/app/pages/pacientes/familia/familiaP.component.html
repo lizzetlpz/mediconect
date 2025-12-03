@@ -53,7 +53,7 @@
   <!-- Familiares List -->
   <div class="familiares-section">
     <h2 class="familiares-title">Mis Familiares</h2>
-    
+
     <!-- Empty State -->
     <div class="empty-state" *ngIf="familiares.length === 0">
       <div class="empty-icon">👥</div>
@@ -74,7 +74,7 @@
             <p class="familiar-relation">{{ familiar.relacion }}</p>
           </div>
         </div>
-        
+
         <div class="familiar-details">
           <div class="detail-row" *ngIf="familiar.fechaNacimiento">
             <span class="detail-label">📅 Nacimiento:</span>

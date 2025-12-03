@@ -228,7 +228,7 @@ export class VerifyEmailComponent implements OnInit {
       next: (response: any) => {
         this.loading = false;
         this.successMessage = response.message;
-        
+
         // Redirigir al login después de 2 segundos
         setTimeout(() => {
           this.router.navigate(['/login'], {

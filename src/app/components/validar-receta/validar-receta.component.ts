@@ -18,7 +18,7 @@ export class ValidarRecetaComponent {
   esValida = false;
   mensajeValidacion = '';
   mostrarFormularioFarmacia = false;
-  
+
   farmaciaInfo = {
     nombre_farmacia: '',
     farmaceutico_responsable: '',
@@ -52,7 +52,7 @@ export class ValidarRecetaComponent {
 
   private procesarResultadoValidacion(resultado: ValidacionReceta): void {
     this.esValida = resultado.valida;
-    
+
     if (resultado.valida && resultado.receta) {
       this.recetaValidada = resultado.receta;
       this.mensajeValidacion = '✅ Receta válida y disponible para dispensar';

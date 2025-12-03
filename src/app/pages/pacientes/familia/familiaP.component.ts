@@ -161,11 +161,11 @@ export class FamilyPlanComponent implements OnInit, AfterViewInit {
 
   onFamiliarActualizado(familiar: FamilyMember): void {
     console.log('Familiar actualizado desde modal:', familiar);
-    
+
     // Separar nombre y apellido
     const nombreCompleto = familiar.nombre.split(' ');
     const nombre = nombreCompleto[0];
-    
+
     const payload: any = {
       nombre: nombre,
       apellido_paterno: familiar.apellidos || '',

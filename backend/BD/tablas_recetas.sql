@@ -13,20 +13,20 @@ CREATE TABLE IF NOT EXISTS `recetas` (
   `estado` ENUM('activa', 'utilizada', 'vencida', 'cancelada') NOT NULL DEFAULT 'activa',
   `instrucciones` TEXT NOT NULL COMMENT 'Instrucciones generales para el paciente',
   `observaciones` TEXT NULL COMMENT 'Observaciones adicionales del médico',
-  
+
   -- Campos para cuando la receta es utilizada
   `fecha_utilizacion` DATETIME NULL,
   `farmacia_utilizada` VARCHAR(255) NULL COMMENT 'Nombre de la farmacia donde se dispensó',
   `farmaceutico_responsable` VARCHAR(255) NULL COMMENT 'Farmacéutico que dispensó',
   `observaciones_farmacia` TEXT NULL,
-  
+
   -- Campos para cuando la receta es cancelada
   `fecha_cancelacion` DATETIME NULL,
   `motivo_cancelacion` TEXT NULL,
-  
+
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  
+
   -- Índices para optimización
   INDEX `idx_medico` (`medico_id`),
   INDEX `idx_paciente` (`paciente_id`),
@@ -47,12 +47,12 @@ CREATE TABLE IF NOT EXISTS `receta_medicamentos` (
   `frecuencia` VARCHAR(255) NOT NULL COMMENT 'Ej: Cada 8 horas, 2 veces al día',
   `duracion` VARCHAR(100) NOT NULL COMMENT 'Ej: 7 días, 2 semanas, por 1 mes',
   `indicaciones_especiales` TEXT NULL COMMENT 'Indicaciones específicas para este medicamento',
-  
+
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  
+
   -- Clave foránea
   FOREIGN KEY (`receta_id`) REFERENCES `recetas`(`id`) ON DELETE CASCADE,
-  
+
   -- Índices
   INDEX `idx_receta` (`receta_id`),
   INDEX `idx_nombre` (`nombre`)
@@ -62,10 +62,10 @@ CREATE TABLE IF NOT EXISTS `receta_medicamentos` (
 
 -- Insertar algunas recetas de prueba
 INSERT INTO `recetas` (
-  `medico_id`, `paciente_id`, `codigo_validacion`, 
+  `medico_id`, `paciente_id`, `codigo_validacion`,
   `fecha_emision`, `fecha_vencimiento`, `estado`,
   `instrucciones`, `observaciones`
-) VALUES 
+) VALUES
 (
   1, 2, 'RX-123456-ABC123',
   NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 'activa',
@@ -73,7 +73,7 @@ INSERT INTO `recetas` (
   'Paciente con antecedentes de gastritis'
 ),
 (
-  1, 3, 'RX-789012-DEF456', 
+  1, 3, 'RX-789012-DEF456',
   NOW(), DATE_ADD(NOW(), INTERVAL 15 DAY), 'activa',
   'Aplicar crema 2 veces al día en área afectada. Evitar exposición al sol.',
   'Reacción alérgica leve'
@@ -86,7 +86,7 @@ INSERT INTO `recetas` (
 );
 
 -- Actualizar la receta utilizada con datos de farmacia
-UPDATE `recetas` 
+UPDATE `recetas`
 SET `fecha_utilizacion` = DATE_SUB(NOW(), INTERVAL 1 DAY),
     `farmacia_utilizada` = 'Farmacia Central',
     `farmaceutico_responsable` = 'Dra. María González',
@@ -97,7 +97,7 @@ WHERE `codigo_validacion` = 'RX-345678-GHI789';
 INSERT INTO `receta_medicamentos` (
   `receta_id`, `nombre`, `concentracion`, `forma_farmaceutica`,
   `cantidad`, `via_administracion`, `frecuencia`, `duracion`, `indicaciones_especiales`
-) VALUES 
+) VALUES
 (
   1, 'Amoxicilina', '500mg', 'Cápsulas',
   '21 cápsulas', 'Oral', 'Cada 8 horas', '7 días',
@@ -113,7 +113,7 @@ INSERT INTO `receta_medicamentos` (
 INSERT INTO `receta_medicamentos` (
   `receta_id`, `nombre`, `concentracion`, `forma_farmaceutica`,
   `cantidad`, `via_administracion`, `frecuencia`, `duracion`, `indicaciones_especiales`
-) VALUES 
+) VALUES
 (
   2, 'Hidrocortisona', '1%', 'Crema',
   '30g', 'Tópica', '2 veces al día', '10 días',
@@ -124,7 +124,7 @@ INSERT INTO `receta_medicamentos` (
 INSERT INTO `receta_medicamentos` (
   `receta_id`, `nombre`, `concentracion`, `forma_farmaceutica`,
   `cantidad`, `via_administracion`, `frecuencia`, `duracion`, `indicaciones_especiales`
-) VALUES 
+) VALUES
 (
   3, 'Loratadina', '10mg', 'Tabletas',
   '10 tabletas', 'Oral', '1 vez al día', '10 días',
@@ -138,7 +138,7 @@ SELECT 'Tabla recetas creada:' as mensaje, COUNT(*) as registros FROM recetas;
 SELECT 'Tabla receta_medicamentos creada:' as mensaje, COUNT(*) as registros FROM receta_medicamentos;
 
 -- Mostrar recetas con sus medicamentos
-SELECT 
+SELECT
   r.codigo_validacion,
   r.estado,
   r.fecha_emision,
@@ -169,7 +169,7 @@ CREATE INDEX idx_recetas_paciente_activas ON recetas (paciente_id, estado);
 
 -- Vista para recetas completas (con medicamentos)
 CREATE VIEW vista_recetas_completas AS
-SELECT 
+SELECT
   r.id,
   r.codigo_validacion,
   r.medico_id,
@@ -196,12 +196,12 @@ ORDER BY r.fecha_emision DESC;
 
 -- Vista para estadísticas de farmacia
 CREATE VIEW vista_estadisticas_farmacia AS
-SELECT 
+SELECT
   farmacia_utilizada,
   COUNT(*) as total_recetas,
   MIN(fecha_utilizacion) as primera_dispensacion,
   MAX(fecha_utilizacion) as ultima_dispensacion
-FROM recetas 
+FROM recetas
 WHERE estado = 'utilizada' AND farmacia_utilizada IS NOT NULL
 GROUP BY farmacia_utilizada
 ORDER BY total_recetas DESC;

@@ -150,8 +150,8 @@
     <div class="historial-header">
       <h3>📋 Historial de Pagos</h3>
       <div class="filtro-state">
-        <button 
-          *ngFor="let estado of estadosFiltro" 
+        <button
+          *ngFor="let estado of estadosFiltro"
           [class.activo]="filtroSeleccionado === estado"
           (click)="actualizarFiltroSeleccion(estado)"
           class="filtro-btn">

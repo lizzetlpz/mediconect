@@ -94,7 +94,7 @@ export class RegistroComponent implements OnInit {
     // Crear FormData para enviar archivo
     const formData = new FormData();
     formData.append('foto_receta', this.fotoReceta);
-    
+
     // Agregar estudios si existen
     if (this.estudios.length > 0) {
       formData.append('estudios', JSON.stringify(this.estudios));
@@ -111,7 +111,7 @@ export class RegistroComponent implements OnInit {
       next: (response: any) => {
         console.log('✅ Registro creado exitosamente:', response);
         alert('Registro médico guardado correctamente');
-        
+
         this.registroCreado.emit({
           id: response.id || '',
           motivo: 'Registro de laboratorios',
@@ -122,7 +122,7 @@ export class RegistroComponent implements OnInit {
           diagnostico: '',
           medicamentos: []
         });
-        
+
         this.cargando = false;
         this.cancelar();
       },

@@ -2,7 +2,7 @@
 <div class="dashboard-layout">
   <!-- Sidebar del Paciente -->
   <appP/>
-  
+
   <div class="consultas-container">
     <div class="header">
       <h1><i class="fas fa-comments"></i>Mis Consultas</h1>
@@ -55,7 +55,7 @@
           class="consulta-card"
           [class.active]="isConsultaActive(consulta)"
           (click)="selectConsulta(consulta)">
-          
+
           <!-- Header de la consulta -->
           <div class="consulta-header">
             <div class="medico-info">
@@ -122,7 +122,7 @@
                   <i class="fas fa-circle"></i>
                   {{ chatConectado ? 'Conectado' : 'Desconectado' }}
                 </div>
-                
+
                 <button class="btn-close" (click)="salirDeConsulta()">
                   <i class="fas fa-times"></i>
                 </button>
@@ -173,7 +173,7 @@
               rows="2"
               [disabled]="!chatConectado">
             </textarea>
-            <button 
+            <button
               (click)="sendMessage()"
               [disabled]="!nuevoMensaje.trim() || !chatConectado"
               class="btn-send">

@@ -38,23 +38,23 @@ export class VideoCallComponent implements OnInit, OnDestroy {
   isAudioEnabled: boolean = true;
   isScreenSharing: boolean = false;
   connectionState: string = 'new';
-  
+
   // Streams
   localStream?: MediaStream;
   remoteStream?: MediaStream;
-  
+
   // Chat
   showChat: boolean = false;
   chatMessages: any[] = [];
   newMessage: string = '';
   unreadMessages: number = 0;
-  
+
   // Llamada entrante
   incomingCall?: IncomingCall;
-  
+
   // Timing
   callStartTime?: Date;
-  
+
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
@@ -91,7 +91,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
       (mensajes: any[]) => {
         this.chatMessages = mensajes;
         this.scrollToBottom();
-        
+
         // Contar mensajes no leídos si el chat está cerrado
         if (!this.showChat) {
           this.unreadMessages++;
@@ -107,18 +107,18 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     this.isAudioEnabled = state.isAudioEnabled;
     this.isScreenSharing = state.isScreenSharing;
     this.connectionState = state.connectionState;
-    
+
     // Actualizar streams de video
     if (state.localVideoStream !== this.localStream) {
       this.localStream = state.localVideoStream;
       this.updateLocalVideo();
     }
-    
+
     if (state.remoteVideoStream !== this.remoteStream) {
       this.remoteStream = state.remoteVideoStream;
       this.updateRemoteVideo();
     }
-    
+
     // Si la llamada acaba de empezar
     if (state.isInCall && !this.callStartTime) {
       this.callStartTime = new Date();
@@ -148,8 +148,8 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
     try {
       await this.videoCallService.startCall(
-        this.consultaId, 
-        this.currentUserId, 
+        this.consultaId,
+        this.currentUserId,
         this.currentUserRole
       );
     } catch (error) {
@@ -221,7 +221,7 @@ export class VideoCallComponent implements OnInit, OnDestroy {
     const senderName = this.currentUserRole === 'patient' ? 'Paciente' : 'Doctor';
     this.chatService.enviarMensaje(this.newMessage.trim(), senderName);
     this.newMessage = '';
-    
+
     setTimeout(() => this.scrollToBottom(), 100);
   }
 
@@ -247,12 +247,12 @@ export class VideoCallComponent implements OnInit, OnDestroy {
 
   formatCallDuration(startTime?: Date): string {
     if (!startTime) return '00:00';
-    
+
     const now = new Date();
     const diff = now.getTime() - startTime.getTime();
     const minutes = Math.floor(diff / 60000);
     const seconds = Math.floor((diff % 60000) / 1000);
-    
+
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 

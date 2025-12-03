@@ -155,7 +155,7 @@ export class AgregarFamiliarComponent implements OnInit {
     const termino = this.textoBusqueda.toLowerCase();
     this.pacienteFiltrados = this.pacientes.filter(p => {
       const nombreCompleto = `${p.nombre} ${p.apellido_paterno || ''} ${p.apellido_materno || ''}`.toLowerCase();
-      return nombreCompleto.includes(termino) || 
+      return nombreCompleto.includes(termino) ||
              p.email?.toLowerCase().includes(termino);
     });
 

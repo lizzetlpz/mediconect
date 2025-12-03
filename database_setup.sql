@@ -167,16 +167,16 @@ CREATE TABLE IF NOT EXISTS mensajes_chat (
 INSERT IGNORE INTO usuarios (
     nombre, apellido, email, password, tipo_usuario, email_verificado
 ) VALUES (
-    'Admin', 'Sistema', 'admin@mediconect.com', 
+    'Admin', 'Sistema', 'admin@mediconect.com',
     '$2b$10$example_hash', 'administrador', TRUE
 );
 
 -- Insertar médico de ejemplo
 INSERT IGNORE INTO usuarios (
-    nombre, apellido, email, password, tipo_usuario, numero_licencia, 
+    nombre, apellido, email, password, tipo_usuario, numero_licencia,
     especialidad, email_verificado
 ) VALUES (
-    'Dr. Juan', 'Pérez', 'dr.perez@mediconect.com', 
-    '$2b$10$example_hash', 'medico', 'LIC123456', 
+    'Dr. Juan', 'Pérez', 'dr.perez@mediconect.com',
+    '$2b$10$example_hash', 'medico', 'LIC123456',
     'Medicina General', TRUE
 );

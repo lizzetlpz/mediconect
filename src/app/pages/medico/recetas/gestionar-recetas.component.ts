@@ -22,21 +22,21 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
   citas: any[] = [];
   mostrarFormulario = false;
   cargando = false;
-  
+
   // Nuevos campos para foto y autenticación
   fotoReceta: File | null = null;
   previewFotoReceta: string | null = null;
   firmaDigital: string = '';
   codigoMedico: string = '';
   autenticacionMedica = false;
-  
+
   formasFarmaceuticas = [
-    'Tabletas', 'Cápsulas', 'Jarabe', 'Suspensión', 'Gotas', 
+    'Tabletas', 'Cápsulas', 'Jarabe', 'Suspensión', 'Gotas',
     'Crema', 'Pomada', 'Gel', 'Inyección', 'Supositorio'
   ];
-  
+
   viasAdministracion = [
-    'Oral', 'Tópica', 'Intramuscular', 'Intravenosa', 
+    'Oral', 'Tópica', 'Intramuscular', 'Intravenosa',
     'Subcutánea', 'Rectal', 'Oftálmica', 'Ótica'
   ];
 
@@ -145,7 +145,7 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
     const pacienteId = this.recetaForm.get('paciente_id')?.value;
     if (pacienteId) {
       // Filtrar citas del paciente seleccionado
-      const citasPaciente = this.citas.filter(cita => 
+      const citasPaciente = this.citas.filter(cita =>
         cita.paciente && cita.paciente.id == pacienteId
       );
       console.log('Citas del paciente:', citasPaciente);
@@ -166,7 +166,7 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
 
     this.cargando = true;
     const formValue = this.recetaForm.value;
-    
+
     // Preparar datos de la receta
     const recetaData = {
       paciente_id: formValue.paciente_id,
@@ -184,7 +184,7 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
     // Si hay foto, usar FormData para el envío
     if (this.fotoReceta) {
       const formData = new FormData();
-      
+
       // Agregar campos individuales a FormData
       formData.append('paciente_id', formValue.paciente_id.toString());
       formData.append('cita_id', formValue.cita_id?.toString() || '');
@@ -213,7 +213,7 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
         }
       });
       this.subscriptions.push(sub);
-      
+
     } else {
       // Sin foto, usar método normal
       const sub = this.recetaService.crearReceta(recetaData).subscribe({
@@ -225,7 +225,7 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
           this.inicializarFormulario();
           this.eliminarFoto();
           this.cargarRecetas();
-          
+
           // Mostrar mensaje de éxito con código
           alert(`✅ Receta creada exitosamente!\n\nCódigo de validación: ${receta.codigo_validacion}\n\n¿Desea descargar la receta?`);
           this.recetaService.descargarReceta(receta);
@@ -313,7 +313,7 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
   }
 
   // ============== MÉTODOS PARA FOTO Y AUTENTICACIÓN ==============
-  
+
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
@@ -322,22 +322,22 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
         alert('Por favor seleccione un archivo de imagen válido');
         return;
       }
-      
+
       // Validar tamaño (máximo 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('La imagen debe ser menor a 5MB');
         return;
       }
-      
+
       this.fotoReceta = file;
-      
+
       // Crear preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.previewFotoReceta = e.target.result;
       };
       reader.readAsDataURL(file);
-      
+
       console.log('Foto seleccionada:', file.name);
     }
   }
@@ -345,7 +345,7 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
   eliminarFoto(): void {
     this.fotoReceta = null;
     this.previewFotoReceta = null;
-    
+
     // Limpiar input file
     const fileInput = document.getElementById('fotoReceta') as HTMLInputElement;
     if (fileInput) {
@@ -356,17 +356,17 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
   validarAutenticacionMedica(): boolean {
     const firmaDigital = this.recetaForm.get('firma_digital')?.value;
     const codigoMedico = this.recetaForm.get('codigo_medico')?.value;
-    
+
     if (!firmaDigital || !codigoMedico) {
       return false;
     }
-    
+
     // Validación básica de código médico (puedes expandir esto)
     const currentUser = this.authService.getCurrentUser();
     if (codigoMedico.length < 6) {
       return false;
     }
-    
+
     this.autenticacionMedica = true;
     return true;
   }
@@ -376,13 +376,13 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
     if (currentUser) {
       const timestamp = new Date().toISOString();
       const datos = `${currentUser.nombre}-${currentUser.email}-${timestamp}`;
-      
+
       // Generar una firma digital simple (en producción usar criptografía real)
       this.firmaDigital = btoa(datos).substring(0, 20);
       this.recetaForm.patchValue({
         firma_digital: this.firmaDigital
       });
-      
+
       console.log('Firma digital generada:', this.firmaDigital);
     }
   }

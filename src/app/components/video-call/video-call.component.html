@@ -21,10 +21,10 @@
   <div class="videos-container">
     <!-- Video remoto (principal) -->
     <div class="remote-video-container">
-      <video 
-        #remoteVideo 
+      <video
+        #remoteVideo
         class="remote-video"
-        autoplay 
+        autoplay
         playsinline>
       </video>
       <div class="remote-video-overlay" *ngIf="!remoteStream">
@@ -37,11 +37,11 @@
 
     <!-- Video local (miniatura) -->
     <div class="local-video-container" [class.screen-sharing]="isScreenSharing">
-      <video 
-        #localVideo 
+      <video
+        #localVideo
         class="local-video"
-        autoplay 
-        playsinline 
+        autoplay
+        playsinline
         muted>
       </video>
       <div class="local-video-overlay" *ngIf="!isVideoEnabled">
@@ -54,7 +54,7 @@
   <div class="call-controls">
     <div class="primary-controls">
       <!-- Control de video -->
-      <button 
+      <button
         class="control-btn video-btn"
         [class.disabled]="!isVideoEnabled"
         (click)="toggleVideo()"
@@ -63,7 +63,7 @@
       </button>
 
       <!-- Control de audio -->
-      <button 
+      <button
         class="control-btn audio-btn"
         [class.disabled]="!isAudioEnabled"
         (click)="toggleAudio()"
@@ -72,7 +72,7 @@
       </button>
 
       <!-- Compartir pantalla -->
-      <button 
+      <button
         class="control-btn screen-btn"
         [class.active]="isScreenSharing"
         (click)="toggleScreenShare()"
@@ -81,7 +81,7 @@
       </button>
 
       <!-- Terminar llamada -->
-      <button 
+      <button
         class="control-btn end-call-btn"
         (click)="endCall()"
         title="Terminar llamada">
@@ -91,7 +91,7 @@
 
     <div class="secondary-controls">
       <!-- Chat toggle -->
-      <button 
+      <button
         class="control-btn chat-btn"
         [class.active]="showChat"
         (click)="toggleChat()"
@@ -101,7 +101,7 @@
       </button>
 
       <!-- Configuraciones -->
-      <button 
+      <button
         class="control-btn settings-btn"
         (click)="openSettings()"
         title="Configuraciones">
@@ -118,10 +118,10 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
-    
+
     <div class="chat-messages" #chatMessagesContainer>
-      <div *ngFor="let mensaje of chatMessages" 
-           class="chat-message" 
+      <div *ngFor="let mensaje of chatMessages"
+           class="chat-message"
            [class.own]="mensaje.remitente === currentUserRole">
         <div class="message-content">
           <span class="sender-name">{{ mensaje.nombre }}</span>
@@ -132,9 +132,9 @@
     </div>
 
     <div class="chat-input">
-      <input 
-        type="text" 
-        [(ngModel)]="newMessage" 
+      <input
+        type="text"
+        [(ngModel)]="newMessage"
         (keydown.enter)="sendChatMessage()"
         placeholder="Escribe un mensaje..."
         maxlength="500">
@@ -171,7 +171,7 @@
 </div>
 
 <!-- Botón flotante para iniciar videollamada -->
-<button 
+<button
   class="start-video-call-btn"
   *ngIf="canStartVideoCall && !isCallActive"
   (click)="startVideoCall()"

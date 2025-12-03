@@ -140,11 +140,11 @@
                     <circle cx="5" cy="12" r="1"></circle>
                   </svg>
                 </button>
-                
+
                 <div class="dropdown-menu" *ngIf="dropdownOpenId === getCitaId(cita)">
                   <!-- Confirmar cita (solo si está pendiente) -->
-                  <button 
-                    *ngIf="cita.estado === 'pendiente'" 
+                  <button
+                    *ngIf="cita.estado === 'pendiente'"
                     class="dropdown-item confirm"
                     (click)="confirmarCita(getCitaId(cita))">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,10 +152,10 @@
                     </svg>
                     Confirmar cita
                   </button>
-                  
+
                   <!-- Iniciar consulta (solo si está confirmada) -->
-                  <button 
-                    *ngIf="cita.estado === 'confirmada'" 
+                  <button
+                    *ngIf="cita.estado === 'confirmada'"
                     class="dropdown-item start"
                     (click)="iniciarConsulta(getCitaId(cita))">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -163,10 +163,10 @@
                     </svg>
                     Iniciar consulta
                   </button>
-                  
+
                   <!-- Completar cita (solo si está en progreso) -->
-                  <button 
-                    *ngIf="cita.estado === 'en_progreso'" 
+                  <button
+                    *ngIf="cita.estado === 'en_progreso'"
                     class="dropdown-item complete"
                     (click)="completarCita(getCitaId(cita))">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -174,10 +174,10 @@
                     </svg>
                     Completar cita
                   </button>
-                  
+
                   <!-- Cancelar cita (disponible para pendientes y confirmadas) -->
-                  <button 
-                    *ngIf="cita.estado === 'pendiente' || cita.estado === 'confirmada'" 
+                  <button
+                    *ngIf="cita.estado === 'pendiente' || cita.estado === 'confirmada'"
                     class="dropdown-item cancel"
                     (click)="cancelarCita(getCitaId(cita))">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,10 +185,10 @@
                     </svg>
                     Cancelar cita
                   </button>
-                  
+
                   <!-- Ver historial (solo si está completada) -->
-                  <button 
-                    *ngIf="cita.estado === 'completada'" 
+                  <button
+                    *ngIf="cita.estado === 'completada'"
                     class="dropdown-item history"
                     (click)="verHistorial(cita.id)">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

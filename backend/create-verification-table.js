@@ -14,7 +14,7 @@ async function crearTablaVerificacion() {
     try {
         // Crear tabla de verificaciones pendientes
         console.log('📋 Creando tabla verificaciones_pendientes...');
-        
+
         await new Promise((resolve, reject) => {
             connection.query(`
                 CREATE TABLE IF NOT EXISTS verificaciones_pendientes (

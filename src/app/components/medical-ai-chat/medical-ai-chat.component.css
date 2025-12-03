@@ -415,15 +415,15 @@
     height: 100vh;
     border-radius: 0;
   }
-  
+
   .welcome-content {
     padding: 1rem;
   }
-  
+
   .welcome-icon {
     font-size: 3rem;
   }
-  
+
   .chat-messages {
     max-height: none;
   }
