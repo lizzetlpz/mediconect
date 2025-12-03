@@ -9,7 +9,9 @@ cmds = [
 
 [phases.build]
 cmds = [
+    'npm install -g @angular/cli',
     'ng build --configuration production',
+    'ls -la dist/',
     'cd backend && npm run build'
 ]
 
