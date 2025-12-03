@@ -159,14 +159,22 @@ export class BuscarMedicoComponent implements OnInit {
   }
 
   onCitaAgendada(datosCita: any): void {
-    console.log('Cita agendada:', datosCita);
+    console.log('🔔 onCitaAgendada llamado');
+    console.log('📋 Datos de cita recibidos:', JSON.stringify(datosCita, null, 2));
 
     // El modal interno ya procesó el pago y emitió la cita agendada.
     // Persistir la cita directamente en el backend y refrescar la agenda.
     this.citaActual = datosCita;
 
     const user = this.authService.getCurrentUser();
+    console.log('👤 Usuario actual:', user);
     const pacienteId = user ? user.id : null;
+
+    if (!pacienteId) {
+      console.error('❌ No se pudo obtener el ID del paciente');
+      alert('Error: No se pudo identificar al paciente');
+      return;
+    }
 
     const payload: any = {
       paciente_id: pacienteId,
@@ -181,17 +189,22 @@ export class BuscarMedicoComponent implements OnInit {
       estado: 'pendiente'
     };
 
+    console.log('📤 Enviando payload al backend:', JSON.stringify(payload, null, 2));
+
     this.appointmentService.createAppointment(payload).subscribe({
       next: (res) => {
-        console.log('Cita creada en backend (desde BuscarMedico):', res);
+        console.log('✅ Cita creada exitosamente en backend:', res);
         this.appointmentService.getAppointments().subscribe();
         alert('¡Cita pagada y guardada en tu agenda!');
         this.medicoSeleccionado = null;
         this.citaActual = null;
       },
       error: (err) => {
-        console.error('Error creando cita despues del pago:', err);
-        alert('La cita fue pagada pero hubo un error al guardarla en el servidor.');
+        console.error('❌ Error completo al crear cita:', err);
+        console.error('❌ Status:', err.status);
+        console.error('❌ Message:', err.message);
+        console.error('❌ Error body:', err.error);
+        alert('La cita fue pagada pero hubo un error al guardarla en el servidor. Revisa la consola para más detalles.');
       }
     });
   }
