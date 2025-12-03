@@ -64,6 +64,7 @@ const upload = multer({
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
     ? [
+        'https://mediconect.vercel.app',
         'https://mediconect-lake.vercel.app',
         'https://mediconect-production.up.railway.app',
         'https://vercel.app',
@@ -111,7 +112,7 @@ app.use('/api/recetas', recetasRoutes); // Sistema de recetas médicas
 
 // BACKEND MODO API-ONLY - Frontend servido por Vercel
 console.log('🚀 Servidor configurado en modo API-only');
-console.log('📡 Frontend servido por Vercel: https://mediconect-lake.vercel.app');
+console.log('📡 Frontend servido por Vercel: https://mediconect.vercel.app');
 
 // Ruta catch-all para rutas no API - devolver 404 JSON
 app.get('*', (req, res) => {
@@ -133,7 +134,7 @@ app.get('*', (req, res) => {
   }
   
   // Para rutas no API, redirigir al frontend en Vercel
-  res.status(302).redirect('https://mediconect-lake.vercel.app' + req.path);
+  res.status(302).redirect('https://mediconect.vercel.app' + req.path);
 });
 
 // Ruta de prueba API (mantener para compatibilidad)
@@ -194,7 +195,7 @@ app.listen(PORT, () => {
   console.log(`\n${'='.repeat(60)}`);
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📋 API disponible en http://localhost:${PORT}/api`);
-  console.log(`🌐 Frontend disponible en https://mediconect-lake.vercel.app`);
+  console.log(`🌐 Frontend disponible en https://mediconect.vercel.app`);
   console.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
   console.log(`📡 Modo: API-only (Backend separado)`);
   console.log(`${'='.repeat(60)}`);
