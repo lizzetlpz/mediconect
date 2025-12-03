@@ -3,8 +3,10 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getConnection } from '../../BD/SQLite/database';
+import { EmailService } from '../../src/services/email.service';
 
 const router = Router();
+const emailService = new EmailService();
 
 // ✅ Usar la misma clave que en .env y middleware
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_super_seguro_cambiar_en_produccion';
@@ -71,25 +73,46 @@ router.post('/register', async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(passwordFinal, 10);
     console.log('✅ Contraseña hasheada');
 
+    // Generar código de verificación de 6 dígitos
+    const codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
+    const fechaExpiracion = new Date();
+    fechaExpiracion.setHours(fechaExpiracion.getHours() + 24); // Expira en 24 horas
+
     // Insertar usuario
     // rol_id: 2 = paciente, 3 = medico
     const rol_id = rolFinal === 'doctor' ? 3 : 2;
 
     const [result] = await pool.query(
       `INSERT INTO usuarios
-       (nombre, apellido_paterno, email, contraseña, rol_id, activo, email_verificado)
-       VALUES (?, ?, ?, ?, ?, TRUE, TRUE)`,
+       (nombre, apellido_paterno, email, contraseña, rol_id, activo, email_verificado, codigo_verificacion, fecha_expiracion_codigo)
+       VALUES (?, ?, ?, ?, ?, TRUE, FALSE, ?, ?)`,
       [
         nombreFinal,
         apellidoPaternoFinal,
         emailFinal.toLowerCase(),
         hashedPassword,
-        rol_id
+        rol_id,
+        codigoVerificacion,
+        fechaExpiracion
       ]
     );
 
     const usuario_id = (result as any).insertId;
     console.log('✅ Usuario creado con ID:', usuario_id);
+
+    // Enviar email de verificación
+    try {
+      console.log('📧 Enviando email de verificación a:', emailFinal);
+      await emailService.enviarVerificacionCuenta(
+        emailFinal,
+        nombreFinal,
+        codigoVerificacion
+      );
+      console.log('✅ Email de verificación enviado');
+    } catch (emailError: any) {
+      console.error('⚠️ Error al enviar email de verificación:', emailError.message);
+      // No fallar el registro si el email falla
+    }
 
     // Generar tokens
     const token = jwt.sign(
@@ -114,10 +137,12 @@ router.post('/register', async (req: Request, res: Response) => {
     const userResponse = (users as any[])[0];
 
     res.status(201).json({
-      message: 'Usuario registrado exitosamente',
+      message: 'Usuario registrado exitosamente. Por favor verifica tu correo electrónico.',
       user: userResponse,
       token,
-      refreshToken
+      refreshToken,
+      requireEmailVerification: true,
+      email: emailFinal
     });
 
   } catch (error: any) {
@@ -256,6 +281,126 @@ router.post('/logout', async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('❌ Error en logout:', error);
     res.status(500).json({ message: 'Error al cerrar sesión' });
+  }
+});
+
+// ============================================
+// POST /api/auth/verify-email - Verificar email con código
+// ============================================
+router.post('/verify-email', async (req: Request, res: Response) => {
+  try {
+    const { email, codigo } = req.body;
+
+    if (!email || !codigo) {
+      return res.status(400).json({
+        message: 'Email y código son requeridos'
+      });
+    }
+
+    const pool = getConnection();
+
+    // Buscar usuario con ese email y código válido
+    const [users] = await pool.query(
+      'SELECT * FROM usuarios WHERE email = ? AND codigo_verificacion = ? AND fecha_expiracion_codigo > NOW()',
+      [email.toLowerCase(), codigo]
+    );
+
+    if ((users as any[]).length === 0) {
+      return res.status(400).json({
+        message: 'Código de verificación inválido o expirado'
+      });
+    }
+
+    const user = (users as any[])[0];
+
+    // Actualizar usuario como verificado
+    await pool.query(
+      'UPDATE usuarios SET email_verificado = TRUE, codigo_verificacion = NULL, fecha_expiracion_codigo = NULL WHERE usuario_id = ?',
+      [user.usuario_id]
+    );
+
+    console.log('✅ Email verificado para usuario:', user.email);
+
+    res.status(200).json({
+      message: 'Email verificado exitosamente',
+      success: true
+    });
+
+  } catch (error: any) {
+    console.error('❌ Error en verificación de email:', error);
+    res.status(500).json({
+      message: 'Error al verificar email',
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// POST /api/auth/resend-verification - Reenviar código de verificación
+// ============================================
+router.post('/resend-verification', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: 'Email es requerido'
+      });
+    }
+
+    const pool = getConnection();
+
+    // Buscar usuario
+    const [users] = await pool.query(
+      'SELECT * FROM usuarios WHERE email = ? AND email_verificado = FALSE',
+      [email.toLowerCase()]
+    );
+
+    if ((users as any[]).length === 0) {
+      return res.status(400).json({
+        message: 'Usuario no encontrado o ya verificado'
+      });
+    }
+
+    const user = (users as any[])[0];
+
+    // Generar nuevo código
+    const codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
+    const fechaExpiracion = new Date();
+    fechaExpiracion.setHours(fechaExpiracion.getHours() + 24);
+
+    // Actualizar código
+    await pool.query(
+      'UPDATE usuarios SET codigo_verificacion = ?, fecha_expiracion_codigo = ? WHERE usuario_id = ?',
+      [codigoVerificacion, fechaExpiracion, user.usuario_id]
+    );
+
+    // Enviar email
+    try {
+      await emailService.enviarVerificacionCuenta(
+        user.email,
+        user.nombre,
+        codigoVerificacion
+      );
+      console.log('✅ Código de verificación reenviado a:', user.email);
+    } catch (emailError: any) {
+      console.error('⚠️ Error al reenviar email:', emailError.message);
+      return res.status(500).json({
+        message: 'Error al enviar email de verificación'
+      });
+    }
+
+    res.status(200).json({
+      message: 'Código de verificación reenviado',
+      success: true
+    });
+
+  } catch (error: any) {
+    console.error('❌ Error al reenviar verificación:', error);
+    res.status(500).json({
+      message: 'Error al reenviar código',
+      error: error.message
+    });
   }
 });
 

@@ -77,19 +77,19 @@ export class LoginComponent implements OnInit {
           console.log('🔄 Redirigiendo a returnUrl:', this.returnUrl);
           this.router.navigateByUrl(this.returnUrl);
         } else {
-          // Redirige según el rol_id del usuario (1=admin, 2=doctor, 3=paciente)
+          // Redirige según el rol_id del usuario (1=admin, 2=paciente, 3=medico)
           switch (response.user.rol_id) {
             case 1:  // Admin
               console.log('👨‍💼 Redirigiendo a admin-dashboard');
               this.router.navigate(['/admin-dashboard']);
               break;
-            case 2:  // Doctor
-              console.log('🩺 Redirigiendo a doctor-dashboard');
-              this.router.navigate(['/doctor/dashboard']);
-              break;
-            case 3:  // Paciente
+            case 2:  // Paciente
               console.log('🙋‍♂️ Redirigiendo a dashboard de paciente');
               this.router.navigate(['/dashboard']);
+              break;
+            case 3:  // Medico/Doctor
+              console.log('🩺 Redirigiendo a doctor-dashboard');
+              this.router.navigate(['/doctor/dashboard']);
               break;
             default:
               console.log('❓ Rol desconocido, redirigiendo a dashboard');

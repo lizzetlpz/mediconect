@@ -195,8 +195,18 @@ export class RegisterComponent implements OnInit {
             response.refreshToken
           );
 
-          // Redirigir al dashboard
-          this.router.navigate(['/dashboard']);
+          // Redirigir según el rol_id (2=paciente, 3=medico)
+          const rol_id = response.user.rol_id;
+          if (rol_id === 3) {
+            console.log('🩺 Registro exitoso - Redirigiendo a doctor-dashboard');
+            this.router.navigate(['/doctor/dashboard']);
+          } else if (rol_id === 2) {
+            console.log('🙋‍♂️ Registro exitoso - Redirigiendo a dashboard de paciente');
+            this.router.navigate(['/dashboard']);
+          } else {
+            console.log('❓ Rol desconocido, redirigiendo a dashboard');
+            this.router.navigate(['/dashboard']);
+          }
         }
       },
       error: (error) => {
