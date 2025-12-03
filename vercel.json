@@ -1,20 +1,10 @@
 {
   "version": 2,
   "name": "mediconect-frontend",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/nombre-proyecto"
-      }
-    }
-  ],
+  "buildCommand": "npm run build:prod",
+  "outputDirectory": "dist/nombre-proyecto",
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "buildCommand": "npm run build:prod"
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ]
 }
