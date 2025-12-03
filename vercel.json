@@ -1,7 +1,6 @@
 {
   "version": 2,
-  "name": "mediconect-frontend",
-  "buildCommand": "npm run build:prod",
+  "buildCommand": "ng build --configuration production",
   "outputDirectory": "dist/nombre-proyecto",
   "routes": [
     { "handle": "filesystem" },
