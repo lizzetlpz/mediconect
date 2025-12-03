@@ -62,7 +62,7 @@ export class LoginComponent implements OnInit {
       next: (response) => {
         console.log('✅ Respuesta del servidor:', response);
         console.log('👤 Usuario:', response.user);
-        console.log('🎭 Tipo de usuario:', response.user.tipo_usuario);
+        console.log('🎭 Rol ID del usuario:', response.user.rol_id);
 
         // Guardar usuario y tokens en localStorage
         this.authService.setCurrentUser(
@@ -77,22 +77,22 @@ export class LoginComponent implements OnInit {
           console.log('🔄 Redirigiendo a returnUrl:', this.returnUrl);
           this.router.navigateByUrl(this.returnUrl);
         } else {
-          // Redirige según el tipo_usuario del usuario
-          switch (response.user.tipo_usuario) {
-            case 'administrador':  // Admin
+          // Redirige según el rol_id del usuario
+          switch (response.user.rol_id) {
+            case 1:  // Admin
               console.log('👨‍💼 Redirigiendo a admin-dashboard');
               this.router.navigate(['/admin-dashboard']);
               break;
-            case 'paciente':  // Paciente
+            case 2:  // Paciente
               console.log('🧑‍⚕️ Redirigiendo a dashboard de paciente');
               this.router.navigate(['/dashboard']);
               break;
-            case 'medico':  // Doctor
+            case 3:  // Doctor
               console.log('🩺 Redirigiendo a doctor-dashboard');
               this.router.navigate(['/doctor-dashboard']);
               break;
             default:
-              console.log('❓ Tipo de usuario desconocido, redirigiendo a dashboard');
+              console.log('❓ Rol desconocido, redirigiendo a dashboard');
               this.router.navigate(['/dashboard']);
           }
         }
