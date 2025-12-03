@@ -13,6 +13,62 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'tu_refresh_secret_
 const refreshTokens = new Map<string, string>();
 
 // ============================================
+// GET /api/auth/fix-database - ARREGLAR BASE DE DATOS
+// ============================================
+router.get('/fix-database', async (req: Request, res: Response) => {
+  try {
+    console.log('🔧 REPARANDO BASE DE DATOS...');
+    const pool = getConnection();
+
+    // Eliminar tabla si existe
+    await pool.query('DROP TABLE IF EXISTS usuarios');
+    console.log('✅ Tabla anterior eliminada');
+
+    // Crear nueva tabla
+    const createTableQuery = `
+      CREATE TABLE usuarios (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        apellido VARCHAR(150) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        telefono VARCHAR(20) NULL,
+        fecha_nacimiento DATE NULL,
+        tipo_usuario ENUM('paciente', 'medico', 'administrador') NOT NULL DEFAULT 'paciente',
+        activo BOOLEAN DEFAULT TRUE,
+        email_verificado BOOLEAN DEFAULT FALSE,
+        codigo_verificacion VARCHAR(6) NULL,
+        fecha_expiracion_codigo DATETIME NULL,
+        fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `;
+
+    await pool.query(createTableQuery);
+    console.log('✅ Tabla usuarios creada');
+
+    // Crear índices
+    await pool.query('CREATE INDEX idx_usuarios_email ON usuarios(email)');
+    await pool.query('CREATE INDEX idx_usuarios_tipo ON usuarios(tipo_usuario)');
+    console.log('✅ Índices creados');
+
+    const [describe] = await pool.query('DESCRIBE usuarios');
+    
+    res.json({
+      success: true,
+      message: '🎉 BASE DE DATOS REPARADA EXITOSAMENTE',
+      tableStructure: describe
+    });
+  } catch (error: any) {
+    console.error('❌ Error reparando BD:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
 // POST /api/auth/register - Registro de usuario
 // ============================================
 router.post('/register', async (req: Request, res: Response) => {
