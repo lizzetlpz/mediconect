@@ -13,6 +13,52 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'tu_refresh_secret_
 const refreshTokens = new Map<string, string>();
 
 // ============================================
+// GET /api/auth/verify-manual - VERIFICAR CUENTA MANUALMENTE
+// ============================================
+router.get('/verify-manual/:email', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.params;
+    console.log('🔓 VERIFICANDO CUENTA MANUALMENTE:', email);
+    
+    const pool = getConnection();
+    
+    // Actualizar cuenta para marcarla como verificada
+    const [result] = await pool.query(
+      'UPDATE usuarios SET email_verificado = 1 WHERE email = ?',
+      [email.toLowerCase()]
+    );
+    
+    if ((result as any).affectedRows === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+    }
+    
+    // Obtener datos del usuario
+    const [users] = await pool.query(
+      'SELECT id, nombre, apellido, email, tipo_usuario FROM usuarios WHERE email = ?',
+      [email.toLowerCase()]
+    );
+    
+    const user = (users as any[])[0];
+    
+    res.json({
+      success: true,
+      message: '✅ CUENTA VERIFICADA EXITOSAMENTE',
+      user: user
+    });
+    
+  } catch (error: any) {
+    console.error('❌ Error verificando cuenta:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
 // GET /api/auth/fix-database - ARREGLAR BASE DE DATOS
 // ============================================
 router.get('/fix-database', async (req: Request, res: Response) => {
