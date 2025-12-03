@@ -1,4 +1,4 @@
-// register.component.ts
+// register.component.ts - VERSIÓN CORREGIDA CON ROL_ID
 
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -35,8 +35,8 @@ export class RegisterComponent implements OnInit {
       correo: ['', [Validators.required, this.emailValidator]],
       password: ['', [Validators.required, Validators.minLength(8), this.passwordStrengthValidator]],
       confirmPassword: ['', Validators.required],
-      rol: ['paciente', Validators.required],
-      cedulaProfesional: [''] // Se agregará validación dinámica
+      rol: ['paciente', Validators.required], // Mantenemos como string en el formulario
+      cedulaProfesional: ['']
     }, {
       validators: this.passwordMatchValidator
     });
@@ -66,7 +66,6 @@ export class RegisterComponent implements OnInit {
       return { invalidEmail: true };
     }
 
-    // Verificar que no tenga caracteres especiales peligrosos
     const dangerousChars = /[<>"'&]/;
     if (dangerousChars.test(email)) {
       return { dangerousChars: true };
@@ -99,7 +98,6 @@ export class RegisterComponent implements OnInit {
     const cedula = control.value;
     if (!cedula) return null;
 
-    // Formato: 8-12 dígitos
     const cedulaRegex = /^\d{8,12}$/;
     if (!cedulaRegex.test(cedula)) {
       return { invalidCedula: true };
@@ -122,29 +120,17 @@ export class RegisterComponent implements OnInit {
   onSubmit(): void {
     console.log('🔴 Botón clickeado!');
     console.log('📋 Estado del formulario:', this.registerForm.value);
-    console.log('❓ ¿Es válido?', this.registerForm.valid);
-    console.log('❌ Errores:', this.registerForm.errors);
-
-    // Mostrar errores de cada campo
-    Object.keys(this.registerForm.controls).forEach(key => {
-      const control = this.registerForm.get(key);
-      if (control?.invalid) {
-        console.log(`❌ Campo "${key}" es inválido:`, control.errors);
-      }
-    });
 
     if (this.registerForm.invalid) {
-      // Marcar todos los campos como touched para mostrar errores
       Object.keys(this.registerForm.controls).forEach(key => {
         this.registerForm.get(key)?.markAsTouched();
       });
 
-      // Mensaje de error más específico
       if (this.registerForm.get('password')?.hasError('minlength')) {
         this.errorMessage = 'La contraseña debe tener al menos 8 caracteres';
       } else if (this.registerForm.errors?.['passwordMismatch']) {
         this.errorMessage = 'Las contraseñas no coinciden';
-      } else if (this.registerForm.get('correo')?.hasError('email')) {
+      } else if (this.registerForm.get('correo')?.hasError('invalidEmail')) {
         this.errorMessage = 'Ingresa un correo electrónico válido';
       } else {
         this.errorMessage = 'Por favor completa todos los campos correctamente';
@@ -158,19 +144,22 @@ export class RegisterComponent implements OnInit {
 
     const formValue = this.registerForm.value;
 
-    // Mapear correctamente a los nombres que espera el backend
+    // ✅ CONVERSIÓN DEL ROL A rol_id (número)
+    const rolId = formValue.rol === 'doctor' ? 2 : 3; // doctor = 2, paciente = 3
+
+    // Preparar datos en el formato correcto
     const datosRegistro = {
       nombre: formValue.nombre,
-      apellido_paterno: formValue.apellido, // Mapear apellido -> apellido_paterno
-      email: formValue.correo,
+      apellido: formValue.apellido,
+      correo: formValue.correo,
       password: formValue.password,
-      rol: formValue.rol,
+      rol_id: rolId, // ✅ ENVIAR rol_id como número
       ...(formValue.rol === 'doctor' && { cedulaProfesional: formValue.cedulaProfesional })
     };
 
     console.log('📤 Enviando datos al backend:', datosRegistro);
+    console.log('🎯 rol_id enviado:', rolId);
 
-    // Timeout de seguridad - si no responde en 30 segundos, mostrar error
     const timeoutId = setTimeout(() => {
       this.loading = false;
       this.errorMessage = 'La solicitud está tomando demasiado tiempo. Intenta de nuevo.';
@@ -178,50 +167,58 @@ export class RegisterComponent implements OnInit {
 
     this.authService.register(datosRegistro as any).subscribe({
       next: (response) => {
-        clearTimeout(timeoutId); // Cancelar timeout
-        this.loading = false; // ✅ Asegurar que se resetee
+        clearTimeout(timeoutId);
+        this.loading = false;
         console.log('✅ Registro exitoso:', response);
+        console.log('👤 Usuario registrado con rol_id:', response.user?.rol_id);
 
         if (response.requireEmailVerification) {
-          // Redirigir a verificación de email
           this.router.navigate(['/verify-email'], {
             queryParams: { email: response.email }
           });
         } else {
-          // Guardar usuario y tokens (caso sin verificación)
+          // Guardar usuario y tokens
           this.authService.setCurrentUser(
             response.user,
             response.token,
             response.refreshToken
           );
 
-          // Redirigir al dashboard
-          this.router.navigate(['/dashboard']);
+          // ✅ REDIRIGIR SEGÚN EL ROL_ID
+          if (response.user.rol_id === 2) {
+            console.log('🏥 Redirigiendo a dashboard de médico');
+            this.router.navigate(['/dashboard-medico']);
+          } else if (response.user.rol_id === 3) {
+            console.log('👨‍⚕️ Redirigiendo a dashboard de paciente');
+            this.router.navigate(['/dashboard-paciente']);
+          } else {
+            // Fallback por si acaso
+            console.log('❓ Rol desconocido, redirigiendo a dashboard general');
+            this.router.navigate(['/dashboard']);
+          }
         }
       },
       error: (error) => {
-        clearTimeout(timeoutId); // Cancelar timeout
-        this.loading = false; // ✅ Asegurar que se resetee siempre
-        
+        clearTimeout(timeoutId);
+        this.loading = false;
+
         console.error('❌ Error completo:', error);
         console.error('❌ Respuesta del servidor:', error.error);
 
-        // Mostrar mensaje de error del servidor
         if (error.error?.message) {
           this.errorMessage = error.error.message;
         } else if (error.status === 0) {
           this.errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
+        } else if (error.status === 500) {
+          this.errorMessage = 'Error interno del servidor. Por favor intenta de nuevo.';
         } else {
           this.errorMessage = 'Error al registrar usuario. Intenta nuevamente.';
         }
-      },
-      complete: () => {
-        this.loading = false;
       }
     });
   }
 
-  // Getters para fácil acceso en el template
+  // Getters
   get nombre() { return this.registerForm.get('nombre'); }
   get apellido() { return this.registerForm.get('apellido'); }
   get correo() { return this.registerForm.get('correo'); }
@@ -230,7 +227,6 @@ export class RegisterComponent implements OnInit {
   get rol() { return this.registerForm.get('rol'); }
   get cedulaProfesional() { return this.registerForm.get('cedulaProfesional'); }
 
-  // Getter para verificar si se debe mostrar el campo de cédula
   get isDoctor(): boolean {
     return this.registerForm.get('rol')?.value === 'doctor';
   }

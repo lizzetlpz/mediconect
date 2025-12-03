@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -9,7 +10,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class AppointmentService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = environment.apiUrl + '/api';
   private appointmentsSubject = new BehaviorSubject<Appointment[]>([]);
   public appointments$ = this.appointmentsSubject.asObservable();
 
@@ -31,10 +32,10 @@ export class AppointmentService {
 
     if (currentUser.rol_id === 3) {
       // Doctor: obtener sus citas
-      endpoint = `${this.apiUrl}/citas/doctor/${currentUser.usuario_id}`;
+      endpoint = `${this.apiUrl}/citas/doctor/${currentUser.id}`;
     } else if (currentUser.rol_id === 2) {
       // Paciente: obtener sus citas
-      endpoint = `${this.apiUrl}/citas/paciente/${currentUser.usuario_id}`;
+      endpoint = `${this.apiUrl}/citas/paciente/${currentUser.id}`;
     } else {
       // Admin: obtener todas
       endpoint = `${this.apiUrl}/citas`;

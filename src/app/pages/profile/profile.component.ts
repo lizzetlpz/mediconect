@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/nav/navbar.component';
@@ -93,7 +94,7 @@ export class ProfileComponent implements OnInit {
     });
 
     this.http.get<Pago[]>(
-      `http://localhost:3000/api/pagos/paciente/${this.currentUser.usuario_id}`,
+      `${environment.apiUrl}/api/pagos/paciente/${this.currentUser.id}`,
       { headers }
     ).subscribe({
       next: (pagos) => {
@@ -210,7 +211,7 @@ Medicom - Telemedicina Profesional`;
 
     // Llamar al endpoint de actualización
     this.http.put(
-      `http://localhost:3000/api/usuarios/${this.currentUser.usuario_id}`,
+      `${environment.apiUrl}/api/usuarios/${this.currentUser.id}`,
       updateData
     ).subscribe({
       next: (response: any) => {

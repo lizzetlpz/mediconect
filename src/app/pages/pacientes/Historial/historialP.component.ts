@@ -1,4 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { environment } from '../../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PatientSidebarComponent } from '../../../barraLateral/paciente/Barrap.component';
@@ -63,7 +64,7 @@ export class HistorialPComponent implements OnInit {
         }
 
         this.cargando = true;
-        this.historialService.obtenerHistorialPaciente(user.usuario_id).subscribe({
+        this.historialService.obtenerHistorialPaciente(user.id).subscribe({
             next: (items: HistorialMedico[]) => {
                 this.registros = (items || []).map(i => ({
                     id: i.historial_id ? String(i.historial_id) : String(Date.now()),

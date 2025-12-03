@@ -54,7 +54,13 @@ export class AuthService {
   }
 
   getCurrentUser(): User | null {
-    return this.currentUserSubject.value;
+    const user = this.currentUserSubject.value;
+    // Si el usuario tiene usuario_id, lo renombramos a id
+    if (user && (user as any).usuario_id && !(user as any).id) {
+      (user as any).id = (user as any).usuario_id;
+      delete (user as any).usuario_id;
+    }
+    return user;
   }
 
   getToken(): string | null {

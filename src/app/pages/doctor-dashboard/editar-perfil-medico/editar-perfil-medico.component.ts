@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../../services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 interface PerfilMedico {
-  usuario_id?: number;
+  id?: number;
   nombre?: string;
   apellido_paterno?: string;
   especialidad?: string;
@@ -69,7 +70,7 @@ export class EditarPerfilMedicoComponent implements OnInit {
     });
 
     this.http.get<PerfilMedico>(
-      `http://localhost:3000/api/medicos/${user.usuario_id}`,
+      `${environment.apiUrl}/api/medicos/${user.id}`,
       { headers }
     ).subscribe({
       next: (perfil) => {
@@ -129,11 +130,11 @@ export class EditarPerfilMedicoComponent implements OnInit {
 
     const datosActualizados = {
       ...this.formulario.value,
-      usuario_id: user.usuario_id
+      usuario_id: user.id // Cambiado a user.id
     };
 
     this.http.put(
-      `http://localhost:3000/api/medicos/${user.usuario_id}`,
+      `${environment.apiUrl}/api/medicos/${user.id}`,
       datosActualizados,
       { headers }
     ).subscribe({

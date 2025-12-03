@@ -63,7 +63,7 @@ export class ModalPagoComponent implements OnInit {
     if (!user) return;
 
     this.cargandoHistorial = true;
-    this.pagosService.getPagosByPaciente(user.usuario_id).subscribe({
+    this.pagosService.getPagosByPaciente(user.id).subscribe({
       next: (pagos: PagoBackend[]) => {
         this.pagosPaciente = pagos.sort((a, b) => {
           const fechaA = new Date(a.creado_en || a.fecha || 0).getTime();
@@ -129,7 +129,7 @@ export class ModalPagoComponent implements OnInit {
     console.log('💳 Método:', this.metodoPagoSeleccionado);
 
     const datoPago = {
-      paciente_id: Number(user.usuario_id),
+      paciente_id: Number(user.id),
       monto: Number(this.montoPago),
       metodo: this.metodoPagoSeleccionado,
       estado: 'completado',

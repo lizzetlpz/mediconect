@@ -203,7 +203,7 @@ export class CitasComponent implements OnInit {
     // Crear payload para backend
     const user = this.authService.getCurrentUser();
     const payload: any = {
-      paciente_id: user ? user.usuario_id : null,
+      paciente_id: user ? user.id : null,
       // intentar extraer medico id si el campo viene como 'ID:123' o sólo número
       medico_id: isNaN(Number(citaData.medico)) ? undefined : Number(citaData.medico),
       medico_nombre: citaData.medico,

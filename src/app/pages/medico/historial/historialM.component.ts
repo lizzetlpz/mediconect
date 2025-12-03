@@ -59,7 +59,7 @@ export class HistorialPComponent implements OnInit, AfterViewInit {
 
         console.log('👤 Usuario actual:', currentUser);
         console.log('🔑 Rol ID:', currentUser.rol_id);
-        console.log('🆔 Usuario ID:', currentUser.usuario_id);
+        console.log('🆔 Usuario ID:', currentUser.id);
 
         // Verificar si es doctor
         this.esDoctor = currentUser.rol_id === 3;
@@ -72,7 +72,7 @@ export class HistorialPComponent implements OnInit, AfterViewInit {
             this.cargarHistorial(this.pacienteIdActual);
         } else if (currentUser.rol_id === 2) {
             // Si es paciente, cargar su propio historial
-            this.pacienteIdActual = currentUser.usuario_id;
+            this.pacienteIdActual = currentUser.id;
             console.log('👨‍⚕️ Es PACIENTE - Cargando su historial con ID:', this.pacienteIdActual);
             this.cargarHistorial(this.pacienteIdActual);
         } else if (currentUser.rol_id === 3) {
@@ -85,7 +85,7 @@ export class HistorialPComponent implements OnInit, AfterViewInit {
             } else {
                 // ✅ NUEVO: Doctor sin paciente específico - cargar TODOS sus historiales
                 console.log('👨‍⚕️ Es DOCTOR - Cargando TODOS los historiales creados por él');
-                this.cargarTodosLosHistorialesDelDoctor(currentUser.usuario_id);
+                this.cargarTodosLosHistorialesDelDoctor(currentUser.id);
             }
         }
     }
@@ -284,7 +284,7 @@ export class HistorialPComponent implements OnInit, AfterViewInit {
 
         if (currentUser && currentUser.rol_id === 3) {
             // Si es doctor, recargar todos sus historiales
-            this.cargarTodosLosHistorialesDelDoctor(currentUser.usuario_id);
+            this.cargarTodosLosHistorialesDelDoctor(currentUser.id);
         } else if (this.pacienteIdActual && this.pacienteIdActual !== 0) {
             // Si es paciente o hay un paciente específico
             this.cargarHistorial(this.pacienteIdActual);
@@ -302,7 +302,7 @@ export class HistorialPComponent implements OnInit, AfterViewInit {
                     const currentUser = this.authService.getCurrentUser();
 
                     if (currentUser && currentUser.rol_id === 3) {
-                        this.cargarTodosLosHistorialesDelDoctor(currentUser.usuario_id);
+                        this.cargarTodosLosHistorialesDelDoctor(currentUser.id);
                     } else {
                         this.cargarHistorial(this.pacienteIdActual);
                     }

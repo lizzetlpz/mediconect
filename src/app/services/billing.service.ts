@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../src/environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
@@ -9,7 +10,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class BillingService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = environment.apiUrl + '/api';
   private billingsSubject = new BehaviorSubject<BillingRecord[]>([]);
   public billings$ = this.billingsSubject.asObservable();
 
@@ -31,10 +32,10 @@ export class BillingService {
 
     if (currentUser.rol_id === 3) {
       // Doctor: obtener su facturación
-      endpoint = `${this.apiUrl}/facturacion/doctor/${currentUser.usuario_id}`;
+      endpoint = `${this.apiUrl}/facturacion/doctor/${currentUser.id}`;
     } else if (currentUser.rol_id === 2) {
       // Paciente: obtener su facturación
-      endpoint = `${this.apiUrl}/facturacion/paciente/${currentUser.usuario_id}`;
+      endpoint = `${this.apiUrl}/facturacion/paciente/${currentUser.id}`;
     } else {
       // Admin: obtener todas
       endpoint = `${this.apiUrl}/facturacion`;

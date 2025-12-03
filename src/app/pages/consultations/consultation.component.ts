@@ -1,5 +1,6 @@
 // consultation.component.ts
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/nav/navbar.component';
@@ -93,7 +94,7 @@ export class ConsultationsComponent implements OnInit {
 
     const consultationData = {
       doctor_id: 1, // TODO: Seleccionar doctor
-      paciente_id: currentUser.usuario_id,
+      paciente_id: currentUser.id,
       tipo: this.consultationForm.value.tipo,
       estado: 'programada',
       titulo: this.consultationForm.value.titulo,

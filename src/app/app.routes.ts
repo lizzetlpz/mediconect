@@ -7,10 +7,10 @@ export const routes: Routes = [
   { path: 'register', loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent) },
   { path: 'verify-email', loadComponent: () => import('./pages/verify-email/verify-email.component').then(m => m.VerifyEmailComponent) },
   { path: 'validar-receta', loadComponent: () => import('./components/validar-receta/validar-receta.component').then(m => m.ValidarRecetaComponent) },
-  
+
   // Ruta dashboard principal (redirige según tipo de usuario)
   { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent), canActivate: [AuthGuard] },
-  
+
   // Rutas generales (compatibilidad)
   { path: 'consultations', loadComponent: () => import('./pages/consultations/consultation.component').then(m => m.ConsultationsComponent), canActivate: [AuthGuard] },
   { path: 'patients', loadComponent: () => import('./pages/patients/patients.component').then(m => m.PatientsComponent), canActivate: [AuthGuard] },

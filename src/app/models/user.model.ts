@@ -1,14 +1,14 @@
 // src/app/models/user.model.ts
 
 export interface User {
-  usuario_id: number;         // ✅ Como estaba originalmente
+  id: number;                 // Cambiado a 'id' para que coincida con backend y sesión
   nombre: string;
-  apellido_paterno: string;   // ✅ Como estaba originalmente
+  apellido_paterno: string;
   apellido_materno?: string;
   email: string;
   telefono?: string;
   fecha_nacimiento?: string;
-  rol_id: number;             // ✅ Como estaba originalmente (1=admin, 2=paciente, 3=doctor)
+  rol_id: number;
   activo: number;
   fecha_registro?: string;
 }

@@ -166,7 +166,7 @@ export class BuscarMedicoComponent implements OnInit {
     this.citaActual = datosCita;
 
     const user = this.authService.getCurrentUser();
-    const pacienteId = user ? user.usuario_id : null;
+    const pacienteId = user ? user.id : null;
 
     const payload: any = {
       paciente_id: pacienteId,
@@ -202,7 +202,7 @@ export class BuscarMedicoComponent implements OnInit {
 
     // Persistir la cita en el backend
     const user = this.authService.getCurrentUser();
-    const pacienteId = user ? user.usuario_id : null;
+    const pacienteId = user ? user.id : null;
 
     if (!this.citaActual) {
       alert('No hay cita para confirmar');

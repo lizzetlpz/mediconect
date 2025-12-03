@@ -45,20 +45,31 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Forzar recarga completa de datos en cada navegación
+    this.refreshDashboard();
+  }
+
+  refreshDashboard(): void {
+    // Limpiar datos existentes
+    this.currentUser = null;
+    this.quickActions = [];
+    this.activityData = [];
+    this.recentRecords = [];
+    this.nextAppointment = null;
+
     setTimeout(() => {
       this.checkUserRole();
-
+      
       const user = this.authService.getCurrentUser();
       if (user && (user.rol_id === 1 || user.rol_id === 2 || user.rol_id === 3)) {
+        this.currentUser = user; // Actualizar usuario actual
         this.loadQuickActions();
         this.loadActivityData();
         this.loadRecentRecords();
         this.loadNextAppointment();
       }
     }, 100);
-  }
-
-  private checkUserRole(): void {
+  }  private checkUserRole(): void {
     const user = this.authService.getCurrentUser();
     console.log('🔍 Verificando rol del usuario:', user);
 

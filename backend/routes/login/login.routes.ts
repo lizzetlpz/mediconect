@@ -1,717 +1,236 @@
-// C:\Users\lizze\medicos\nombre-proyecto\backend\routes\login\auth.routes.ts
-import { Router, Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { getConnection } from '../../BD/SQLite/database';
+// register.component.ts - VERSIÓN CORREGIDA
 
-const router = Router();
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
-// ✅ Usar la misma clave que en .env y middleware
-const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_super_seguro_cambiar_en_produccion';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'tu_refresh_secret_cambiar_en_produccion';
+@Component({
+  selector: 'app-register',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink
+  ],
+  templateUrl: './register.component.html',
+  styleUrls: ['./register.component.css']
+})
+export class RegisterComponent implements OnInit {
+  registerForm!: FormGroup;
+  loading = false;
+  errorMessage = '';
 
-const refreshTokens = new Map<string, string>();
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
-// ============================================
-// GET /api/auth/verify-all - VERIFICAR TODOS LOS USUARIOS NO VERIFICADOS
-// ============================================
-router.get('/verify-all', async (req: Request, res: Response) => {
-  try {
-    console.log('🔓 VERIFICANDO TODOS LOS USUARIOS...');
-    const pool = getConnection();
-    
-    // Actualizar TODOS los usuarios para marcarlos como verificados
-    const [result] = await pool.query(
-      'UPDATE usuarios SET email_verificado = 1 WHERE email_verificado = 0'
-    );
-    
-    // Obtener todos los usuarios verificados
-    const [users] = await pool.query(
-      'SELECT id, nombre, apellido, email, tipo_usuario, email_verificado FROM usuarios'
-    );
-    
-    res.json({
-      success: true,
-      message: `✅ ${(result as any).affectedRows} CUENTAS VERIFICADAS EXITOSAMENTE`,
-      users: users
+  ngOnInit(): void {
+    this.registerForm = this.fb.group({
+      nombre: ['', [Validators.required, Validators.minLength(2)]],
+      apellido: ['', [Validators.required, Validators.minLength(2)]],
+      correo: ['', [Validators.required, this.emailValidator]],
+      password: ['', [Validators.required, Validators.minLength(8), this.passwordStrengthValidator]],
+      confirmPassword: ['', Validators.required],
+      rol: ['paciente', Validators.required],
+      cedulaProfesional: ['']
+    }, {
+      validators: this.passwordMatchValidator
     });
-    
-  } catch (error: any) {
-    console.error('❌ Error verificando cuentas:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
 
-// ============================================
-// POST /api/auth/force-login - LOGIN FORZADO CON EMAIL
-// ============================================
-router.post('/force-login', async (req: Request, res: Response) => {
-  try {
-    const { email } = req.body;
-    console.log('🔑 FORZANDO LOGIN PARA:', email);
-    
-    const pool = getConnection();
-    
-    // Buscar usuario por email (búsqueda flexible)
-    const [users] = await pool.query(
-      'SELECT * FROM usuarios WHERE email LIKE ?',
-      [`%${email}%`]
-    );
-    
-    if ((users as any[]).length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuario no encontrado'
-      });
-    }
-    
-    const user = (users as any[])[0];
-    
-    // Crear token JWT
-    const token = jwt.sign(
-      { id: user.id, email: user.email, tipo_usuario: user.tipo_usuario },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    const refreshToken = jwt.sign(
-      { id: user.id },
-      JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    refreshTokens.set(user.id.toString(), refreshToken);
-    
-    res.json({
-      success: true,
-      message: '✅ LOGIN FORZADO EXITOSO',
-      user: {
-        id: user.id,
-        nombre: user.nombre,
-        apellido: user.apellido,
-        email: user.email,
-        tipo_usuario: user.tipo_usuario
-      },
-      token,
-      refreshToken
-    });
-    
-  } catch (error: any) {
-    console.error('❌ Error en login forzado:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// GET /api/auth/verify-all - VERIFICAR TODAS LAS CUENTAS
-// ============================================
-router.get('/verify-all', async (req: Request, res: Response) => {
-  try {
-    console.log('🔓 VERIFICANDO TODAS LAS CUENTAS...');
-    const pool = getConnection();
-    
-    // Actualizar TODAS las cuentas para marcarlas como verificadas
-    const [result] = await pool.query(
-      'UPDATE usuarios SET email_verificado = 1 WHERE email_verificado = 0'
-    );
-    
-    // Obtener todas las cuentas actualizadas
-    const [users] = await pool.query(
-      'SELECT id, nombre, apellido, email, tipo_usuario, email_verificado, fecha_registro FROM usuarios ORDER BY fecha_registro DESC'
-    );
-    
-    res.json({
-      success: true,
-      message: '✅ TODAS LAS CUENTAS VERIFICADAS EXITOSAMENTE',
-      usersUpdated: (result as any).affectedRows,
-      allUsers: users
-    });
-    
-  } catch (error: any) {
-    console.error('❌ Error verificando todas las cuentas:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// GET /api/auth/list-users - VER TODOS LOS USUARIOS
-// ============================================
-router.get('/list-users', async (req: Request, res: Response) => {
-  try {
-    console.log('📋 LISTANDO TODOS LOS USUARIOS...');
-    const pool = getConnection();
-    
-    const [users] = await pool.query(
-      'SELECT id, nombre, apellido, email, tipo_usuario, activo, email_verificado, fecha_registro FROM usuarios ORDER BY fecha_registro DESC'
-    );
-    
-    res.json({
-      success: true,
-      message: 'Lista de usuarios',
-      users: users,
-      total: (users as any[]).length
-    });
-    
-  } catch (error: any) {
-    console.error('❌ Error listando usuarios:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// GET /api/auth/verify-manual - VERIFICAR CUENTA MANUALMENTE
-// ============================================
-router.get('/verify-manual/:email', async (req: Request, res: Response) => {
-  try {
-    const { email } = req.params;
-    console.log('🔓 VERIFICANDO CUENTA MANUALMENTE:', email);
-    
-    const pool = getConnection();
-    
-    // Primero verificar si el usuario existe
-    const [users] = await pool.query(
-      'SELECT id, nombre, apellido, email, email_verificado FROM usuarios WHERE email = ?',
-      [email.toLowerCase()]
-    );
-    
-    if ((users as any[]).length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuario no encontrado con email: ' + email
-      });
-    }
-    
-    const user = (users as any[])[0];
-    
-    // Actualizar cuenta para marcarla como verificada
-    const [result] = await pool.query(
-      'UPDATE usuarios SET email_verificado = 1 WHERE email = ?',
-      [email.toLowerCase()]
-    );
-    
-    res.json({
-      success: true,
-      message: '✅ CUENTA VERIFICADA EXITOSAMENTE',
-      user: {
-        ...user,
-        email_verificado: 1
-      }
-    });
-    
-  } catch (error: any) {
-    console.error('❌ Error verificando cuenta:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// GET /api/auth/fix-database - ARREGLAR BASE DE DATOS
-// ============================================
-router.get('/fix-database', async (req: Request, res: Response) => {
-  try {
-    console.log('🔧 REPARANDO BASE DE DATOS...');
-    const pool = getConnection();
-
-    // Eliminar tabla si existe
-    await pool.query('DROP TABLE IF EXISTS usuarios');
-    console.log('✅ Tabla anterior eliminada');
-
-    // Crear nueva tabla
-    const createTableQuery = `
-      CREATE TABLE usuarios (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        nombre VARCHAR(100) NOT NULL,
-        apellido VARCHAR(150) NOT NULL,
-        email VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        telefono VARCHAR(20) NULL,
-        fecha_nacimiento DATE NULL,
-        tipo_usuario ENUM('paciente', 'medico', 'administrador') NOT NULL DEFAULT 'paciente',
-        activo BOOLEAN DEFAULT TRUE,
-        email_verificado BOOLEAN DEFAULT FALSE,
-        codigo_verificacion VARCHAR(6) NULL,
-        fecha_expiracion_codigo DATETIME NULL,
-        fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-      )
-    `;
-
-    await pool.query(createTableQuery);
-    console.log('✅ Tabla usuarios creada');
-
-    // Crear índices
-    await pool.query('CREATE INDEX idx_usuarios_email ON usuarios(email)');
-    await pool.query('CREATE INDEX idx_usuarios_tipo ON usuarios(tipo_usuario)');
-    console.log('✅ Índices creados');
-
-    const [describe] = await pool.query('DESCRIBE usuarios');
-    
-    res.json({
-      success: true,
-      message: '🎉 BASE DE DATOS REPARADA EXITOSAMENTE',
-      tableStructure: describe
-    });
-  } catch (error: any) {
-    console.error('❌ Error reparando BD:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// POST /api/auth/register - Registro de usuario
-// ============================================
-router.post('/register', async (req: Request, res: Response) => {
-  console.log('🚀 INICIO DE REGISTRO - Datos recibidos:', JSON.stringify(req.body, null, 2));
-  
-  try {
-    const {
-      correo, email,
-      contraseña, password,
-      nombre, firstName,
-      apellido_paterno, apellido, lastName,
-      apellido_materno,
-      telefono,
-      fecha_nacimiento,
-      rol, role,
-      cedulaProfesional
-    } = req.body;
-
-    const emailFinal = correo || email;
-    const passwordFinal = contraseña || password;
-    const nombreFinal = nombre || firstName;
-    const apellidoPaternoFinal = apellido_paterno || apellido || lastName;
-    const rolFinal = rol || role;
-
-    console.log('📝 Valores procesados:');
-    console.log('   Email:', emailFinal);
-    console.log('   Password:', passwordFinal ? '***PRESENTE***' : 'AUSENTE');
-    console.log('   Nombre:', nombreFinal);
-    console.log('   Apellido:', apellidoPaternoFinal);
-    console.log('   Rol:', rolFinal);
-
-    if (!emailFinal || !passwordFinal || !nombreFinal || !apellidoPaternoFinal || !rolFinal) {
-      console.log('❌ VALIDACIÓN FALLIDA - Campos faltantes');
-      return res.status(400).json({
-        message: 'Todos los campos son requeridos (email, password, nombre, apellido_paterno, rol)',
-        recibido: req.body
-      });
-    }
-
-    // Validación especial para doctores: cédula profesional requerida
-    if ((rolFinal === 'doctor') && !cedulaProfesional) {
-      console.log('❌ VALIDACIÓN FALLIDA - Cédula profesional faltante para doctor');
-      return res.status(400).json({
-        message: 'La cédula profesional es requerida para el registro de doctores',
-        recibido: req.body
-      });
-    }
-
-    // Mapear rol a tipo_usuario directo (sin tabla roles)
-    const tipo_usuario = (rolFinal === 'doctor') ? 'medico' : rolFinal;
-    console.log('🔄 Tipo usuario mapeado:', tipo_usuario);
-    
-    // Validar tipo_usuario
-    if (!['paciente', 'medico', 'administrador'].includes(tipo_usuario)) {
-      console.log('❌ VALIDACIÓN FALLIDA - Tipo de usuario inválido:', tipo_usuario);
-      return res.status(400).json({
-        message: 'El tipo de usuario debe ser "paciente", "medico" o "administrador"'
-      });
-    }
-
-    console.log('🔍 Verificando usuario existente...');
-    const pool = getConnection();
-
-    const [existingUsers] = await pool.query(
-      'SELECT id FROM usuarios WHERE email = ?',
-      [emailFinal.toLowerCase()]
-    );
-
-    if ((existingUsers as any[]).length > 0) {
-      console.log('❌ VALIDACIÓN FALLIDA - Usuario ya existe');
-      return res.status(400).json({
-        message: 'El correo electrónico ya está registrado'
-      });
-    }
-
-    console.log('🔐 Hasheando contraseña...');
-    const hashedPassword = await bcrypt.hash(passwordFinal, 10);
-
-    // Generar código de verificación de email
-    const codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
-    const fechaExpiracion = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
-
-    console.log('💾 Insertando usuario en base de datos...');
-    console.log('   Datos a insertar:');
-    console.log('   - Nombre:', nombreFinal);
-    console.log('   - Apellido:', `${apellidoPaternoFinal} ${apellido_materno || ''}`.trim());
-    console.log('   - Email:', emailFinal.toLowerCase());
-    console.log('   - Tipo usuario:', tipo_usuario);
-
-    const [result] = await pool.query(
-      `INSERT INTO usuarios
-      (nombre, apellido, email, password, telefono, fecha_nacimiento, tipo_usuario, activo, email_verificado, codigo_verificacion, fecha_expiracion_codigo)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        nombreFinal,
-        `${apellidoPaternoFinal} ${apellido_materno || ''}`.trim(),
-        emailFinal.toLowerCase(),
-        hashedPassword,
-        telefono || null,
-        fecha_nacimiento || null,
-        tipo_usuario,
-        1, // activo
-        0, // email_verificado
-        codigoVerificacion,
-        fechaExpiracion
-      ]
-    );
-
-    const usuario_id = (result as any).insertId;
-    console.log('✅ Usuario creado con ID:', usuario_id);
-
-    // Si es doctor, registrar en medicos_profesionales
-    if (rolFinal === 'doctor' && cedulaProfesional) {
-      try {
-        await pool.query(
-          `INSERT INTO medicos_profesionales
-          (usuario_id, especialidad, anos_experiencia, universidad, cedula_profesional, descripcion, tarifa_consulta, creado_en)
-          VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
-          [
-            usuario_id,
-            'Medicina General', // Especialidad por defecto
-            0, // Años de experiencia por defecto
-            '', // Universidad vacía por defecto
-            cedulaProfesional,
-            'Perfil médico nuevo', // Descripción por defecto
-            100.00 // Tarifa por defecto
-          ]
-        );
-        console.log('✅ Registro en medicos_profesionales completado para doctor con cédula:', cedulaProfesional);
-      } catch (medError) {
-        console.error('⚠️ Error registrando en medicos_profesionales:', medError);
-        // No fallar el registro completo por esto
-      }
-    }
-
-    // Enviar email de verificación
-    try {
-      const { default: emailService } = await import('../../src/services/email.service');
-
-      const emailEnviado = await emailService.enviarEmail({
-        to: emailFinal.toLowerCase(),
-        subject: 'Verificar tu cuenta en MediConnect',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #0066cc;">Bienvenido a MediConnect</h2>
-            <p>Hola <strong>${nombreFinal}</strong>,</p>
-            <p>Gracias por registrarte en MediConnect. Para completar tu registro, por favor verifica tu correo electrónico.</p>
-
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
-              <h3 style="margin: 0; color: #0066cc;">Tu código de verificación:</h3>
-              <div style="font-size: 32px; font-weight: bold; color: #0066cc; letter-spacing: 4px; margin: 10px 0;">
-                ${codigoVerificacion}
-              </div>
-            </div>
-
-            <p>Este código expira en <strong>24 horas</strong>.</p>
-            <p>Si no solicitaste esta cuenta, puedes ignorar este email.</p>
-
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-            <p style="font-size: 12px; color: #6b7280;">MediConnect - Plataforma médica profesional</p>
-          </div>
-        `
-      });
-
-      if (emailEnviado) {
-        console.log('✅ Email de verificación enviado a:', emailFinal);
+    // Escuchar cambios en el rol para agregar validación de cédula
+    this.registerForm.get('rol')?.valueChanges.subscribe(rol => {
+      const cedulaControl = this.registerForm.get('cedulaProfesional');
+      if (rol === 'doctor') {
+        cedulaControl?.setValidators([Validators.required, this.cedulaProfesionalValidator]);
       } else {
-        console.log('⚠️ No se pudo enviar email de verificación, pero el usuario se creó correctamente');
+        cedulaControl?.clearValidators();
+        cedulaControl?.setValue('');
       }
-    } catch (emailError) {
-      console.error('⚠️ Error enviando email de verificación:', emailError);
+      cedulaControl?.updateValueAndValidity();
+    });
+  }
+
+  // Validador de email más estricto
+  emailValidator(control: any) {
+    const email = control.value;
+    if (!email) return null;
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const valid = emailRegex.test(email);
+
+    if (!valid) {
+      return { invalidEmail: true };
     }
 
-    // ✅ CAMBIO: usar id en lugar de usuario_id
-    const token = jwt.sign(
-      { id: usuario_id, email: emailFinal.toLowerCase(), tipo_usuario },  // ✅ Cambio aquí
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    // Verificar que no tenga caracteres especiales peligrosos
+    const dangerousChars = /[<>"'&]/;
+    if (dangerousChars.test(email)) {
+      return { dangerousChars: true };
+    }
 
-    const refreshToken = jwt.sign(
-      { id: usuario_id },  // ✅ Cambio aquí
-      JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
+    return null;
+  }
 
-    refreshTokens.set(usuario_id.toString(), refreshToken);
+  // Validador de fortaleza de contraseña
+  passwordStrengthValidator(control: any) {
+    const password = control.value;
+    if (!password) return null;
 
-    const [users] = await pool.query(
-      'SELECT id, nombre, apellido, email, telefono, fecha_nacimiento, tipo_usuario, activo, email_verificado, fecha_registro FROM usuarios WHERE id = ?',
-      [usuario_id]
-    );
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasNumbers = /\d/.test(password);
+    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-    const userResponse = (users as any[])[0];
+    const isStrong = hasLowerCase && hasUpperCase && hasNumbers && hasSpecialChars;
 
-    res.status(201).json({
-      message: 'Usuario registrado exitosamente. Por favor verifica tu email para completar el proceso.',
-      user: userResponse,
-      token,
-      refreshToken,
-      requireEmailVerification: true,
-      email: emailFinal
+    if (!isStrong) {
+      return { weakPassword: true };
+    }
+
+    return null;
+  }
+
+  // Validador de cédula profesional
+  cedulaProfesionalValidator(control: any) {
+    const cedula = control.value;
+    if (!cedula) return null;
+
+    // Formato: 8-12 dígitos
+    const cedulaRegex = /^\d{8,12}$/;
+    if (!cedulaRegex.test(cedula)) {
+      return { invalidCedula: true };
+    }
+
+    return null;
+  }
+
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password');
+    const confirmPassword = form.get('confirmPassword');
+
+    if (password && confirmPassword && password.value !== confirmPassword.value) {
+      confirmPassword.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    }
+    return null;
+  }
+
+  onSubmit(): void {
+    console.log('🔴 Botón clickeado!');
+    console.log('📋 Estado del formulario:', this.registerForm.value);
+    console.log('❓ ¿Es válido?', this.registerForm.valid);
+    console.log('❌ Errores:', this.registerForm.errors);
+
+    // Mostrar errores de cada campo
+    Object.keys(this.registerForm.controls).forEach(key => {
+      const control = this.registerForm.get(key);
+      if (control?.invalid) {
+        console.log(`❌ Campo "${key}" es inválido:`, control.errors);
+      }
     });
 
-  } catch (error: any) {
-    console.error('❌❌❌ ERROR COMPLETO EN REGISTRO ❌❌❌');
-    console.error('Mensaje:', error.message);
-    console.error('Stack:', error.stack);
-    console.error('Code:', error.code);
-    console.error('SQL State:', error.sqlState);
-    console.error('SQL Message:', error.sqlMessage);
-    console.error('Error completo:', JSON.stringify(error, null, 2));
-    
-    res.status(500).json({
-      message: 'Error al registrar usuario',
-      error: error.message,
-      details: {
-        code: error.code,
-        sqlState: error.sqlState,
-        sqlMessage: error.sqlMessage
+    if (this.registerForm.invalid) {
+      // Marcar todos los campos como touched para mostrar errores
+      Object.keys(this.registerForm.controls).forEach(key => {
+        this.registerForm.get(key)?.markAsTouched();
+      });
+
+      // Mensaje de error más específico
+      if (this.registerForm.get('password')?.hasError('minlength')) {
+        this.errorMessage = 'La contraseña debe tener al menos 8 caracteres';
+      } else if (this.registerForm.errors?.['passwordMismatch']) {
+        this.errorMessage = 'Las contraseñas no coinciden';
+      } else if (this.registerForm.get('correo')?.hasError('invalidEmail')) {
+        this.errorMessage = 'Ingresa un correo electrónico válido';
+      } else {
+        this.errorMessage = 'Por favor completa todos los campos correctamente';
+      }
+
+      return;
+    }
+
+    this.loading = true;
+    this.errorMessage = '';
+
+    const formValue = this.registerForm.value;
+
+    // ✅ CORRECCIÓN PRINCIPAL: Enviar datos en el formato correcto que espera el backend
+    const datosRegistro = {
+      nombre: formValue.nombre,
+      apellido: formValue.apellido,        // ✅ CAMBIO: antes era apellido_paterno
+      correo: formValue.correo,            // El backend acepta correo o email
+      password: formValue.password,        // El backend acepta password o contraseña
+      rol: formValue.rol,
+      ...(formValue.rol === 'doctor' && { cedulaProfesional: formValue.cedulaProfesional })
+    };
+
+    console.log('📤 Enviando datos al backend:', datosRegistro);
+
+    // Timeout de seguridad - si no responde en 30 segundos, mostrar error
+    const timeoutId = setTimeout(() => {
+      this.loading = false;
+      this.errorMessage = 'La solicitud está tomando demasiado tiempo. Intenta de nuevo.';
+    }, 30000);
+
+    this.authService.register(datosRegistro as any).subscribe({
+      next: (response) => {
+        clearTimeout(timeoutId);
+        this.loading = false;
+        console.log('✅ Registro exitoso:', response);
+
+        if (response.requireEmailVerification) {
+          // Redirigir a verificación de email
+          this.router.navigate(['/verify-email'], {
+            queryParams: { email: response.email }
+          });
+        } else {
+          // Guardar usuario y tokens (caso sin verificación)
+          this.authService.setCurrentUser(
+            response.user,
+            response.token,
+            response.refreshToken
+          );
+
+          // Redirigir al dashboard
+          this.router.navigate(['/dashboard']);
+        }
+      },
+      error: (error) => {
+        clearTimeout(timeoutId);
+        this.loading = false;
+
+        console.error('❌ Error completo:', error);
+        console.error('❌ Respuesta del servidor:', error.error);
+
+        // Mostrar mensaje de error del servidor
+        if (error.error?.message) {
+          this.errorMessage = error.error.message;
+        } else if (error.status === 0) {
+          this.errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
+        } else if (error.status === 500) {
+          this.errorMessage = 'Error interno del servidor. Por favor intenta de nuevo o contacta al soporte.';
+        } else {
+          this.errorMessage = 'Error al registrar usuario. Intenta nuevamente.';
+        }
       }
     });
   }
-});
 
-// ============================================
-// POST /api/auth/verify-email - Verificación de email
-// ============================================
-router.post('/verify-email', async (req: Request, res: Response) => {
-  try {
-    const { email, codigo } = req.body;
+  // Getters para fácil acceso en el template
+  get nombre() { return this.registerForm.get('nombre'); }
+  get apellido() { return this.registerForm.get('apellido'); }
+  get correo() { return this.registerForm.get('correo'); }
+  get password() { return this.registerForm.get('password'); }
+  get confirmPassword() { return this.registerForm.get('confirmPassword'); }
+  get rol() { return this.registerForm.get('rol'); }
+  get cedulaProfesional() { return this.registerForm.get('cedulaProfesional'); }
 
-    if (!email || !codigo) {
-      return res.status(400).json({
-        message: 'Email y código son requeridos'
-      });
-    }
-
-    const pool = getConnection();
-
-    // Buscar usuario con el código
-    const [users] = await pool.query(
-      'SELECT id, email_verificado, fecha_expiracion_codigo FROM usuarios WHERE email = ? AND codigo_verificacion = ?',
-      [email.toLowerCase(), codigo]
-    );
-
-    if ((users as any[]).length === 0) {
-      return res.status(400).json({
-        message: 'Código de verificación inválido'
-      });
-    }
-
-    const user = (users as any[])[0];
-
-    // Verificar si ya está verificado
-    if (user.email_verificado) {
-      return res.status(400).json({
-        message: 'El email ya ha sido verificado'
-      });
-    }
-
-    // Verificar si el código no ha expirado
-    if (new Date() > new Date(user.fecha_expiracion_codigo)) {
-      return res.status(400).json({
-        message: 'El código de verificación ha expirado'
-      });
-    }
-
-    // Marcar email como verificado
-    await pool.query(
-      'UPDATE usuarios SET email_verificado = 1, codigo_verificacion = NULL, fecha_expiracion_codigo = NULL WHERE id = ?',
-      [user.id]
-    );
-
-    res.status(200).json({
-      message: 'Email verificado exitosamente'
-    });
-
-  } catch (error: any) {
-    console.error('❌ Error en verificación de email:', error);
-    res.status(500).json({
-      message: 'Error al verificar email',
-      error: error.message
-    });
+  // Getter para verificar si se debe mostrar el campo de cédula
+  get isDoctor(): boolean {
+    return this.registerForm.get('rol')?.value === 'doctor';
   }
-});
-
-// ============================================
-// POST /api/auth/login - Inicio de sesión
-// ============================================
-router.post('/login', async (req: Request, res: Response) => {
-  try {
-    const { correo, email, contraseña, password } = req.body;
-
-    const emailFinal = correo || email;
-    const passwordFinal = contraseña || password;
-
-    console.log('🔐 Intento de login:', emailFinal);
-
-    if (!emailFinal || !passwordFinal) {
-      return res.status(400).json({
-        message: 'Correo y contraseña son requeridos'
-      });
-    }
-
-    const pool = getConnection();
-
-    const [users] = await pool.query(
-      'SELECT * FROM usuarios WHERE email = ? AND activo = 1',
-      [emailFinal.toLowerCase()]
-    );
-
-    if ((users as any[]).length === 0) {
-      console.log('❌ Usuario no encontrado:', emailFinal);
-      return res.status(401).json({
-        message: 'Credenciales incorrectas'
-      });
-    }
-
-    const user = (users as any[])[0];
-    console.log('✅ Usuario encontrado:', user.email);
-
-    // Verificar que la cuenta esté verificada (ahora permisivo)
-    if (!user.email_verificado) {
-      console.log('⚠️ Cuenta no verificada, pero permitiendo login');
-    }
-
-    const isValidPassword = await bcrypt.compare(passwordFinal, user.password); // ✅ Cambio: user.password en lugar de user.contraseña
-
-    if (!isValidPassword) {
-      console.log('❌ Contraseña incorrecta');
-      return res.status(401).json({
-        message: 'Credenciales incorrectas'
-      });
-    }
-
-    console.log('✅ Contraseña válida');
-
-    // ✅ CAMBIO: usar usuario_id en lugar de userId
-    const token = jwt.sign(
-      { id: user.id, email: user.email, tipo_usuario: user.tipo_usuario },  // ✅ Cambio aquí
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    const refreshToken = jwt.sign(
-      { id: user.id },  // ✅ Cambio aquí
-      JWT_REFRESH_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    refreshTokens.set(user.id.toString(), refreshToken);
-
-    const { contraseña: _, ...userResponse } = user;
-
-    console.log('✅ Login exitoso');
-
-    res.status(200).json({
-      message: 'Login exitoso',
-      user: userResponse,
-      token,
-      refreshToken
-    });
-
-  } catch (error: any) {
-    console.error('❌ Error en login:', error);
-    res.status(500).json({
-      message: 'Error al iniciar sesión',
-      error: error.message
-    });
-  }
-});
-
-// ============================================
-// POST /api/auth/refresh-token - Renovar token
-// ============================================
-router.post('/refresh-token', async (req: Request, res: Response) => {
-  try {
-    const { refreshToken } = req.body;
-
-    if (!refreshToken) {
-      return res.status(401).json({ message: 'Refresh token requerido' });
-    }
-
-    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as any;
-
-    // ✅ CAMBIO: usar usuario_id
-    const storedToken = refreshTokens.get(decoded.usuario_id.toString());
-    if (!storedToken || storedToken !== refreshToken) {
-      return res.status(401).json({ message: 'Refresh token inválido' });
-    }
-
-    const pool = getConnection();
-
-    const [users] = await pool.query(
-      'SELECT id, nombre, apellido, email, tipo_usuario FROM usuarios WHERE id = ? AND activo = 1',
-      [decoded.usuario_id]  // ✅ Cambio aquí
-    );
-
-    if ((users as any[]).length === 0) {
-      return res.status(401).json({ message: 'Usuario no encontrado' });
-    }
-
-    const user = (users as any[])[0];
-
-    // ✅ CAMBIO: usar id
-    const newToken = jwt.sign(
-      { id: user.id, email: user.email, tipo_usuario: user.tipo_usuario },  // ✅ Cambio aquí
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-
-    res.status(200).json({ token: newToken });
-
-  } catch (error: any) {
-    console.error('❌ Error en refresh token:', error);
-    res.status(401).json({ message: 'Refresh token inválido o expirado' });
-  }
-});
-
-// ============================================
-// POST /api/auth/logout - Cerrar sesión
-// ============================================
-router.post('/logout', async (req: Request, res: Response) => {
-  try {
-    const { userId } = req.body;
-
-    if (userId) {
-      refreshTokens.delete(userId.toString());
-    }
-
-    res.status(200).json({ message: 'Logout exitoso' });
-  } catch (error: any) {
-    console.error('❌ Error en logout:', error);
-    res.status(500).json({ message: 'Error al cerrar sesión' });
-  }
-});
-
-export default router;
+}
