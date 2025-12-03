@@ -16,6 +16,8 @@ const refreshTokens = new Map<string, string>();
 // POST /api/auth/register - Registro de usuario
 // ============================================
 router.post('/register', async (req: Request, res: Response) => {
+  console.log('🚀 INICIO DE REGISTRO - Datos recibidos:', JSON.stringify(req.body, null, 2));
+  
   try {
     const {
       correo, email,
@@ -35,9 +37,15 @@ router.post('/register', async (req: Request, res: Response) => {
     const apellidoPaternoFinal = apellido_paterno || apellido || lastName;
     const rolFinal = rol || role;
 
-    console.log('📥 Datos recibidos:', req.body);
+    console.log('📝 Valores procesados:');
+    console.log('   Email:', emailFinal);
+    console.log('   Password:', passwordFinal ? '***PRESENTE***' : 'AUSENTE');
+    console.log('   Nombre:', nombreFinal);
+    console.log('   Apellido:', apellidoPaternoFinal);
+    console.log('   Rol:', rolFinal);
 
     if (!emailFinal || !passwordFinal || !nombreFinal || !apellidoPaternoFinal || !rolFinal) {
+      console.log('❌ VALIDACIÓN FALLIDA - Campos faltantes');
       return res.status(400).json({
         message: 'Todos los campos son requeridos (email, password, nombre, apellido_paterno, rol)',
         recibido: req.body
@@ -46,6 +54,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
     // Validación especial para doctores: cédula profesional requerida
     if ((rolFinal === 'doctor') && !cedulaProfesional) {
+      console.log('❌ VALIDACIÓN FALLIDA - Cédula profesional faltante para doctor');
       return res.status(400).json({
         message: 'La cédula profesional es requerida para el registro de doctores',
         recibido: req.body
@@ -54,14 +63,17 @@ router.post('/register', async (req: Request, res: Response) => {
 
     // Mapear rol a tipo_usuario directo (sin tabla roles)
     const tipo_usuario = (rolFinal === 'doctor') ? 'medico' : rolFinal;
+    console.log('🔄 Tipo usuario mapeado:', tipo_usuario);
     
     // Validar tipo_usuario
     if (!['paciente', 'medico', 'administrador'].includes(tipo_usuario)) {
+      console.log('❌ VALIDACIÓN FALLIDA - Tipo de usuario inválido:', tipo_usuario);
       return res.status(400).json({
         message: 'El tipo de usuario debe ser "paciente", "medico" o "administrador"'
       });
     }
 
+    console.log('🔍 Verificando usuario existente...');
     const pool = getConnection();
 
     const [existingUsers] = await pool.query(
@@ -70,23 +82,25 @@ router.post('/register', async (req: Request, res: Response) => {
     );
 
     if ((existingUsers as any[]).length > 0) {
+      console.log('❌ VALIDACIÓN FALLIDA - Usuario ya existe');
       return res.status(400).json({
         message: 'El correo electrónico ya está registrado'
       });
     }
 
-    // Validar tipo_usuario
-    if (!['paciente', 'medico', 'administrador'].includes(tipo_usuario)) {
-      return res.status(400).json({
-        message: 'El tipo de usuario debe ser "paciente", "medico" o "administrador"'
-      });
-    }
-
+    console.log('🔐 Hasheando contraseña...');
     const hashedPassword = await bcrypt.hash(passwordFinal, 10);
 
     // Generar código de verificación de email
     const codigoVerificacion = Math.floor(100000 + Math.random() * 900000).toString();
     const fechaExpiracion = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
+    console.log('💾 Insertando usuario en base de datos...');
+    console.log('   Datos a insertar:');
+    console.log('   - Nombre:', nombreFinal);
+    console.log('   - Apellido:', `${apellidoPaternoFinal} ${apellido_materno || ''}`.trim());
+    console.log('   - Email:', emailFinal.toLowerCase());
+    console.log('   - Tipo usuario:', tipo_usuario);
 
     const [result] = await pool.query(
       `INSERT INTO usuarios
@@ -204,10 +218,22 @@ router.post('/register', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    console.error('❌ Error en registro:', error);
+    console.error('❌❌❌ ERROR COMPLETO EN REGISTRO ❌❌❌');
+    console.error('Mensaje:', error.message);
+    console.error('Stack:', error.stack);
+    console.error('Code:', error.code);
+    console.error('SQL State:', error.sqlState);
+    console.error('SQL Message:', error.sqlMessage);
+    console.error('Error completo:', JSON.stringify(error, null, 2));
+    
     res.status(500).json({
       message: 'Error al registrar usuario',
-      error: error.message
+      error: error.message,
+      details: {
+        code: error.code,
+        sqlState: error.sqlState,
+        sqlMessage: error.sqlMessage
+      }
     });
   }
 });
