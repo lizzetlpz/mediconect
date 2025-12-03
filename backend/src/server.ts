@@ -101,7 +101,13 @@ app.use('/api/pacientes', pacientesRoutes); // GET /api/pacientes para listar pa
 app.use('/api/recetas', recetasRoutes); // Sistema de recetas médicas
 
 // Servir archivos estáticos del frontend Angular (después de las rutas de API)
-const frontendPath = path.join(__dirname, '..', '..', 'dist', 'nombre-proyecto');
+const frontendPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, '..', '..', 'dist', 'nombre-proyecto')
+  : path.join(__dirname, '..', '..', 'dist', 'nombre-proyecto');
+  
+console.log('📁 Frontend path:', frontendPath);
+console.log('📁 __dirname:', __dirname);
+
 app.use(express.static(frontendPath));
 
 // Ruta catch-all para Angular (SPA)
@@ -185,7 +191,9 @@ app.listen(PORT, () => {
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📋 API disponible en http://localhost:${PORT}/api`);
   console.log(`🌐 Frontend disponible en http://localhost:${PORT}`);
-  console.log(`${'='.repeat(60)}\n`);
+  console.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`📁 Frontend path: ${frontendPath}`);
+  console.log(`${'='.repeat(60)}`);
 });
 
 // Iniciar servidor WebSocket para chat en tiempo real
