@@ -161,7 +161,7 @@ export class RegisterComponent implements OnInit {
     // Mapear correctamente a los nombres que espera el backend
     const datosRegistro = {
       nombre: formValue.nombre,
-      apellido_paterno: formValue.apellido,
+      apellido_paterno: formValue.apellido, // Mapear apellido -> apellido_paterno
       email: formValue.correo,
       password: formValue.password,
       rol: formValue.rol,
