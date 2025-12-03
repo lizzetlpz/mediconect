@@ -68,7 +68,7 @@ router.post('/register', async (req: Request, res: Response) => {
     const pool = getConnection();
 
     const [existingUsers] = await pool.query(
-      'SELECT usuario_id FROM usuarios WHERE email = ?',
+      'SELECT id FROM usuarios WHERE email = ?',
       [emailFinal.toLowerCase()]
     );
 
@@ -178,15 +178,15 @@ router.post('/register', async (req: Request, res: Response) => {
       console.error('⚠️ Error enviando email de verificación:', emailError);
     }
 
-    // ✅ CAMBIO: usar usuario_id en lugar de userId
+    // ✅ CAMBIO: usar id en lugar de usuario_id
     const token = jwt.sign(
-      { usuario_id, email: emailFinal.toLowerCase(), rol_id },  // ✅ Cambio aquí
+      { id: usuario_id, email: emailFinal.toLowerCase(), rol_id },  // ✅ Cambio aquí
       JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     const refreshToken = jwt.sign(
-      { usuario_id },  // ✅ Cambio aquí
+      { id: usuario_id },  // ✅ Cambio aquí
       JWT_REFRESH_SECRET,
       { expiresIn: '7d' }
     );
@@ -194,7 +194,7 @@ router.post('/register', async (req: Request, res: Response) => {
     refreshTokens.set(usuario_id.toString(), refreshToken);
 
     const [users] = await pool.query(
-      'SELECT usuario_id, nombre, apellido_paterno, apellido_materno, email, telefono, fecha_nacimiento, rol_id, activo, email_verificado, fecha_registro FROM usuarios WHERE usuario_id = ?',
+      'SELECT id, nombre, apellido_paterno, apellido_materno, email, telefono, fecha_nacimiento, rol_id, activo, email_verificado, fecha_registro FROM usuarios WHERE id = ?',
       [usuario_id]
     );
 
@@ -235,7 +235,7 @@ router.post('/verify-email', async (req: Request, res: Response) => {
 
     // Buscar usuario con el código
     const [users] = await pool.query(
-      'SELECT usuario_id, email_verificado, fecha_expiracion_codigo FROM usuarios WHERE email = ? AND codigo_verificacion = ?',
+      'SELECT id, email_verificado, fecha_expiracion_codigo FROM usuarios WHERE email = ? AND codigo_verificacion = ?',
       [email.toLowerCase(), codigo]
     );
 
@@ -263,8 +263,8 @@ router.post('/verify-email', async (req: Request, res: Response) => {
 
     // Marcar email como verificado
     await pool.query(
-      'UPDATE usuarios SET email_verificado = 1, codigo_verificacion = NULL, fecha_expiracion_codigo = NULL WHERE usuario_id = ?',
-      [user.usuario_id]
+      'UPDATE usuarios SET email_verificado = 1, codigo_verificacion = NULL, fecha_expiracion_codigo = NULL WHERE id = ?',
+      [user.id]
     );
 
     res.status(200).json({
@@ -328,18 +328,18 @@ router.post('/login', async (req: Request, res: Response) => {
 
     // ✅ CAMBIO: usar usuario_id en lugar de userId
     const token = jwt.sign(
-      { usuario_id: user.usuario_id, email: user.email, rol_id: user.rol_id },  // ✅ Cambio aquí
+      { id: user.id, email: user.email, rol_id: user.rol_id },  // ✅ Cambio aquí
       JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     const refreshToken = jwt.sign(
-      { usuario_id: user.usuario_id },  // ✅ Cambio aquí
+      { id: user.id },  // ✅ Cambio aquí
       JWT_REFRESH_SECRET,
       { expiresIn: '7d' }
     );
 
-    refreshTokens.set(user.usuario_id.toString(), refreshToken);
+    refreshTokens.set(user.id.toString(), refreshToken);
 
     const { contraseña: _, ...userResponse } = user;
 
@@ -383,7 +383,7 @@ router.post('/refresh-token', async (req: Request, res: Response) => {
     const pool = getConnection();
 
     const [users] = await pool.query(
-      'SELECT usuario_id, nombre, apellido_paterno, apellido_materno, email, rol_id FROM usuarios WHERE usuario_id = ? AND activo = 1',
+      'SELECT id, nombre, apellido_paterno, apellido_materno, email, rol_id FROM usuarios WHERE id = ? AND activo = 1',
       [decoded.usuario_id]  // ✅ Cambio aquí
     );
 
@@ -393,9 +393,9 @@ router.post('/refresh-token', async (req: Request, res: Response) => {
 
     const user = (users as any[])[0];
 
-    // ✅ CAMBIO: usar usuario_id
+    // ✅ CAMBIO: usar id
     const newToken = jwt.sign(
-      { usuario_id: user.usuario_id, email: user.email, rol_id: user.rol_id },  // ✅ Cambio aquí
+      { id: user.id, email: user.email, rol_id: user.rol_id },  // ✅ Cambio aquí
       JWT_SECRET,
       { expiresIn: '24h' }
     );
