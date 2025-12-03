@@ -31,6 +31,10 @@ import recetasRoutes from '../routes/recetas/recetas.routes';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+console.log('🔧 PUERTO CONFIGURADO:', PORT);
+console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
+console.log('🔧 process.env.PORT:', process.env.PORT);
+
 // Configurar multer para subida de archivos
 const uploadsDir = path.join(process.cwd(), 'backend', 'uploads', 'recetas');
 
