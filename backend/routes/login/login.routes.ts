@@ -135,6 +135,9 @@ router.post('/register', async (req: Request, res: Response) => {
     );
 
     const userResponse = (users as any[])[0];
+    
+    // Agregar alias 'id' para compatibilidad con frontend
+    userResponse.id = userResponse.usuario_id;
 
     res.status(201).json({
       message: 'Usuario registrado exitosamente. Por favor verifica tu correo electrónico.',
@@ -215,6 +218,9 @@ router.post('/login', async (req: Request, res: Response) => {
     refreshTokens.set(user.usuario_id.toString(), refreshToken);
 
     const { contraseña: _, ...userResponse } = user;
+    
+    // Agregar alias 'id' para compatibilidad con frontend
+    userResponse.id = userResponse.usuario_id;
 
     console.log('✅ Login exitoso');
 

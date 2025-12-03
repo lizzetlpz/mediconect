@@ -1,7 +1,8 @@
 // src/app/models/user.model.ts
 
 export interface User {
-  id: number;                 // Cambiado a 'id' para que coincida con backend y sesión
+  id: number;                 // Alias para usuario_id (compatibilidad)
+  usuario_id: number;         // ID real de la base de datos
   nombre: string;
   apellido_paterno: string;
   apellido_materno?: string;
