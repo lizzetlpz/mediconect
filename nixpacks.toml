@@ -12,6 +12,7 @@ cmds = [
     'npx ng build --configuration production --output-path dist/nombre-proyecto',
     'ls -la dist/',
     'ls -la dist/nombre-proyecto/',
+    'find dist/nombre-proyecto -name "*.html"',
     'cd backend && npm run build'
 ]
 
