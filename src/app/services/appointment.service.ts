@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class AppointmentService {
-  private apiUrl = environment.apiUrl + '/api';
+  private apiUrl = environment.apiUrl;  // Ya incluye /api
   private appointmentsSubject = new BehaviorSubject<Appointment[]>([]);
   public appointments$ = this.appointmentsSubject.asObservable();
 
