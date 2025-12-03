@@ -170,16 +170,19 @@ export class RegisterComponent implements OnInit {
 
     console.log('📤 Enviando datos al backend:', datosRegistro);
 
-    // Timeout de seguridad - si no responde en 30 segundos, mostrar error
+    // Timeout de seguridad - si no responde en 5 minutos, mostrar error
     const timeoutId = setTimeout(() => {
       this.loading = false;
-      this.errorMessage = 'La solicitud está tomando demasiado tiempo. Intenta de nuevo.';
-    }, 30000);
+      this.errorMessage = 'La solicitud está tomando demasiado tiempo. El servidor puede estar desplegándose. Intenta de nuevo en 1 minuto.';
+      console.error('⏱️ TIMEOUT: El servidor no respondió en 5 minutos');
+    }, 300000); // 5 minutos = 300000 ms
+
+    console.log('⏳ Esperando respuesta del servidor...');
 
     this.authService.register(datosRegistro as any).subscribe({
       next: (response) => {
-        clearTimeout(timeoutId); // Cancelar timeout
-        this.loading = false; // ✅ Asegurar que se resetee
+        clearTimeout(timeoutId); // ✅ Cancelar timeout inmediatamente
+        this.loading = false;
         console.log('✅ Registro exitoso:', response);
         console.log('📧 requireEmailVerification:', response.requireEmailVerification);
         console.log('👤 Usuario:', response.user);
@@ -216,19 +219,28 @@ export class RegisterComponent implements OnInit {
         }
       },
       error: (error) => {
-        clearTimeout(timeoutId); // Cancelar timeout
-        this.loading = false; // ✅ Asegurar que se resetee siempre
+        clearTimeout(timeoutId); // ✅ Cancelar timeout inmediatamente
+        this.loading = false;
 
         console.error('❌ Error completo:', error);
-        console.error('❌ Respuesta del servidor:', error.error);
+        console.error('❌ Status:', error.status);
+        console.error('❌ Status Text:', error.statusText);
+        console.error('❌ Error object:', error.error);
+        console.error('❌ URL:', error.url);
 
         // Mostrar mensaje de error del servidor
         if (error.error?.message) {
           this.errorMessage = error.error.message;
         } else if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
+          this.errorMessage = 'No se puede conectar con el servidor. Posibles causas:\n' +
+                              '1. El servidor está desplegándose (espera 1-2 minutos)\n' +
+                              '2. Problemas de red\n' +
+                              '3. CORS bloqueado';
+          console.error('⚠️ Error de red (status 0): El servidor no responde o CORS bloqueado');
+        } else if (error.status === 504 || error.status === 503) {
+          this.errorMessage = 'El servidor está temporalmente no disponible. Railway puede estar desplegando. Espera 1 minuto e intenta de nuevo.';
         } else {
-          this.errorMessage = 'Error al registrar usuario. Intenta nuevamente.';
+          this.errorMessage = `Error al registrar usuario (${error.status}). Intenta nuevamente.`;
         }
       },
       complete: () => {
