@@ -112,6 +112,20 @@ const frontendPath = process.env.NODE_ENV === 'production'
 console.log('📁 Frontend path:', frontendPath);
 console.log('📁 __dirname:', __dirname);
 
+// Verificar si existe el directorio frontend
+const fs = require('fs');
+try {
+  const files = fs.readdirSync(path.join(__dirname, '..', '..', '..'));
+  console.log('📂 Archivos en /app:', files);
+  
+  if (fs.existsSync(path.join(__dirname, '..', '..', '..', 'dist'))) {
+    const distFiles = fs.readdirSync(path.join(__dirname, '..', '..', '..', 'dist'));
+    console.log('📂 Archivos en /app/dist:', distFiles);
+  }
+} catch (err) {
+  console.log('❌ Error listando archivos:', err);
+}
+
 app.use(express.static(frontendPath));
 
 // Ruta catch-all para Angular (SPA)
