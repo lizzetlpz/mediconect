@@ -134,7 +134,7 @@ export class DashboardComponent implements OnInit {
     if (!currentUser) return;
 
     // Obtener próxima cita del paciente
-    this.appointmentService.getAppointmentsByPatient(currentUser.id.toString()).subscribe({
+    this.appointmentService.getAppointmentsByPatient(currentUser.usuario_id.toString()).subscribe({
       next: (appointments: any[]) => {
         if (appointments.length > 0) {
           // Ordenar por fecha y obtener la próxima
