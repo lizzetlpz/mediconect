@@ -14,7 +14,7 @@ cmds = [
 ]
 
 [start]
-cmd = 'cd backend && npm start'
+cmd = 'cd backend && npm run start:prod'
 
 [variables]
 NODE_ENV = 'production'

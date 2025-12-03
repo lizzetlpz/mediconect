@@ -14,7 +14,8 @@
     "resolveJsonModule": true,
     "noPropertyAccessFromIndexSignature": false,
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "types": ["node"]
   },
   "include": ["src/**/*", "BD/**/*"],
   "exclude": ["node_modules"]
