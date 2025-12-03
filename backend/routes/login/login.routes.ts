@@ -91,7 +91,7 @@ router.post('/register', async (req: Request, res: Response) => {
     const [result] = await pool.query(
       `INSERT INTO usuarios
       (nombre, apellido, email, password, telefono, fecha_nacimiento, tipo_usuario, activo, email_verificado, codigo_verificacion, fecha_expiracion_codigo)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         nombreFinal,
         `${apellidoPaternoFinal} ${apellido_materno || ''}`.trim(),
@@ -100,6 +100,8 @@ router.post('/register', async (req: Request, res: Response) => {
         telefono || null,
         fecha_nacimiento || null,
         tipo_usuario,
+        1, // activo
+        0, // email_verificado
         codigoVerificacion,
         fechaExpiracion
       ]
