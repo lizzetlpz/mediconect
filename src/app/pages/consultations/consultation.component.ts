@@ -32,7 +32,7 @@ export class ConsultationsComponent implements OnInit {
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
     this.userRole = currentUser?.rol_id || 0;
-    
+
     console.log('👤 Usuario actual rol_id:', this.userRole); // Debug
 
     this.initForm();

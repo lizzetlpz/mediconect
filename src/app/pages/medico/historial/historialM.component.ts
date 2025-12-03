@@ -28,7 +28,7 @@ interface Medicamento {
 @Component({
     selector: 'app-historial-p',
     standalone: true,
-    imports: [CommonModule, NavbarComponent, FormsModule, DoctorSidebarComponent, CrearRegistroComponent, MedicalDetailComponent],
+    imports: [CommonModule, FormsModule, DoctorSidebarComponent, CrearRegistroComponent, MedicalDetailComponent],
     templateUrl: './historialM.component.html',
     styleUrls: ['./historialM.component.css']
 })

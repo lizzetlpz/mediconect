@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface MensajeChat {
   id: string;
@@ -62,7 +63,7 @@ export class ChatService {
     }
 
     console.log('🔌 Intentando conectar a WebSocket...');
-    const wsUrl = 'ws://localhost:3001/chat';
+    const wsUrl = environment.wsUrl + '/chat';
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {

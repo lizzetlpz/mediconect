@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface DoctorItem {
   usuario_id: number;
@@ -28,7 +29,7 @@ export interface DoctorProfile {
 
 @Injectable({ providedIn: 'root' })
 export class DoctorsService {
-  private api = 'http://localhost:3000/api/medicos';
+  private api = environment.apiUrl + '/medicos';
 
   constructor(private http: HttpClient) {}
 

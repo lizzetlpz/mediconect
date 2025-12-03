@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface VideoCallState {
   isInCall: boolean;
@@ -39,7 +40,7 @@ export class VideoCallService {
   // ============== CONFIGURACIÓN INICIAL ==============
 
   private initializeWebSocket(): void {
-    this.socket = new WebSocket('ws://localhost:3001/video');
+    this.socket = new WebSocket(environment.wsUrl + '/video');
 
     this.socket.onopen = () => {
       console.log('🎥 Conectado al servidor de videollamadas');

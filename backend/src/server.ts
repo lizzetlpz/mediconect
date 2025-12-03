@@ -123,7 +123,7 @@ app.get('*', (req, res) => {
       path: req.path,
       availableRoutes: [
         '/api/auth',
-        '/api/historial', 
+        '/api/historial',
         '/api/pacientes',
         '/api/consultas',
         '/api/citas',
@@ -132,7 +132,7 @@ app.get('*', (req, res) => {
       ]
     });
   }
-  
+
   // Para rutas no API, redirigir al frontend en Vercel
   res.status(302).redirect('https://mediconect.vercel.app' + req.path);
 });
@@ -186,7 +186,7 @@ app.get('/api/fix-database', async (req, res) => {
     console.log('✅ Índices creados');
 
     const [describe] = await pool.query('DESCRIBE usuarios');
-    
+
     res.json({
       success: true,
       message: '🎉 BASE DE DATOS REPARADA EXITOSAMENTE',

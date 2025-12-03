@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface HistorialMedico {
   historial_id?: number;
@@ -50,7 +51,7 @@ export interface Estudio {
   providedIn: 'root'
 })
 export class HistorialService {
-  private apiUrl = 'http://localhost:3000/api/historial';
+  private apiUrl = environment.apiUrl + '/historial';
 
   constructor(
     private http: HttpClient,

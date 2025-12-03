@@ -26,7 +26,7 @@ interface ActivityData {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, PatientSidebarComponent, MedicalAIChatComponent],
+  imports: [CommonModule, PatientSidebarComponent, MedicalAIChatComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -59,7 +59,7 @@ export class DashboardComponent implements OnInit {
 
     setTimeout(() => {
       this.checkUserRole();
-      
+
       const user = this.authService.getCurrentUser();
       if (user && (user.rol_id === 1 || user.rol_id === 2 || user.rol_id === 3)) {
         this.currentUser = user; // Actualizar usuario actual

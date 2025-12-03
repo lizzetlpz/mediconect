@@ -32,9 +32,9 @@ CREATE INDEX idx_usuarios_tipo ON usuarios(tipo_usuario);
 DESCRIBE usuarios;
 
 -- Insertar un usuario de prueba
-INSERT INTO usuarios 
+INSERT INTO usuarios
 (nombre, apellido, email, password, tipo_usuario, activo, email_verificado, codigo_verificacion, fecha_expiracion_codigo)
-VALUES 
+VALUES
 ('Test', 'User', 'test@test.com', '$2b$10$dummy.hash.for.testing', 'paciente', 1, 0, '123456', NOW() + INTERVAL 24 HOUR);
 
 -- Verificar que se insertó correctamente

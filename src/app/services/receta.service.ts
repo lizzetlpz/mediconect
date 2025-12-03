@@ -4,12 +4,13 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { Receta, Medicamento, ValidacionReceta } from '../models/receta.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RecetaService {
-  private apiUrl = 'http://localhost:3000/api/recetas';
+  private apiUrl = environment.apiUrl + '/recetas';
   private recetasSubject = new BehaviorSubject<Receta[]>([]);
   public recetas$ = this.recetasSubject.asObservable();
 

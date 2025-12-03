@@ -56,7 +56,7 @@ interface CitaCreada {
 @Component({
   selector: 'app-citas',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, FormsModule, PatientSidebarComponent, ModalCitaComponent],
+  imports: [CommonModule, FormsModule, PatientSidebarComponent, ModalCitaComponent],
   templateUrl: './citas.component.html',
   styleUrls: ['./citas.component.css']
 })

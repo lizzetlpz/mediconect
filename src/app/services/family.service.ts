@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 export interface FamilyMemberDTO {
   familiar_id?: number;
@@ -20,7 +21,7 @@ export interface FamilyMemberDTO {
 
 @Injectable({ providedIn: 'root' })
 export class FamilyService {
-  private apiUrl = 'http://localhost:3000/api/familiares';
+  private apiUrl = environment.apiUrl + '/familiares';
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 

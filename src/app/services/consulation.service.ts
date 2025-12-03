@@ -4,12 +4,13 @@ import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Consultation } from '../models/consulation.model';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConsultationService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = environment.apiUrl;
   private consultationsSubject = new BehaviorSubject<Consultation[]>([]);
   public consultations$ = this.consultationsSubject.asObservable();
 
@@ -32,10 +33,10 @@ export class ConsultationService {
     // Según el rol, obtener consultas específicas
     if (currentUser.rol_id === 3) {
       // Doctor: obtener sus consultas
-      endpoint = `${this.apiUrl}/consultas/doctor/${currentUser.usuario_id}`;
+      endpoint = `${this.apiUrl}/consultas/doctor/${currentUser.id}`;
     } else if (currentUser.rol_id === 2) {
       // Paciente: obtener sus consultas
-      endpoint = `${this.apiUrl}/consultas/paciente/${currentUser.usuario_id}`;
+      endpoint = `${this.apiUrl}/consultas/paciente/${currentUser.id}`;
     } else {
       // Admin: obtener todas
       endpoint = `${this.apiUrl}/consultas`;

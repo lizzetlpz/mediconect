@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 export interface CitaMedica {
   id: number;
@@ -54,7 +55,7 @@ export interface EstadisticasCitas {
   providedIn: 'root'
 })
 export class CitasService {
-  private apiUrl = 'http://localhost:3000/api/citas';
+  private apiUrl = environment.apiUrl + '/citas';
 
   constructor(private http: HttpClient) {}
 

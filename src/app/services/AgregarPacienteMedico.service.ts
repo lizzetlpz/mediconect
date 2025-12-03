@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 // ============================================
 // Interfaces Historial Médico
@@ -112,8 +113,8 @@ export interface RegistrarPacienteResponse {
   providedIn: 'root'
 })
 export class AgregarPacienteMedicoService {
-  private apiUrlHistorial = 'http://localhost:3000/api/agregar-paciente';
-  private apiUrlPacientes = 'http://localhost:3000/api/pacientes';
+  private apiUrlHistorial = environment.apiUrl + '/agregar-paciente';
+  private apiUrlPacientes = environment.apiUrl + '/pacientes';
 
   constructor(
     private http: HttpClient,

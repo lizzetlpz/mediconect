@@ -1,236 +1,262 @@
-// register.component.ts - VERSIÓN CORREGIDA
+// backend/routes/login/login.routes.ts
+import { Router, Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { getConnection } from '../../BD/SQLite/database';
 
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+const router = Router();
 
-@Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterLink
-  ],
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
-})
-export class RegisterComponent implements OnInit {
-  registerForm!: FormGroup;
-  loading = false;
-  errorMessage = '';
+// ✅ Usar la misma clave que en .env y middleware
+const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_super_seguro_cambiar_en_produccion';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'tu_refresh_secret_cambiar_en_produccion';
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
-  ) {}
+const refreshTokens = new Map<string, string>();
 
-  ngOnInit(): void {
-    this.registerForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(2)]],
-      apellido: ['', [Validators.required, Validators.minLength(2)]],
-      correo: ['', [Validators.required, this.emailValidator]],
-      password: ['', [Validators.required, Validators.minLength(8), this.passwordStrengthValidator]],
-      confirmPassword: ['', Validators.required],
-      rol: ['paciente', Validators.required],
-      cedulaProfesional: ['']
-    }, {
-      validators: this.passwordMatchValidator
-    });
+// ============================================
+// POST /api/auth/register - Registro de usuario
+// ============================================
+router.post('/register', async (req: Request, res: Response) => {
+  console.log('🚀 INICIO DE REGISTRO - Datos recibidos:', JSON.stringify(req.body, null, 2));
 
-    // Escuchar cambios en el rol para agregar validación de cédula
-    this.registerForm.get('rol')?.valueChanges.subscribe(rol => {
-      const cedulaControl = this.registerForm.get('cedulaProfesional');
-      if (rol === 'doctor') {
-        cedulaControl?.setValidators([Validators.required, this.cedulaProfesionalValidator]);
-      } else {
-        cedulaControl?.clearValidators();
-        cedulaControl?.setValue('');
-      }
-      cedulaControl?.updateValueAndValidity();
-    });
-  }
+  try {
+    const {
+      correo, email,
+      contraseña, password,
+      nombre, firstName,
+      apellido_paterno, apellido, lastName,
+      apellido_materno,
+      telefono,
+      fecha_nacimiento,
+      rol, role,
+      cedulaProfesional
+    } = req.body;
 
-  // Validador de email más estricto
-  emailValidator(control: any) {
-    const email = control.value;
-    if (!email) return null;
+    const emailFinal = correo || email;
+    const passwordFinal = contraseña || password;
+    const nombreFinal = nombre || firstName;
+    const apellidoPaternoFinal = apellido_paterno || apellido || lastName;
+    const rolFinal = rol || role;
 
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const valid = emailRegex.test(email);
+    console.log('📝 Valores procesados:');
+    console.log('   Email:', emailFinal);
+    console.log('   Password:', passwordFinal ? '***PRESENTE***' : 'AUSENTE');
+    console.log('   Nombre:', nombreFinal);
+    console.log('   Apellido:', apellidoPaternoFinal);
+    console.log('   Rol:', rolFinal);
 
-    if (!valid) {
-      return { invalidEmail: true };
-    }
-
-    // Verificar que no tenga caracteres especiales peligrosos
-    const dangerousChars = /[<>"'&]/;
-    if (dangerousChars.test(email)) {
-      return { dangerousChars: true };
-    }
-
-    return null;
-  }
-
-  // Validador de fortaleza de contraseña
-  passwordStrengthValidator(control: any) {
-    const password = control.value;
-    if (!password) return null;
-
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-    const isStrong = hasLowerCase && hasUpperCase && hasNumbers && hasSpecialChars;
-
-    if (!isStrong) {
-      return { weakPassword: true };
-    }
-
-    return null;
-  }
-
-  // Validador de cédula profesional
-  cedulaProfesionalValidator(control: any) {
-    const cedula = control.value;
-    if (!cedula) return null;
-
-    // Formato: 8-12 dígitos
-    const cedulaRegex = /^\d{8,12}$/;
-    if (!cedulaRegex.test(cedula)) {
-      return { invalidCedula: true };
-    }
-
-    return null;
-  }
-
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password');
-    const confirmPassword = form.get('confirmPassword');
-
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
-      confirmPassword.setErrors({ passwordMismatch: true });
-      return { passwordMismatch: true };
-    }
-    return null;
-  }
-
-  onSubmit(): void {
-    console.log('🔴 Botón clickeado!');
-    console.log('📋 Estado del formulario:', this.registerForm.value);
-    console.log('❓ ¿Es válido?', this.registerForm.valid);
-    console.log('❌ Errores:', this.registerForm.errors);
-
-    // Mostrar errores de cada campo
-    Object.keys(this.registerForm.controls).forEach(key => {
-      const control = this.registerForm.get(key);
-      if (control?.invalid) {
-        console.log(`❌ Campo "${key}" es inválido:`, control.errors);
-      }
-    });
-
-    if (this.registerForm.invalid) {
-      // Marcar todos los campos como touched para mostrar errores
-      Object.keys(this.registerForm.controls).forEach(key => {
-        this.registerForm.get(key)?.markAsTouched();
+    if (!emailFinal || !passwordFinal || !nombreFinal || !apellidoPaternoFinal) {
+      console.log('❌ Faltan campos obligatorios');
+      return res.status(400).json({
+        message: 'Todos los campos obligatorios deben ser completados'
       });
-
-      // Mensaje de error más específico
-      if (this.registerForm.get('password')?.hasError('minlength')) {
-        this.errorMessage = 'La contraseña debe tener al menos 8 caracteres';
-      } else if (this.registerForm.errors?.['passwordMismatch']) {
-        this.errorMessage = 'Las contraseñas no coinciden';
-      } else if (this.registerForm.get('correo')?.hasError('invalidEmail')) {
-        this.errorMessage = 'Ingresa un correo electrónico válido';
-      } else {
-        this.errorMessage = 'Por favor completa todos los campos correctamente';
-      }
-
-      return;
     }
 
-    this.loading = true;
-    this.errorMessage = '';
+    const pool = getConnection();
 
-    const formValue = this.registerForm.value;
+    // Verificar si el email ya existe
+    const [existingUsers] = await pool.query(
+      'SELECT usuario_id FROM usuarios WHERE email = ?',
+      [emailFinal.toLowerCase()]
+    );
 
-    // ✅ CORRECCIÓN PRINCIPAL: Enviar datos en el formato correcto que espera el backend
-    const datosRegistro = {
-      nombre: formValue.nombre,
-      apellido: formValue.apellido,        // ✅ CAMBIO: antes era apellido_paterno
-      correo: formValue.correo,            // El backend acepta correo o email
-      password: formValue.password,        // El backend acepta password o contraseña
-      rol: formValue.rol,
-      ...(formValue.rol === 'doctor' && { cedulaProfesional: formValue.cedulaProfesional })
-    };
+    if ((existingUsers as any[]).length > 0) {
+      console.log('❌ Email ya registrado');
+      return res.status(400).json({
+        message: 'Este correo electrónico ya está registrado'
+      });
+    }
 
-    console.log('📤 Enviando datos al backend:', datosRegistro);
+    // Hashear contraseña
+    console.log('🔐 Hasheando contraseña...');
+    const hashedPassword = await bcrypt.hash(passwordFinal, 10);
+    console.log('✅ Contraseña hasheada');
 
-    // Timeout de seguridad - si no responde en 30 segundos, mostrar error
-    const timeoutId = setTimeout(() => {
-      this.loading = false;
-      this.errorMessage = 'La solicitud está tomando demasiado tiempo. Intenta de nuevo.';
-    }, 30000);
+    // Insertar usuario
+    // rol_id: 2 = paciente, 3 = medico
+    const rol_id = rolFinal === 'doctor' ? 3 : 2;
 
-    this.authService.register(datosRegistro as any).subscribe({
-      next: (response) => {
-        clearTimeout(timeoutId);
-        this.loading = false;
-        console.log('✅ Registro exitoso:', response);
+    const [result] = await pool.query(
+      `INSERT INTO usuarios
+       (nombre, apellido_paterno, email, contraseña, rol_id, activo, email_verificado)
+       VALUES (?, ?, ?, ?, ?, TRUE, TRUE)`,
+      [
+        nombreFinal,
+        apellidoPaternoFinal,
+        emailFinal.toLowerCase(),
+        hashedPassword,
+        rol_id
+      ]
+    );
 
-        if (response.requireEmailVerification) {
-          // Redirigir a verificación de email
-          this.router.navigate(['/verify-email'], {
-            queryParams: { email: response.email }
-          });
-        } else {
-          // Guardar usuario y tokens (caso sin verificación)
-          this.authService.setCurrentUser(
-            response.user,
-            response.token,
-            response.refreshToken
-          );
+    const usuario_id = (result as any).insertId;
+    console.log('✅ Usuario creado con ID:', usuario_id);
 
-          // Redirigir al dashboard
-          this.router.navigate(['/dashboard']);
-        }
-      },
-      error: (error) => {
-        clearTimeout(timeoutId);
-        this.loading = false;
+    // Generar tokens
+    const token = jwt.sign(
+      { id: usuario_id, email: emailFinal, rol_id },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
-        console.error('❌ Error completo:', error);
-        console.error('❌ Respuesta del servidor:', error.error);
+    const refreshToken = jwt.sign(
+      { id: usuario_id },
+      JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
 
-        // Mostrar mensaje de error del servidor
-        if (error.error?.message) {
-          this.errorMessage = error.error.message;
-        } else if (error.status === 0) {
-          this.errorMessage = 'No se puede conectar con el servidor. Verifica que el backend esté corriendo.';
-        } else if (error.status === 500) {
-          this.errorMessage = 'Error interno del servidor. Por favor intenta de nuevo o contacta al soporte.';
-        } else {
-          this.errorMessage = 'Error al registrar usuario. Intenta nuevamente.';
-        }
-      }
+    refreshTokens.set(usuario_id.toString(), refreshToken);
+
+    const [users] = await pool.query(
+      'SELECT usuario_id, nombre, apellido_paterno, apellido_materno, email, telefono, fecha_nacimiento, rol_id, activo, email_verificado, fecha_registro FROM usuarios WHERE usuario_id = ?',
+      [usuario_id]
+    );
+
+    const userResponse = (users as any[])[0];
+
+    res.status(201).json({
+      message: 'Usuario registrado exitosamente',
+      user: userResponse,
+      token,
+      refreshToken
+    });
+
+  } catch (error: any) {
+    console.error('❌ ERROR EN REGISTRO:', error);
+    res.status(500).json({
+      message: 'Error al registrar usuario',
+      error: error.message
     });
   }
+});
 
-  // Getters para fácil acceso en el template
-  get nombre() { return this.registerForm.get('nombre'); }
-  get apellido() { return this.registerForm.get('apellido'); }
-  get correo() { return this.registerForm.get('correo'); }
-  get password() { return this.registerForm.get('password'); }
-  get confirmPassword() { return this.registerForm.get('confirmPassword'); }
-  get rol() { return this.registerForm.get('rol'); }
-  get cedulaProfesional() { return this.registerForm.get('cedulaProfesional'); }
+// ============================================
+// POST /api/auth/login - Inicio de sesión
+// ============================================
+router.post('/login', async (req: Request, res: Response) => {
+  try {
+    const { correo, email, contraseña, password } = req.body;
 
-  // Getter para verificar si se debe mostrar el campo de cédula
-  get isDoctor(): boolean {
-    return this.registerForm.get('rol')?.value === 'doctor';
+    const emailFinal = correo || email;
+    const passwordFinal = contraseña || password;
+
+    console.log('🔐 Intento de login:', emailFinal);
+
+    if (!emailFinal || !passwordFinal) {
+      return res.status(400).json({
+        message: 'Correo y contraseña son requeridos'
+      });
+    }
+
+    const pool = getConnection();
+
+    const [users] = await pool.query(
+      'SELECT * FROM usuarios WHERE email = ? AND activo = 1',
+      [emailFinal.toLowerCase()]
+    );
+
+    if ((users as any[]).length === 0) {
+      console.log('❌ Usuario no encontrado:', emailFinal);
+      return res.status(401).json({
+        message: 'Credenciales incorrectas'
+      });
+    }
+
+    const user = (users as any[])[0];
+    console.log('✅ Usuario encontrado:', user.email);
+
+    const isValidPassword = await bcrypt.compare(passwordFinal, user.contraseña);
+
+    if (!isValidPassword) {
+      console.log('❌ Contraseña incorrecta');
+      return res.status(401).json({
+        message: 'Credenciales incorrectas'
+      });
+    }
+
+    console.log('✅ Contraseña válida');
+
+    const token = jwt.sign(
+      { id: user.usuario_id, email: user.email, rol_id: user.rol_id },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.usuario_id },
+      JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    refreshTokens.set(user.usuario_id.toString(), refreshToken);
+
+    const { contraseña: _, ...userResponse } = user;
+
+    console.log('✅ Login exitoso');
+
+    res.status(200).json({
+      message: 'Login exitoso',
+      user: userResponse,
+      token,
+      refreshToken
+    });
+
+  } catch (error: any) {
+    console.error('❌ Error en login:', error);
+    res.status(500).json({
+      message: 'Error al iniciar sesión',
+      error: error.message
+    });
   }
-}
+});
+
+// ============================================
+// POST /api/auth/refresh-token - Renovar token
+// ============================================
+router.post('/refresh-token', async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'Refresh token requerido' });
+    }
+
+    const decoded = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as any;
+    const userId = decoded.id;
+
+    if (!refreshTokens.has(userId.toString())) {
+      return res.status(401).json({ message: 'Refresh token inválido' });
+    }
+
+    const newToken = jwt.sign(
+      { id: userId },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    res.status(200).json({ token: newToken });
+
+  } catch (error: any) {
+    console.error('❌ Error en refresh token:', error);
+    res.status(401).json({ message: 'Refresh token inválido o expirado' });
+  }
+});
+
+// ============================================
+// POST /api/auth/logout - Cerrar sesión
+// ============================================
+router.post('/logout', async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.body;
+
+    if (userId) {
+      refreshTokens.delete(userId.toString());
+    }
+
+    res.status(200).json({ message: 'Logout exitoso' });
+  } catch (error: any) {
+    console.error('❌ Error en logout:', error);
+    res.status(500).json({ message: 'Error al cerrar sesión' });
+  }
+});
+
+export default router;
