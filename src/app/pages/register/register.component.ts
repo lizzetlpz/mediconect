@@ -181,13 +181,18 @@ export class RegisterComponent implements OnInit {
         clearTimeout(timeoutId); // Cancelar timeout
         this.loading = false; // ✅ Asegurar que se resetee
         console.log('✅ Registro exitoso:', response);
+        console.log('📧 requireEmailVerification:', response.requireEmailVerification);
+        console.log('👤 Usuario:', response.user);
+        console.log('🎭 Rol ID:', response.user?.rol_id);
 
         if (response.requireEmailVerification) {
           // Redirigir a verificación de email
+          console.log('📧 Redirigiendo a verificación de email...');
           this.router.navigate(['/verify-email'], {
             queryParams: { email: response.email }
           });
         } else {
+          console.log('⚠️ No requiere verificación de email, guardando usuario...');
           // Guardar usuario y tokens (caso sin verificación)
           this.authService.setCurrentUser(
             response.user,
@@ -197,6 +202,7 @@ export class RegisterComponent implements OnInit {
 
           // Redirigir según el rol_id (2=paciente, 3=medico)
           const rol_id = response.user.rol_id;
+          console.log('🔀 Verificando redirección para rol_id:', rol_id);
           if (rol_id === 3) {
             console.log('🩺 Registro exitoso - Redirigiendo a doctor-dashboard');
             this.router.navigate(['/doctor/dashboard']);

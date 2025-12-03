@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-verify-email',
@@ -221,7 +222,7 @@ export class VerifyEmailComponent implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.http.post('http://localhost:3000/api/auth/verify-email', {
+    this.http.post(`${environment.apiUrl}/auth/verify-email`, {
       email: this.email,
       codigo: this.codigo
     }).subscribe({
@@ -245,8 +246,27 @@ export class VerifyEmailComponent implements OnInit {
 
   reenviarCodigo(event: Event): void {
     event.preventDefault();
-    // TODO: Implementar reenvío de código
+    
+    if (!this.email) {
+      this.errorMessage = 'Email no disponible';
+      return;
+    }
+
+    this.loading = true;
     this.errorMessage = '';
-    alert('Función de reenvío en desarrollo');
+    this.successMessage = '';
+
+    this.http.post(`${environment.apiUrl}/auth/resend-verification`, {
+      email: this.email
+    }).subscribe({
+      next: (response: any) => {
+        this.loading = false;
+        this.successMessage = 'Código reenviado exitosamente. Revisa tu correo.';
+      },
+      error: (error) => {
+        this.loading = false;
+        this.errorMessage = error.error?.message || 'Error al reenviar el código';
+      }
+    });
   }
 }
