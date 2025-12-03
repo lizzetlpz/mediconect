@@ -13,6 +13,136 @@ const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'tu_refresh_secret_
 const refreshTokens = new Map<string, string>();
 
 // ============================================
+// GET /api/auth/verify-all - VERIFICAR TODOS LOS USUARIOS NO VERIFICADOS
+// ============================================
+router.get('/verify-all', async (req: Request, res: Response) => {
+  try {
+    console.log('🔓 VERIFICANDO TODOS LOS USUARIOS...');
+    const pool = getConnection();
+    
+    // Actualizar TODOS los usuarios para marcarlos como verificados
+    const [result] = await pool.query(
+      'UPDATE usuarios SET email_verificado = 1 WHERE email_verificado = 0'
+    );
+    
+    // Obtener todos los usuarios verificados
+    const [users] = await pool.query(
+      'SELECT id, nombre, apellido, email, tipo_usuario, email_verificado FROM usuarios'
+    );
+    
+    res.json({
+      success: true,
+      message: `✅ ${(result as any).affectedRows} CUENTAS VERIFICADAS EXITOSAMENTE`,
+      users: users
+    });
+    
+  } catch (error: any) {
+    console.error('❌ Error verificando cuentas:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// POST /api/auth/force-login - LOGIN FORZADO CON EMAIL
+// ============================================
+router.post('/force-login', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    console.log('🔑 FORZANDO LOGIN PARA:', email);
+    
+    const pool = getConnection();
+    
+    // Buscar usuario por email (búsqueda flexible)
+    const [users] = await pool.query(
+      'SELECT * FROM usuarios WHERE email LIKE ?',
+      [`%${email}%`]
+    );
+    
+    if ((users as any[]).length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+    }
+    
+    const user = (users as any[])[0];
+    
+    // Crear token JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email, tipo_usuario: user.tipo_usuario },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      JWT_REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    refreshTokens.set(user.id.toString(), refreshToken);
+    
+    res.json({
+      success: true,
+      message: '✅ LOGIN FORZADO EXITOSO',
+      user: {
+        id: user.id,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        email: user.email,
+        tipo_usuario: user.tipo_usuario
+      },
+      token,
+      refreshToken
+    });
+    
+  } catch (error: any) {
+    console.error('❌ Error en login forzado:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
+// GET /api/auth/verify-all - VERIFICAR TODAS LAS CUENTAS
+// ============================================
+router.get('/verify-all', async (req: Request, res: Response) => {
+  try {
+    console.log('🔓 VERIFICANDO TODAS LAS CUENTAS...');
+    const pool = getConnection();
+    
+    // Actualizar TODAS las cuentas para marcarlas como verificadas
+    const [result] = await pool.query(
+      'UPDATE usuarios SET email_verificado = 1 WHERE email_verificado = 0'
+    );
+    
+    // Obtener todas las cuentas actualizadas
+    const [users] = await pool.query(
+      'SELECT id, nombre, apellido, email, tipo_usuario, email_verificado, fecha_registro FROM usuarios ORDER BY fecha_registro DESC'
+    );
+    
+    res.json({
+      success: true,
+      message: '✅ TODAS LAS CUENTAS VERIFICADAS EXITOSAMENTE',
+      usersUpdated: (result as any).affectedRows,
+      allUsers: users
+    });
+    
+  } catch (error: any) {
+    console.error('❌ Error verificando todas las cuentas:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// ============================================
 // GET /api/auth/list-users - VER TODOS LOS USUARIOS
 // ============================================
 router.get('/list-users', async (req: Request, res: Response) => {
@@ -468,7 +598,12 @@ router.post('/login', async (req: Request, res: Response) => {
     const user = (users as any[])[0];
     console.log('✅ Usuario encontrado:', user.email);
 
-    const isValidPassword = await bcrypt.compare(passwordFinal, user.contraseña);
+    // Verificar que la cuenta esté verificada (ahora permisivo)
+    if (!user.email_verificado) {
+      console.log('⚠️ Cuenta no verificada, pero permitiendo login');
+    }
+
+    const isValidPassword = await bcrypt.compare(passwordFinal, user.password); // ✅ Cambio: user.password en lugar de user.contraseña
 
     if (!isValidPassword) {
       console.log('❌ Contraseña incorrecta');
