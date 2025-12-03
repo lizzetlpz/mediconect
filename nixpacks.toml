@@ -3,25 +3,19 @@ nixPkgs = ['nodejs-18_x']
 
 [phases.install]
 cmds = [
-    'npm install',
     'cd backend && npm install'
 ]
 
 [phases.build]
 cmds = [
-    'npx ng build --configuration production --output-path dist/nombre-proyecto --no-prerender',
-    'mkdir -p dist/nombre-proyecto',
-    'cp src/index.html dist/nombre-proyecto/index.html',
-    'cp -r src/assets dist/nombre-proyecto/assets || true',
-    'cp src/favicon.ico dist/nombre-proyecto/favicon.ico || true',
-    'ls -la dist/',
-    'ls -la dist/nombre-proyecto/',
-    'find dist/nombre-proyecto -name "*.html"',
-    'cd backend && npm run build'
+    'cd backend && npm run build',
+    'echo "✅ Backend build completed"',
+    'ls -la backend/dist/',
+    'echo "📁 Backend ready for deployment"'
 ]
 
 [start]
-cmd = 'cd backend && npm run start:prod'
+cmd = 'cd backend && npm run start'
 
 [variables]
 NODE_ENV = 'production'
