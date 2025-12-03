@@ -80,12 +80,12 @@ export class DashboardComponent implements OnInit {
     }
 
     switch (user.rol_id) {
-      case 2: // Doctor
+      case 2: // Paciente
+        console.log('🙋‍♂️ Usuario es paciente, puede permanecer aquí');
+        break;
+      case 3: // Doctor
         console.log('👨‍⚕️ Usuario es doctor, redirigiendo a dashboard de doctor');
         this.router.navigate(['/doctor/dashboard']);
-        break;
-      case 3: // Paciente
-        console.log('🙋‍♂️ Usuario es paciente, puede permanecer aquí');
         break;
       case 1: // Admin
         console.log('👑 Usuario es admin, puede permanecer aquí');
