@@ -83,7 +83,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
         // Obtener información completa para el email
         try {
             const [citaInfo] = await pool.query(
-                `SELECT c.*, 
+                `SELECT c.*,
                         p.nombre as paciente_nombre, p.email as paciente_email,
                         m.nombre as medico_nombre, m.apellido_paterno as medico_apellido,
                         prof.especialidad
@@ -97,20 +97,20 @@ router.post('/', async (req: AuthRequest, res: Response) => {
 
             if ((citaInfo as any[]).length > 0) {
                 const cita = (citaInfo as any[])[0];
-                
+
                 // Determinar el email a usar: prioritario el del formulario de pago
                 const emailDestino = email_notificacion || cita.paciente_email;
-                
+
                 console.log('📧 Enviando notificación por email...');
                 console.log('   Email de formulario:', email_notificacion);
                 console.log('   Email registrado:', cita.paciente_email);
                 console.log('   Email destino final:', emailDestino);
-                
+
                 if (emailDestino) {
                     const emailEnviado = await emailService.enviarNotificacionCita({
                         paciente_nombre: cita.paciente_nombre,
                         paciente_email: emailDestino, // Usar el email del formulario o el registrado
-                        medico_nombre: cita.medico_apellido 
+                        medico_nombre: cita.medico_apellido
                             ? `${cita.medico_nombre} ${cita.medico_apellido}`
                             : cita.medico_nombre,
                         especialidad: cita.especialidad,
@@ -154,7 +154,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
         const pool = getConnection();
         const usuario_id = req.usuario_id;
         const rol_id = req.rol_id;
-        
+
         let query = `
             SELECT c.*,
                    p.nombre as paciente_nombre, p.apellido_paterno as paciente_apellido, p.telefono as paciente_telefono, p.email as paciente_email,
@@ -164,9 +164,9 @@ router.get('/', async (req: AuthRequest, res: Response) => {
             LEFT JOIN usuarios p ON c.paciente_id = p.usuario_id
             LEFT JOIN usuarios d ON c.medico_id = d.usuario_id
             LEFT JOIN medicos_profesionales mp ON c.medico_id = mp.usuario_id`;
-        
+
         let params: any[] = [];
-        
+
         // Si es médico, solo mostrar sus citas
         if (rol_id === 3) {
             query += ' WHERE c.medico_id = ?';
@@ -177,9 +177,9 @@ router.get('/', async (req: AuthRequest, res: Response) => {
             query += ' WHERE c.paciente_id = ?';
             params.push(usuario_id);
         }
-        
+
         query += ' ORDER BY c.fecha_cita DESC, c.hora_cita DESC';
-        
+
         const [citas] = await pool.query(query, params);
 
         console.log('✅ Citas obtenidas para usuario', usuario_id, 'rol', rol_id, ':', (citas as any[]).length);
@@ -197,12 +197,12 @@ router.get('/paciente', async (req: AuthRequest, res: Response) => {
         const pool = getConnection();
         const usuario_id = req.usuario_id;
         const rol_id = req.rol_id;
-        
+
         // Solo pacientes pueden usar esta ruta
         if (rol_id !== 2) {
             return res.status(403).json({ message: 'Solo pacientes pueden acceder a esta información' });
         }
-        
+
         const query = `
             SELECT c.*,
                    p.nombre as paciente_nombre, p.apellido_paterno as paciente_apellido, p.telefono as paciente_telefono, p.email as paciente_email,
@@ -214,7 +214,7 @@ router.get('/paciente', async (req: AuthRequest, res: Response) => {
             LEFT JOIN medicos_profesionales mp ON c.medico_id = mp.usuario_id
             WHERE c.paciente_id = ?
             ORDER BY c.fecha_cita DESC, c.hora_cita DESC`;
-        
+
         const [citas] = await pool.query(query, [usuario_id]);
 
         console.log('✅ Citas del paciente obtenidas:', usuario_id, 'total:', (citas as any[]).length);
@@ -232,29 +232,29 @@ router.get('/estadisticas', async (req: AuthRequest, res: Response) => {
         const pool = getConnection();
         const usuario_id = req.usuario_id;
         const rol_id = req.rol_id;
-        
+
         // Solo médicos pueden ver estadísticas
         if (rol_id !== 3) {
             return res.status(403).json({ message: 'Solo médicos pueden ver estadísticas' });
         }
-        
+
         const [estadisticas] = await pool.query(
-            `SELECT 
+            `SELECT
                 COUNT(*) as total,
                 SUM(CASE WHEN estado = 'pendiente' THEN 1 ELSE 0 END) as pendientes,
                 SUM(CASE WHEN estado = 'confirmada' THEN 1 ELSE 0 END) as confirmadas,
                 SUM(CASE WHEN estado = 'completada' THEN 1 ELSE 0 END) as completadas,
                 SUM(CASE WHEN estado = 'en_progreso' THEN 1 ELSE 0 END) as en_progreso
-            FROM citas 
+            FROM citas
             WHERE medico_id = ?`,
             [usuario_id]
         );
-        
+
         console.log('✅ Estadísticas obtenidas para médico', usuario_id);
         return res.status(200).json((estadisticas as any[])[0]);
     } catch (error) {
         console.error('❌ Error obteniendo estadísticas:', error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             message: 'Error en el servidor',
             error: error instanceof Error ? error.message : 'Error desconocido'
         });
@@ -615,10 +615,10 @@ router.delete('/:cita_id', async (req: AuthRequest, res: Response) => {
 router.get('/test-email', async (req: AuthRequest, res: Response) => {
     try {
         console.log('🧪 Probando configuración de email...');
-        
+
         const emailDestino = (req.query['email'] as string) || 'medicoomx@gmail.com';
         const resultado = await emailService.testearEnvioEmail(emailDestino);
-        
+
         if (resultado) {
             return res.status(200).json({
                 success: true,

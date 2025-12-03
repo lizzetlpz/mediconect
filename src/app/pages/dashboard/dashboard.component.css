@@ -1,8 +1,15 @@
 /* Dashboard Wrapper */
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
 .dashboard-wrapper {
   display: flex;
   min-height: 100vh;
   background-color: #f8fafc;
+  position: relative;
 }
 
 /* Sidebar Styles */
@@ -176,6 +183,8 @@
   flex: 1;
   margin-left: 260px;
   min-height: 100vh;
+  width: calc(100% - 260px);
+  position: relative;
 }
 
 .dashboard-container {
@@ -184,6 +193,8 @@
   margin: 0 auto;
   background-color: #f8fafc;
   min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Header */
@@ -209,6 +220,9 @@
   display: grid;
   grid-template-columns: 1fr 400px;
   gap: 24px;
+  width: 100%;
+  position: relative;
+  min-height: 500px;
 }
 
 .left-column,
@@ -216,6 +230,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-width: 0; /* Previene overflow en grid */
 }
 
 /* Card Base */

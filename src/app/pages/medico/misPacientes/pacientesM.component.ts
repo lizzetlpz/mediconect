@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RegistrarPacienteComponent } from './registrarP/registrarP.component';
 import { AgregarPacienteMedicoService } from '../../../services/AgregarPacienteMedico.service';
 import { DoctorSidebarComponent } from '../../../barraLateral/doctor/BarraD.component';
+import { PatientSidebarComponent } from "../../../barraLateral/paciente/Barrap.component";
 
 interface Paciente {
   id: string;
@@ -27,7 +28,7 @@ interface Paciente {
 @Component({
   selector: 'app-gestion-pacientes',
   standalone: true,
-  imports: [CommonModule, RegistrarPacienteComponent, DoctorSidebarComponent],
+  imports: [CommonModule, RegistrarPacienteComponent, DoctorSidebarComponent, PatientSidebarComponent],
   templateUrl: './pacientesM.component.html',
   styleUrls: ['./pacientesM.component.css']
 })

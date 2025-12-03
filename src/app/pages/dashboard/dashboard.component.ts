@@ -45,20 +45,17 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Usar setTimeout para asegurar que el usuario esté disponible
     setTimeout(() => {
-      // Verificar rol del usuario y redirigir si es necesario
       this.checkUserRole();
       
-      // Solo cargar datos si el usuario es válido
       const user = this.authService.getCurrentUser();
-      if (user && (user.rol_id === 2 || user.rol_id === 1)) {
+      if (user && (user.rol_id === 1 || user.rol_id === 2 || user.rol_id === 3)) {
         this.loadQuickActions();
         this.loadActivityData();
         this.loadRecentRecords();
         this.loadNextAppointment();
       }
-    }, 100); // Pequeño delay para asegurar que todo esté inicializado
+    }, 100);
   }
 
   private checkUserRole(): void {
@@ -71,7 +68,6 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    // Verificar rol_id: 1=admin, 2=doctor, 3=paciente
     switch (user.rol_id) {
       case 2: // Doctor
         console.log('👨‍⚕️ Usuario es doctor, redirigiendo a dashboard de doctor');
@@ -79,11 +75,9 @@ export class DashboardComponent implements OnInit {
         break;
       case 3: // Paciente
         console.log('🙋‍♂️ Usuario es paciente, puede permanecer aquí');
-        // Los pacientes pueden quedarse en este dashboard
         break;
       case 1: // Admin
         console.log('👑 Usuario es admin, puede permanecer aquí');
-        // Los admins pueden quedarse aquí
         break;
       default:
         console.log('❓ Rol no reconocido:', user.rol_id);
@@ -91,13 +85,13 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-    loadQuickActions(): void {
+  loadQuickActions(): void {
     this.quickActions = [
       {
         title: 'Buscar un Médico',
         subtitle: 'Encuentra un especialista.',
         icon: '🩺',
-        route: '/paciente/buscar-medico',  // Cambiado de '/buscar-medicos' a '/paciente/buscar-medico'
+        route: '/paciente/buscar-medico',
         iconColor: '#3b82f6',
         bgColor: '#eff6ff'
       },
@@ -105,7 +99,7 @@ export class DashboardComponent implements OnInit {
         title: 'Iniciar Consulta',
         subtitle: 'Habla con tu médico.',
         icon: '💬',
-        route: '/paciente/consultas',  // Ya está correcto
+        route: '/paciente/consultas',
         iconColor: '#10b981',
         bgColor: '#f0fdf4'
       },
@@ -113,7 +107,7 @@ export class DashboardComponent implements OnInit {
         title: 'Mi Salud',
         subtitle: 'Revisa tu historial.',
         icon: '💜',
-        route: '/paciente/historial',  // Cambiado de '/historial' a '/paciente/historial'
+        route: '/paciente/historial',
         iconColor: '#a855f7',
         bgColor: '#faf5ff'
       }
@@ -132,7 +126,6 @@ export class DashboardComponent implements OnInit {
   }
 
   loadRecentRecords(): void {
-    // Por ahora vacío - "No hay registros médicos"
     this.recentRecords = [];
   }
 
@@ -145,12 +138,10 @@ export class DashboardComponent implements OnInit {
 
     console.log('📅 Cargando próxima cita para usuario:', currentUser.usuario_id);
     
-    // Obtener próxima cita del paciente
     this.appointmentService.getAppointmentsByPatient(currentUser.usuario_id.toString()).subscribe({
       next: (appointments: any[]) => {
         console.log('📅 Citas recibidas:', appointments);
         if (appointments && appointments.length > 0) {
-          // Ordenar por fecha y obtener la próxima
           const today = new Date();
           today.setHours(0, 0, 0, 0);
 
@@ -179,26 +170,14 @@ export class DashboardComponent implements OnInit {
       }
     });
   }
-          } else {
-            this.nextAppointment = null;
-            console.log('ℹ️ No hay citas próximas');
-          }
-        }
-      },
-      error: (error: any) => {
-        console.error('❌ Error cargando cita:', error);
-        this.nextAppointment = null;
-      }
-    });
-  }
 
   goTo(route: string): void {
     this.router.navigate([route]);
   }
 
   searchSpecialist(): void {
-  this.router.navigate(['/paciente/buscar-medico']);  // Cambiado de '/buscar-medicos'
-}
+    this.router.navigate(['/paciente/buscar-medico']);
+  }
 
   getChartMaxValue(): number {
     return Math.max(...this.activityData.map(d => d.value)) + 1;

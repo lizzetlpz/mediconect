@@ -27,7 +27,7 @@ if (process.env.MYSQL_URL) {
         timeout: 60000,
         reconnect: true
     };
-    
+
     console.log('🔍 Configuración de base de datos local:');
     console.log('   Host:', dbConfig.host);
     console.log('   User:', dbConfig.user);
