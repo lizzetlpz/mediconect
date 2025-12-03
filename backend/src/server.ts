@@ -63,7 +63,12 @@ const upload = multer({
 // Middlewares
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? process.env.CORS_ORIGINS?.split(',') || ['https://tu-app.up.railway.app']
+    ? [
+        'https://mediconect-lake.vercel.app',
+        'https://mediconect-production.up.railway.app',
+        'https://vercel.app',
+        'https://*.vercel.app'
+      ]
     : ['http://localhost:4200', 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -104,50 +109,31 @@ app.use('/api/medicos', medicosRoutes);
 app.use('/api/pacientes', pacientesRoutes); // GET /api/pacientes para listar pacientes
 app.use('/api/recetas', recetasRoutes); // Sistema de recetas médicas
 
-// Servir archivos estáticos del frontend Angular (después de las rutas de API)
-const frontendPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, '..', '..', '..', 'dist', 'nombre-proyecto')
-  : path.join(__dirname, '..', '..', 'dist', 'nombre-proyecto');
-  
-console.log('📁 Frontend path:', frontendPath);
-console.log('📁 __dirname:', __dirname);
+// BACKEND MODO API-ONLY - Frontend servido por Vercel
+console.log('🚀 Servidor configurado en modo API-only');
+console.log('📡 Frontend servido por Vercel: https://mediconect-lake.vercel.app');
 
-// Verificar si existe el directorio frontend
-const fs = require('fs');
-try {
-  const files = fs.readdirSync(path.join(__dirname, '..', '..', '..'));
-  console.log('📂 Archivos en /app:', files);
-  
-  if (fs.existsSync(path.join(__dirname, '..', '..', '..', 'dist'))) {
-    const distFiles = fs.readdirSync(path.join(__dirname, '..', '..', '..', 'dist'));
-    console.log('📂 Archivos en /app/dist:', distFiles);
-  }
-} catch (err) {
-  console.log('❌ Error listando archivos:', err);
-}
-
-app.use(express.static(frontendPath));
-
-// Ruta catch-all para Angular (SPA)
+// Ruta catch-all para rutas no API - devolver 404 JSON
 app.get('*', (req, res) => {
   // Si es una ruta de API que no existe, devolver 404 JSON
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({
       error: 'Ruta de API no encontrada',
-      path: req.path
+      path: req.path,
+      availableRoutes: [
+        '/api/auth',
+        '/api/historial', 
+        '/api/pacientes',
+        '/api/consultas',
+        '/api/citas',
+        '/api/medicos',
+        '/api/recetas'
+      ]
     });
   }
   
-  // Para cualquier otra ruta, servir index.html (Angular routing)
-  res.sendFile(path.join(frontendPath, 'index.html'), (err) => {
-    if (err) {
-      console.error('❌ Error sirviendo index.html:', err);
-      res.status(500).json({
-        mensaje: 'Error del servidor - Frontend no disponible',
-        error: 'No se pudo cargar la aplicación frontend'
-      });
-    }
-  });
+  // Para rutas no API, redirigir al frontend en Vercel
+  res.status(302).redirect('https://mediconect-lake.vercel.app' + req.path);
 });
 
 // Ruta de prueba API (mantener para compatibilidad)
@@ -208,9 +194,9 @@ app.listen(PORT, () => {
   console.log(`\n${'='.repeat(60)}`);
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📋 API disponible en http://localhost:${PORT}/api`);
-  console.log(`🌐 Frontend disponible en http://localhost:${PORT}`);
+  console.log(`🌐 Frontend disponible en https://mediconect-lake.vercel.app`);
   console.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
-  console.log(`📁 Frontend path: ${frontendPath}`);
+  console.log(`📡 Modo: API-only (Backend separado)`);
   console.log(`${'='.repeat(60)}`);
 });
 
