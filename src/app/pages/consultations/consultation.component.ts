@@ -31,6 +31,8 @@ export class ConsultationsComponent implements OnInit {
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
     this.userRole = currentUser?.rol_id || 0;
+    
+    console.log('👤 Usuario actual rol_id:', this.userRole); // Debug
 
     this.initForm();
     this.loadConsultations();
@@ -58,7 +60,7 @@ export class ConsultationsComponent implements OnInit {
   }
 
   openModal(): void {
-    if (this.userRole !== 2) {
+    if (this.userRole !== 3) { // 3 = Paciente
       alert('Solo los pacientes pueden agendar consultas');
       return;
     }
@@ -144,11 +146,11 @@ export class ConsultationsComponent implements OnInit {
   }
 
   isPatient(): boolean {
-    return this.userRole === 2;
+    return this.userRole === 3; // 3 = Paciente
   }
 
   isDoctor(): boolean {
-    return this.userRole === 3;
+    return this.userRole === 2; // 2 = Doctor
   }
 
   // Getters para el formulario

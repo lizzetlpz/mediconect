@@ -31,10 +31,10 @@ export class PatientsComponent implements OnInit {
     this.userRole = currentUser?.rol_id || 0;
 
     console.log('👤 Usuario actual:', currentUser);
-    console.log('🎭 Rol del usuario:', this.userRole);
+    console.log('🎭 Rol del usuario (1=admin, 2=doctor, 3=paciente):', this.userRole);
 
-    // Solo cargar pacientes si es doctor (rol_id = 3) o admin (rol_id = 1)
-    if (this.userRole === 3 || this.userRole === 1) {
+    // Solo cargar pacientes si es doctor (rol_id = 2) o admin (rol_id = 1)
+    if (this.userRole === 2 || this.userRole === 1) {
       this.loadPatients();
     } else {
       console.log('⚠️ Usuario no autorizado para ver pacientes');
@@ -96,7 +96,7 @@ export class PatientsComponent implements OnInit {
 
   // Helper para verificar si es doctor
   isDoctor(): boolean {
-    return this.userRole === 3;
+    return this.userRole === 2; // 2 = Doctor
   }
 
   // Helper para verificar si es admin

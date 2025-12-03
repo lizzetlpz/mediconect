@@ -71,13 +71,13 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    // Verificar rol_id como estaba originalmente
+    // Verificar rol_id: 1=admin, 2=doctor, 3=paciente
     switch (user.rol_id) {
-      case 3: // Doctor
+      case 2: // Doctor
         console.log('👨‍⚕️ Usuario es doctor, redirigiendo a dashboard de doctor');
         this.router.navigate(['/doctor/dashboard']);
         break;
-      case 2: // Paciente
+      case 3: // Paciente
         console.log('🙋‍♂️ Usuario es paciente, puede permanecer aquí');
         // Los pacientes pueden quedarse en este dashboard
         break;

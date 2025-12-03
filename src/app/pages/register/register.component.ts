@@ -170,8 +170,16 @@ export class RegisterComponent implements OnInit {
 
     console.log('📤 Enviando datos al backend:', datosRegistro);
 
+    // Timeout de seguridad - si no responde en 30 segundos, mostrar error
+    const timeoutId = setTimeout(() => {
+      this.loading = false;
+      this.errorMessage = 'La solicitud está tomando demasiado tiempo. Intenta de nuevo.';
+    }, 30000);
+
     this.authService.register(datosRegistro as any).subscribe({
       next: (response) => {
+        clearTimeout(timeoutId); // Cancelar timeout
+        this.loading = false; // ✅ Asegurar que se resetee
         console.log('✅ Registro exitoso:', response);
 
         if (response.requireEmailVerification) {
@@ -192,9 +200,11 @@ export class RegisterComponent implements OnInit {
         }
       },
       error: (error) => {
+        clearTimeout(timeoutId); // Cancelar timeout
+        this.loading = false; // ✅ Asegurar que se resetee siempre
+        
         console.error('❌ Error completo:', error);
         console.error('❌ Respuesta del servidor:', error.error);
-        this.loading = false;
 
         // Mostrar mensaje de error del servidor
         if (error.error?.message) {
