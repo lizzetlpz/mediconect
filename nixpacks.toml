@@ -9,7 +9,7 @@ cmds = [
 
 [phases.build]
 cmds = [
-    'npx ng build --configuration production --output-path dist/nombre-proyecto --aot --build-optimizer',
+    'npx ng build --configuration production --output-path dist/nombre-proyecto',
     'ls -la dist/',
     'ls -la dist/nombre-proyecto/',
     'cd backend && npm run build'
