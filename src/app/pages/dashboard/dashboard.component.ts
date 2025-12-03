@@ -45,13 +45,20 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Verificar rol del usuario y redirigir si es necesario
-    this.checkUserRole();
-
-    this.loadQuickActions();
-    this.loadActivityData();
-    this.loadRecentRecords();
-    this.loadNextAppointment();
+    // Usar setTimeout para asegurar que el usuario esté disponible
+    setTimeout(() => {
+      // Verificar rol del usuario y redirigir si es necesario
+      this.checkUserRole();
+      
+      // Solo cargar datos si el usuario es válido
+      const user = this.authService.getCurrentUser();
+      if (user && (user.rol_id === 2 || user.rol_id === 1)) {
+        this.loadQuickActions();
+        this.loadActivityData();
+        this.loadRecentRecords();
+        this.loadNextAppointment();
+      }
+    }, 100); // Pequeño delay para asegurar que todo esté inicializado
   }
 
   private checkUserRole(): void {
@@ -131,12 +138,18 @@ export class DashboardComponent implements OnInit {
 
   loadNextAppointment(): void {
     const currentUser = this.authService.getCurrentUser();
-    if (!currentUser) return;
+    if (!currentUser || !currentUser.usuario_id) {
+      console.log('⚠️ No hay usuario o usuario_id para cargar citas');
+      return;
+    }
 
+    console.log('📅 Cargando próxima cita para usuario:', currentUser.usuario_id);
+    
     // Obtener próxima cita del paciente
     this.appointmentService.getAppointmentsByPatient(currentUser.usuario_id.toString()).subscribe({
       next: (appointments: any[]) => {
-        if (appointments.length > 0) {
+        console.log('📅 Citas recibidas:', appointments);
+        if (appointments && appointments.length > 0) {
           // Ordenar por fecha y obtener la próxima
           const today = new Date();
           today.setHours(0, 0, 0, 0);
@@ -151,6 +164,21 @@ export class DashboardComponent implements OnInit {
           if (upcomingAppointments.length > 0) {
             this.nextAppointment = upcomingAppointments[0];
             console.log('✅ Próxima cita cargada:', this.nextAppointment);
+          } else {
+            console.log('📅 No hay citas próximas');
+            this.nextAppointment = null;
+          }
+        } else {
+          console.log('📅 No hay citas registradas');
+          this.nextAppointment = null;
+        }
+      },
+      error: (error: any) => {
+        console.error('❌ Error cargando próxima cita:', error);
+        this.nextAppointment = null;
+      }
+    });
+  }
           } else {
             this.nextAppointment = null;
             console.log('ℹ️ No hay citas próximas');
