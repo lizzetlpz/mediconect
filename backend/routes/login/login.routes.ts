@@ -52,16 +52,13 @@ router.post('/register', async (req: Request, res: Response) => {
       });
     }
 
-    let rol_id: number;
-    if (rolFinal === 'patient' || rolFinal === 'paciente') {
-      rol_id = 2;
-    } else if (rolFinal === 'doctor') {
-      rol_id = 3;
-    } else if (typeof rolFinal === 'number') {
-      rol_id = rolFinal;
-    } else {
+    // Mapear rol a tipo_usuario directo (sin tabla roles)
+    const tipo_usuario = (rolFinal === 'doctor') ? 'medico' : rolFinal;
+    
+    // Validar tipo_usuario
+    if (!['paciente', 'medico', 'administrador'].includes(tipo_usuario)) {
       return res.status(400).json({
-        message: 'El rol debe ser "doctor", "paciente" o un rol_id válido'
+        message: 'El tipo de usuario debe ser "paciente", "medico" o "administrador"'
       });
     }
 
@@ -78,14 +75,10 @@ router.post('/register', async (req: Request, res: Response) => {
       });
     }
 
-    const [roles] = await pool.query(
-      'SELECT rol_id FROM roles WHERE rol_id = ?',
-      [rol_id]
-    );
-
-    if ((roles as any[]).length === 0) {
+    // Validar tipo_usuario
+    if (!['paciente', 'medico', 'administrador'].includes(tipo_usuario)) {
       return res.status(400).json({
-        message: 'Rol inválido'
+        message: 'El tipo de usuario debe ser "paciente", "medico" o "administrador"'
       });
     }
 
@@ -97,17 +90,16 @@ router.post('/register', async (req: Request, res: Response) => {
 
     const [result] = await pool.query(
       `INSERT INTO usuarios
-      (nombre, apellido_paterno, apellido_materno, email, contraseña, telefono, fecha_nacimiento, rol_id, activo, email_verificado, codigo_verificacion, fecha_expiracion_codigo)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?)`,
+      (nombre, apellido, email, password, telefono, fecha_nacimiento, tipo_usuario, activo, email_verificado, codigo_verificacion, fecha_expiracion_codigo)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?)`,
       [
         nombreFinal,
-        apellidoPaternoFinal,
-        apellido_materno || null,
+        `${apellidoPaternoFinal} ${apellido_materno || ''}`.trim(),
         emailFinal.toLowerCase(),
         hashedPassword,
         telefono || null,
         fecha_nacimiento || null,
-        rol_id,
+        tipo_usuario,
         codigoVerificacion,
         fechaExpiracion
       ]
@@ -180,7 +172,7 @@ router.post('/register', async (req: Request, res: Response) => {
 
     // ✅ CAMBIO: usar id en lugar de usuario_id
     const token = jwt.sign(
-      { id: usuario_id, email: emailFinal.toLowerCase(), rol_id },  // ✅ Cambio aquí
+      { id: usuario_id, email: emailFinal.toLowerCase(), tipo_usuario },  // ✅ Cambio aquí
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -194,7 +186,7 @@ router.post('/register', async (req: Request, res: Response) => {
     refreshTokens.set(usuario_id.toString(), refreshToken);
 
     const [users] = await pool.query(
-      'SELECT id, nombre, apellido_paterno, apellido_materno, email, telefono, fecha_nacimiento, rol_id, activo, email_verificado, fecha_registro FROM usuarios WHERE id = ?',
+      'SELECT id, nombre, apellido, email, telefono, fecha_nacimiento, tipo_usuario, activo, email_verificado, fecha_registro FROM usuarios WHERE id = ?',
       [usuario_id]
     );
 
@@ -328,7 +320,7 @@ router.post('/login', async (req: Request, res: Response) => {
 
     // ✅ CAMBIO: usar usuario_id en lugar de userId
     const token = jwt.sign(
-      { id: user.id, email: user.email, rol_id: user.rol_id },  // ✅ Cambio aquí
+      { id: user.id, email: user.email, tipo_usuario: user.tipo_usuario },  // ✅ Cambio aquí
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -383,7 +375,7 @@ router.post('/refresh-token', async (req: Request, res: Response) => {
     const pool = getConnection();
 
     const [users] = await pool.query(
-      'SELECT id, nombre, apellido_paterno, apellido_materno, email, rol_id FROM usuarios WHERE id = ? AND activo = 1',
+      'SELECT id, nombre, apellido, email, tipo_usuario FROM usuarios WHERE id = ? AND activo = 1',
       [decoded.usuario_id]  // ✅ Cambio aquí
     );
 
@@ -395,7 +387,7 @@ router.post('/refresh-token', async (req: Request, res: Response) => {
 
     // ✅ CAMBIO: usar id
     const newToken = jwt.sign(
-      { id: user.id, email: user.email, rol_id: user.rol_id },  // ✅ Cambio aquí
+      { id: user.id, email: user.email, tipo_usuario: user.tipo_usuario },  // ✅ Cambio aquí
       JWT_SECRET,
       { expiresIn: '24h' }
     );
