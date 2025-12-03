@@ -10,6 +10,8 @@ cmds = [
 [phases.build]
 cmds = [
     'npx ng build --configuration production --output-path dist/nombre-proyecto --no-prerender',
+    'mkdir -p dist/nombre-proyecto',
+    'cp src/index.html dist/nombre-proyecto/index.html',
     'ls -la dist/',
     'ls -la dist/nombre-proyecto/',
     'find dist/nombre-proyecto -name "*.html"',
