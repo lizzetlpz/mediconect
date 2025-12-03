@@ -15,7 +15,7 @@ async function checkAndCleanUsers() {
     // Preguntar si quiere eliminar alguno
     console.log('\n💡 Para eliminar un usuario específico por email, ejecuta:');
     console.log('   DELETE FROM usuarios WHERE email = "email@example.com";');
-    
+
     console.log('\n⚠️  Para eliminar TODOS los usuarios de prueba (email temporal), ejecuta:');
     console.log('   DELETE FROM usuarios WHERE email LIKE "%@cexch.com" OR email LIKE "%@bialode.com";');
 

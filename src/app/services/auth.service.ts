@@ -55,10 +55,13 @@ export class AuthService {
 
   getCurrentUser(): User | null {
     const user = this.currentUserSubject.value;
-    // Si el usuario tiene usuario_id, lo renombramos a id
+    // Si el usuario tiene usuario_id, asegurarse que también tenga id (mantener ambos)
     if (user && (user as any).usuario_id && !(user as any).id) {
       (user as any).id = (user as any).usuario_id;
-      delete (user as any).usuario_id;
+    }
+    // Si solo tiene id, agregar usuario_id también
+    if (user && (user as any).id && !(user as any).usuario_id) {
+      (user as any).usuario_id = (user as any).id;
     }
     return user;
   }

@@ -192,12 +192,12 @@ export class RegisterComponent implements OnInit {
           // Redirigir a verificación de email
           console.log('📧 Redirigiendo a verificación de email...');
           console.log('📧 Email a verificar:', response.email);
-          
+
           // Intentar múltiples métodos de redirección
           const email = response.email || '';
           const url = `/verify-email?email=${encodeURIComponent(email)}`;
           console.log('🔗 URL de redirección:', url);
-          
+
           // Método 1: Router navegación
           this.router.navigateByUrl(url).then(
             success => {

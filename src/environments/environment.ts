@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://mediconect-production.up.railway.app/api',
-  wsUrl: 'wss://mediconect-production.up.railway.app',
+  apiUrl: 'http://localhost:3000/api',
+  wsUrl: 'ws://localhost:3001',
   frontendUrl: 'http://localhost:4200'
 };

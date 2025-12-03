@@ -246,7 +246,7 @@ export class VerifyEmailComponent implements OnInit {
 
   reenviarCodigo(event: Event): void {
     event.preventDefault();
-    
+
     if (!this.email) {
       this.errorMessage = 'Email no disponible';
       return;

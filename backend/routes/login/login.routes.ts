@@ -135,7 +135,7 @@ router.post('/register', async (req: Request, res: Response) => {
     );
 
     const userResponse = (users as any[])[0];
-    
+
     // Agregar alias 'id' para compatibilidad con frontend
     userResponse.id = userResponse.usuario_id;
 
@@ -218,7 +218,7 @@ router.post('/login', async (req: Request, res: Response) => {
     refreshTokens.set(user.usuario_id.toString(), refreshToken);
 
     const { contraseña: _, ...userResponse } = user;
-    
+
     // Agregar alias 'id' para compatibilidad con frontend
     userResponse.id = userResponse.usuario_id;
 

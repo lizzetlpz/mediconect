@@ -8,7 +8,7 @@ async function checkUsuariosStructure() {
     const [tables]: any = await pool.query(
       "SHOW TABLES LIKE 'usuarios'"
     );
-    
+
     if (tables.length === 0) {
       console.log('❌ La tabla usuarios NO EXISTE');
       return;
@@ -31,10 +31,10 @@ async function checkUsuariosStructure() {
     }
 
     // Verificar columna ID específicamente
-    const idColumn = structure.find((col: any) => 
+    const idColumn = structure.find((col: any) =>
       col.Field === 'id' || col.Field === 'usuario_id'
     );
-    
+
     console.log('\n🔑 COLUMNA DE ID PRIMARIA:');
     console.log(idColumn || '❌ No se encontró columna id ni usuario_id');
 
