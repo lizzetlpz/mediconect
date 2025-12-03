@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     setTimeout(() => {
       this.checkUserRole();
-      
+
       const user = this.authService.getCurrentUser();
       if (user && (user.rol_id === 1 || user.rol_id === 2 || user.rol_id === 3)) {
         this.loadQuickActions();
@@ -137,7 +137,7 @@ export class DashboardComponent implements OnInit {
     }
 
     console.log('📅 Cargando próxima cita para usuario:', currentUser.usuario_id);
-    
+
     this.appointmentService.getAppointmentsByPatient(currentUser.usuario_id.toString()).subscribe({
       next: (appointments: any[]) => {
         console.log('📅 Citas recibidas:', appointments);
