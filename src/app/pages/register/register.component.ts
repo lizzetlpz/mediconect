@@ -193,14 +193,27 @@ export class RegisterComponent implements OnInit {
           console.log('📧 Redirigiendo a verificación de email...');
           console.log('📧 Email a verificar:', response.email);
           
-          // Usar navigateByUrl en lugar de navigate para forzar la navegación
+          // Intentar múltiples métodos de redirección
           const email = response.email || '';
           const url = `/verify-email?email=${encodeURIComponent(email)}`;
           console.log('🔗 URL de redirección:', url);
           
+          // Método 1: Router navegación
           this.router.navigateByUrl(url).then(
-            success => console.log('✅ Navegación exitosa:', success),
-            error => console.error('❌ Error en navegación:', error)
+            success => {
+              console.log('✅ Router navegación:', success);
+              if (!success) {
+                // Método 2: Si falla, usar window.location
+                console.log('⚠️ Router falló, usando window.location');
+                window.location.href = url;
+              }
+            },
+            error => {
+              console.error('❌ Error en navegación:', error);
+              // Método 2: Si hay error, usar window.location
+              console.log('🔄 Intentando con window.location');
+              window.location.href = url;
+            }
           );
         } else {
           console.log('⚠️ No requiere verificación de email, guardando usuario...');
