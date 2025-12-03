@@ -47,7 +47,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     // Verificar rol del usuario y redirigir si es necesario
     this.checkUserRole();
-    
+
     this.loadQuickActions();
     this.loadActivityData();
     this.loadRecentRecords();
@@ -57,29 +57,29 @@ export class DashboardComponent implements OnInit {
   private checkUserRole(): void {
     const user = this.authService.getCurrentUser();
     console.log('🔍 Verificando rol del usuario:', user);
-    
+
     if (!user) {
       console.log('❌ Usuario no encontrado, redirigiendo a login');
       this.router.navigate(['/login']);
       return;
     }
 
-    // Verificar rol y redirigir si es necesario
-    switch (user.rol_id) {
-      case 3: // Doctor
+    // Verificar tipo_usuario (no rol_id)
+    switch (user.tipo_usuario) {
+      case 'medico': // Doctor
         console.log('👨‍⚕️ Usuario es doctor, redirigiendo a dashboard de doctor');
         this.router.navigate(['/doctor/dashboard']);
         break;
-      case 2: // Paciente
+      case 'paciente': // Paciente
         console.log('🙋‍♂️ Usuario es paciente, puede permanecer aquí');
         // Los pacientes pueden quedarse en este dashboard
         break;
-      case 1: // Admin
+      case 'administrador': // Admin
         console.log('👑 Usuario es admin, puede permanecer aquí');
         // Los admins pueden quedarse aquí
         break;
       default:
-        console.log('❓ Rol no reconocido:', user.rol_id);
+        console.log('❓ Tipo de usuario no reconocido:', user.tipo_usuario);
         break;
     }
   }
@@ -140,14 +140,14 @@ export class DashboardComponent implements OnInit {
           // Ordenar por fecha y obtener la próxima
           const today = new Date();
           today.setHours(0, 0, 0, 0);
-          
+
           const upcomingAppointments = appointments.filter((apt: any) => {
             const appointmentDate = new Date(apt.fecha_cita);
             return appointmentDate >= today;
-          }).sort((a: any, b: any) => 
+          }).sort((a: any, b: any) =>
             new Date(a.fecha_cita).getTime() - new Date(b.fecha_cita).getTime()
           );
-          
+
           if (upcomingAppointments.length > 0) {
             this.nextAppointment = upcomingAppointments[0];
             console.log('✅ Próxima cita cargada:', this.nextAppointment);

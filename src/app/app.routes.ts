@@ -7,7 +7,11 @@ export const routes: Routes = [
   { path: 'register', loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent) },
   { path: 'verify-email', loadComponent: () => import('./pages/verify-email/verify-email.component').then(m => m.VerifyEmailComponent) },
   { path: 'validar-receta', loadComponent: () => import('./components/validar-receta/validar-receta.component').then(m => m.ValidarRecetaComponent) },
+  
+  // Ruta dashboard principal (redirige según tipo de usuario)
   { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent), canActivate: [AuthGuard] },
+  
+  // Rutas generales (compatibilidad)
   { path: 'consultations', loadComponent: () => import('./pages/consultations/consultation.component').then(m => m.ConsultationsComponent), canActivate: [AuthGuard] },
   { path: 'patients', loadComponent: () => import('./pages/patients/patients.component').then(m => m.PatientsComponent), canActivate: [AuthGuard] },
   { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent), canActivate: [AuthGuard] },
@@ -51,8 +55,8 @@ export const routes: Routes = [
   // ============================================
   {
     path: 'paciente/dashboard',
-    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard]
+    redirectTo: '/dashboard', // Redirigir a la ruta principal
+    pathMatch: 'full'
   },
   {
     path: 'paciente/buscar-medico',
@@ -87,5 +91,5 @@ export const routes: Routes = [
 
   // Redirecciones alternativas
   { path: 'doctor-dashboard', redirectTo: 'doctor/dashboard', pathMatch: 'full' },
-  { path: 'patient-dashboard', redirectTo: 'paciente/dashboard', pathMatch: 'full' }
+  { path: 'patient-dashboard', redirectTo: 'dashboard', pathMatch: 'full' } // Cambio aquí
 ];
