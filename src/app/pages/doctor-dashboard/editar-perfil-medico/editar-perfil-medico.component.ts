@@ -70,7 +70,7 @@ export class EditarPerfilMedicoComponent implements OnInit {
     });
 
     this.http.get<PerfilMedico>(
-      `${environment.apiUrl}/api/medicos/${user.id}`,
+      `${environment.apiUrl}/medicos/${user.id}`,
       { headers }
     ).subscribe({
       next: (perfil) => {
@@ -134,7 +134,7 @@ export class EditarPerfilMedicoComponent implements OnInit {
     };
 
     this.http.put(
-      `${environment.apiUrl}/api/medicos/${user.id}`,
+      `${environment.apiUrl}/medicos/${user.id}`,
       datosActualizados,
       { headers }
     ).subscribe({
