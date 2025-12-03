@@ -106,7 +106,7 @@ app.use('/api/recetas', recetasRoutes); // Sistema de recetas médicas
 
 // Servir archivos estáticos del frontend Angular (después de las rutas de API)
 const frontendPath = process.env.NODE_ENV === 'production' 
-  ? path.join(__dirname, '..', '..', 'dist', 'nombre-proyecto')
+  ? path.join(__dirname, '..', '..', '..', 'dist', 'nombre-proyecto')
   : path.join(__dirname, '..', '..', 'dist', 'nombre-proyecto');
   
 console.log('📁 Frontend path:', frontendPath);
