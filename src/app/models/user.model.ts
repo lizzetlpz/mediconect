@@ -1,15 +1,15 @@
 // src/app/models/user.model.ts
 
 export interface User {
-  id: number;                 // ✅ Cambio: id (como está en la BD)
+  usuario_id: number;         // ✅ Como estaba originalmente
   nombre: string;
-  apellido: string;           // ✅ Cambio: apellido (combinado)
+  apellido_paterno: string;   // ✅ Como estaba originalmente
+  apellido_materno?: string;
   email: string;
   telefono?: string;
   fecha_nacimiento?: string;
-  tipo_usuario: string;       // ✅ Cambio: tipo_usuario ('paciente', 'medico', 'administrador')
-  activo: boolean;            // ✅ Cambio: boolean
-  email_verificado: boolean;  // ✅ Agregado: email_verificado
+  rol_id: number;             // ✅ Como estaba originalmente (1=admin, 2=paciente, 3=doctor)
+  activo: number;
   fecha_registro?: string;
 }
 

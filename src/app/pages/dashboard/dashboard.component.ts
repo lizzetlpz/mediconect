@@ -64,22 +64,22 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    // Verificar tipo_usuario (no rol_id)
-    switch (user.tipo_usuario) {
-      case 'medico': // Doctor
+    // Verificar rol_id como estaba originalmente
+    switch (user.rol_id) {
+      case 3: // Doctor
         console.log('👨‍⚕️ Usuario es doctor, redirigiendo a dashboard de doctor');
         this.router.navigate(['/doctor/dashboard']);
         break;
-      case 'paciente': // Paciente
+      case 2: // Paciente
         console.log('🙋‍♂️ Usuario es paciente, puede permanecer aquí');
         // Los pacientes pueden quedarse en este dashboard
         break;
-      case 'administrador': // Admin
+      case 1: // Admin
         console.log('👑 Usuario es admin, puede permanecer aquí');
         // Los admins pueden quedarse aquí
         break;
       default:
-        console.log('❓ Tipo de usuario no reconocido:', user.tipo_usuario);
+        console.log('❓ Rol no reconocido:', user.rol_id);
         break;
     }
   }
@@ -134,7 +134,7 @@ export class DashboardComponent implements OnInit {
     if (!currentUser) return;
 
     // Obtener próxima cita del paciente
-    this.appointmentService.getAppointmentsByPatient(currentUser.usuario_id.toString()).subscribe({
+    this.appointmentService.getAppointmentsByPatient(currentUser.id.toString()).subscribe({
       next: (appointments: any[]) => {
         if (appointments.length > 0) {
           // Ordenar por fecha y obtener la próxima

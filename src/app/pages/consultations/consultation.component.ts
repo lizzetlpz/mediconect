@@ -30,7 +30,7 @@ export class ConsultationsComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
-    this.userRole = currentUser?.rol_id || 0;
+    this.userRole = currentUser?.tipo_usuario === 'medico' ? 3 : currentUser?.tipo_usuario === 'paciente' ? 2 : 1;
 
     this.initForm();
     this.loadConsultations();
@@ -91,7 +91,7 @@ export class ConsultationsComponent implements OnInit {
 
     const consultationData = {
       doctor_id: 1, // TODO: Seleccionar doctor
-      paciente_id: currentUser.usuario_id,
+      paciente_id: currentUser.id,
       tipo: this.consultationForm.value.tipo,
       estado: 'programada',
       titulo: this.consultationForm.value.titulo,

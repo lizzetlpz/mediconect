@@ -28,7 +28,7 @@ export class PatientsComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
-    this.userRole = currentUser?.rol_id || 0;  // ✅ Usar rol_id
+    this.userRole = currentUser?.tipo_usuario === 'medico' ? 3 : currentUser?.tipo_usuario === 'paciente' ? 2 : 1;
 
     console.log('👤 Usuario actual:', currentUser);
     console.log('🎭 Rol del usuario:', this.userRole);
