@@ -191,9 +191,17 @@ export class RegisterComponent implements OnInit {
         if (response.requireEmailVerification) {
           // Redirigir a verificación de email
           console.log('📧 Redirigiendo a verificación de email...');
-          this.router.navigate(['/verify-email'], {
-            queryParams: { email: response.email }
-          });
+          console.log('📧 Email a verificar:', response.email);
+          
+          // Usar navigateByUrl en lugar de navigate para forzar la navegación
+          const email = response.email || '';
+          const url = `/verify-email?email=${encodeURIComponent(email)}`;
+          console.log('🔗 URL de redirección:', url);
+          
+          this.router.navigateByUrl(url).then(
+            success => console.log('✅ Navegación exitosa:', success),
+            error => console.error('❌ Error en navegación:', error)
+          );
         } else {
           console.log('⚠️ No requiere verificación de email, guardando usuario...');
           // Guardar usuario y tokens (caso sin verificación)
