@@ -91,18 +91,28 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
     }
 
     private configurarChatService(): void {
+        console.log('🎧 ========================================');
+        console.log('🎧 CONFIGURANDO SUSCRIPCIONES DE CHAT (MÉDICO)');
+        console.log('🎧 ========================================');
+
         // Suscribirse a los mensajes del chat
         const mensajesSub = this.chatService.getMensajes().subscribe(mensajes => {
+            console.log('📬 SUSCRIPCIÓN getMensajes() ACTIVADA');
+            console.log('📬 Mensajes recibidos en suscripción:', mensajes.length);
+            console.log('📬 Mensajes:', JSON.stringify(mensajes, null, 2));
             this.mensajes = mensajes;
             this.shouldScrollToBottom = true;
+            console.log('📬 this.mensajes actualizado, longitud:', this.mensajes.length);
         });
 
         // Suscribirse al estado de conexión
         const conexionSub = this.chatService.getEstadoConexion().subscribe(conectado => {
+            console.log('🔌 Estado de conexión WebSocket:', conectado);
             this.chatConectado = conectado;
         });
 
         this.subscriptions.push(mensajesSub, conexionSub);
+        console.log('✅ Suscripciones configuradas correctamente');
     }
 
     ngAfterViewChecked(): void {
@@ -189,21 +199,40 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
     }
 
     selectConsulta(consulta: ConsultaMedica): void {
+        console.log('🔗 ========================================');
+        console.log('🔗 MÉDICO SELECCIONANDO CONSULTA');
+        console.log('🔗 ========================================');
+        console.log('🔗 Consulta completa:', JSON.stringify(consulta, null, 2));
+        console.log('🔗 ID de consulta (cita):', consulta.id);
+        console.log('🔗 Estado:', consulta.estado);
+        console.log('🔗 Paciente:', consulta.paciente.nombre);
+        console.log('🔗 Modalidad:', consulta.modalidad);
+        console.log('🔗 Usuario actual (médico):', {
+            id: this.usuarioActual?.id,
+            nombre: this.usuarioActual?.nombre,
+            rol: this.usuarioActual?.rol
+        });
+
         // Salir de la consulta anterior si existe
         if (this.consultaActiva) {
+            console.log('🚪 Saliendo de consulta anterior');
             this.chatService.salirDeConsulta();
         }
 
         this.consultaActiva = consulta;
         this.shouldScrollToBottom = true;
 
+        console.log('📡 Llamando chatService.unirseAConsulta con ID:', consulta.id);
         // Unirse a la nueva consulta en tiempo real
         this.chatService.unirseAConsulta(consulta.id);
 
         // Cambiar el estado a "en progreso" si está confirmada
         if (consulta.estado === 'confirmada') {
+            console.log('📝 Actualizando estado de consulta a en_progreso');
             this.actualizarEstadoConsulta(consulta.id, 'en_progreso');
         }
+
+        console.log(`✅ Médico conectado a consulta ${consulta.id}`);
     }
 
     isConsultaActive(consulta: ConsultaMedica): boolean {

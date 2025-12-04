@@ -36,6 +36,7 @@ export class DashboardComponent implements OnInit {
   activityData: ActivityData[] = [];
   recentRecords: any[] = [];
   nextAppointment: any = null;
+  loadingAppointment: boolean = true;
 
   constructor(
     private authService: AuthService,
@@ -45,30 +46,26 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Forzar recarga completa de datos en cada navegación
-    this.refreshDashboard();
+    // Cargar datos inmediatamente sin delay
+    this.checkUserRole();
+    this.loadDashboardData();
+  }
+
+  loadDashboardData(): void {
+    const user = this.authService.getCurrentUser();
+
+    if (user && (user.rol_id === 1 || user.rol_id === 2 || user.rol_id === 3)) {
+      this.currentUser = user;
+      this.loadQuickActions();
+      this.loadActivityData();
+      this.loadRecentRecords();
+      this.loadNextAppointment();
+    }
   }
 
   refreshDashboard(): void {
-    // Limpiar datos existentes
-    this.currentUser = null;
-    this.quickActions = [];
-    this.activityData = [];
-    this.recentRecords = [];
-    this.nextAppointment = null;
-
-    setTimeout(() => {
-      this.checkUserRole();
-
-      const user = this.authService.getCurrentUser();
-      if (user && (user.rol_id === 1 || user.rol_id === 2 || user.rol_id === 3)) {
-        this.currentUser = user; // Actualizar usuario actual
-        this.loadQuickActions();
-        this.loadActivityData();
-        this.loadRecentRecords();
-        this.loadNextAppointment();
-      }
-    }, 100);
+    // Recargar datos sin limpiar primero
+    this.loadDashboardData();
   }  private checkUserRole(): void {
     const user = this.authService.getCurrentUser();
     console.log('🔍 Verificando rol del usuario:', user);
@@ -144,10 +141,12 @@ export class DashboardComponent implements OnInit {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !currentUser.usuario_id) {
       console.log('⚠️ No hay usuario o usuario_id para cargar citas');
+      this.loadingAppointment = false;
       return;
     }
 
     console.log('📅 Cargando próxima cita para usuario:', currentUser.usuario_id);
+    this.loadingAppointment = true;
 
     this.appointmentService.getAppointmentsByPatient(currentUser.usuario_id.toString()).subscribe({
       next: (appointments: any[]) => {
@@ -174,10 +173,12 @@ export class DashboardComponent implements OnInit {
           console.log('📅 No hay citas registradas');
           this.nextAppointment = null;
         }
+        this.loadingAppointment = false;
       },
       error: (error: any) => {
         console.error('❌ Error cargando próxima cita:', error);
         this.nextAppointment = null;
+        this.loadingAppointment = false;
       }
     });
   }

@@ -30,7 +30,14 @@
             </div>
 
             <div class="card-content">
-              <div class="empty-state" *ngIf="!nextAppointment">
+              <!-- Loading State -->
+              <div class="empty-state" *ngIf="loadingAppointment">
+                <div class="loading-spinner"></div>
+                <p class="empty-message">Cargando citas...</p>
+              </div>
+
+              <!-- Empty State -->
+              <div class="empty-state" *ngIf="!loadingAppointment && !nextAppointment">
                 <p class="empty-message">No tienes citas programadas.</p>
                 <button class="btn-primary" (click)="searchSpecialist()">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -40,6 +47,25 @@
                   </svg>
                   Agendar Cita
                 </button>
+              </div>
+
+              <!-- Appointment Details -->
+              <div class="appointment-details" *ngIf="!loadingAppointment && nextAppointment">
+                <div class="appointment-date">
+                  <span class="date-day">{{ nextAppointment.fecha_cita | date: 'dd' }}</span>
+                  <span class="date-month">{{ nextAppointment.fecha_cita | date: 'MMM' }}</span>
+                </div>
+                <div class="appointment-info">
+                  <h3>Dr. {{ nextAppointment.medico_nombre }}</h3>
+                  <p class="appointment-specialty">{{ nextAppointment.medico_especialidad || 'Medicina General' }}</p>
+                  <p class="appointment-time">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    {{ nextAppointment.hora_cita }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

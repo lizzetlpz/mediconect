@@ -43,16 +43,15 @@ export const login = async (req: Request, res: Response) => {
         const usuario = (rows as any[])[0];
         console.log('✅ Usuario encontrado:', usuario.email);
         console.log('🔍 Datos del usuario:', {
-            id: usuario.id,
+            usuario_id: usuario.usuario_id,
             email: usuario.email,
-            tipo_usuario: usuario.tipo_usuario,
             rol_id: usuario.rol_id
         });
 
         // ✅ CORRECCIÓN: Verificar contraseña con el campo correcto
         const contraseñaValida = await bcrypt.compare(
             passwordFinal,
-            usuario.password || usuario.contraseña  // Intentar ambos nombres de campo
+            usuario.contraseña  // Usar el nombre correcto de la columna
         );
 
         if (!contraseñaValida) {
@@ -70,9 +69,9 @@ export const login = async (req: Request, res: Response) => {
         // ✅ IMPORTANTE: Incluir rol_id en el token para que el frontend sepa qué dashboard mostrar
         const token = jwt.sign(
             {
-                id: usuario.id,  // ✅ Usar 'id' en lugar de 'usuario_id'
+                id: usuario.usuario_id,  // ✅ Usar usuario_id
+                usuario_id: usuario.usuario_id,
                 rol_id: usuario.rol_id,
-                tipo_usuario: usuario.tipo_usuario,
                 email: usuario.email
             },
             jwtSecret,
@@ -80,7 +79,7 @@ export const login = async (req: Request, res: Response) => {
         );
 
         const refreshToken = jwt.sign(
-            { id: usuario.id },
+            { id: usuario.usuario_id, usuario_id: usuario.usuario_id },
             jwtSecret,
             { expiresIn: '7d' }
         );
@@ -91,13 +90,14 @@ export const login = async (req: Request, res: Response) => {
         return res.status(200).json({
             message: 'Login exitoso',
             user: {
-                id: usuario.id,
+                id: usuario.usuario_id,
+                usuario_id: usuario.usuario_id,
                 nombre: usuario.nombre,
-                apellido: usuario.apellido,
+                apellido_paterno: usuario.apellido_paterno,
+                apellido_materno: usuario.apellido_materno,
                 email: usuario.email,
                 telefono: usuario.telefono,
                 fecha_nacimiento: usuario.fecha_nacimiento,
-                tipo_usuario: usuario.tipo_usuario,
                 rol_id: usuario.rol_id,  // ✅ CRÍTICO: Enviar rol_id al frontend
                 activo: usuario.activo,
                 fecha_registro: usuario.fecha_registro
@@ -224,16 +224,16 @@ export const register = async (req: Request, res: Response) => {
         // ✅ Insertar usuario con el rol_id correcto
         const [result] = await pool.query(
             `INSERT INTO usuarios
-            (nombre, apellido, email, password, telefono, fecha_nacimiento, tipo_usuario, rol_id, activo, email_verificado, codigo_verificacion, fecha_expiracion_codigo)
+            (nombre, apellido_paterno, apellido_materno, email, contraseña, telefono, fecha_nacimiento, rol_id, activo, email_verificado, codigo_verificacion, fecha_expiracion_codigo)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 nombre,
                 apellidoFinal,
+                null, // apellido_materno
                 emailFinal.toLowerCase(),
                 hashedPassword,
                 telefono || null,
                 fecha_nacimiento || null,
-                tipo_usuario,
                 rol_id,  // ✅ CRÍTICO: Guardar el rol_id calculado
                 1,  // activo
                 0,  // email_verificado
@@ -356,7 +356,7 @@ export const verificarSesion = async (req: AuthRequest, res: Response) => {
         const pool = getConnection();
 
         const [rows] = await pool.query(
-            'SELECT * FROM usuarios WHERE id = ? AND activo = 1',
+            'SELECT * FROM usuarios WHERE usuario_id = ? AND activo = 1',
             [usuario_id]
         );
 
@@ -371,7 +371,8 @@ export const verificarSesion = async (req: AuthRequest, res: Response) => {
         return res.status(200).json({
             message: 'Sesión válida',
             user: {
-                id: usuario.id,
+                id: usuario.usuario_id,
+                usuario_id: usuario.usuario_id,
                 nombre: usuario.nombre,
                 apellido: usuario.apellido,
                 email: usuario.email,
@@ -425,18 +426,19 @@ export const verificarCuenta = async (req: Request, res: Response) => {
 
         // Actualizar usuario como verificado
         await pool.query(
-            'UPDATE usuarios SET email_verificado = 1, codigo_verificacion = NULL, fecha_expiracion_codigo = NULL WHERE id = ?',
-            [usuario.id]
+            'UPDATE usuarios SET email_verificado = 1, codigo_verificacion = NULL, fecha_expiracion_codigo = NULL WHERE usuario_id = ?',
+            [usuario.usuario_id]
         );
 
         return res.status(200).json({
             message: '¡Cuenta verificada exitosamente!',
             user: {
-                id: usuario.id,
+                id: usuario.usuario_id,
+                usuario_id: usuario.usuario_id,
                 nombre: usuario.nombre,
-                apellido: usuario.apellido,
+                apellido_paterno: usuario.apellido_paterno,
+                apellido_materno: usuario.apellido_materno,
                 email: usuario.email,
-                tipo_usuario: usuario.tipo_usuario,
                 rol_id: usuario.rol_id
             }
         });

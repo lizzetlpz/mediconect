@@ -43,10 +43,10 @@ export const verificarToken = (req: AuthRequest, res: Response, next: NextFuncti
         console.log('✅ ¡TOKEN VÁLIDO!');
         console.log('✅ Token decodificado correctamente');
         console.log('━'.repeat(60));
-        
+
         // Aceptar tanto 'id' como 'usuario_id' del token para compatibilidad
         const usuarioId = decoded.usuario_id || decoded.id;
-        
+
         console.log('👤 Usuario ID:', usuarioId);
         console.log('📧 Email:', decoded.email);
         console.log('🎭 Rol ID:', decoded.rol_id);

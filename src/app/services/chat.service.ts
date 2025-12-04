@@ -128,11 +128,19 @@ export class ChatService {
   // ============== GESTIÓN DE CONSULTAS ==============
 
   unirseAConsulta(consultaId: number): void {
+    console.log('🏥 ========================================');
+    console.log('🏥 UNIRSE A CONSULTA');
+    console.log('🏥 ========================================');
     console.log('🏥 Intentando unirse a consulta:', {
       consultaId,
       socketConectado: this.socket?.readyState === WebSocket.OPEN,
       usuarioId: this.usuarioId,
-      rol: this.rol
+      rol: this.rol,
+      socketReadyState: this.socket?.readyState,
+      OPEN: WebSocket.OPEN,
+      CONNECTING: WebSocket.CONNECTING,
+      CLOSING: WebSocket.CLOSING,
+      CLOSED: WebSocket.CLOSED
     });
 
     this.consultaActivaId = consultaId;

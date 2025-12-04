@@ -2,7 +2,9 @@
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
+  width: 100%;
   background-color: #f8fafc;
+  overflow-x: hidden;
 }
 
 /* ============== ESTILOS GENERALES ============== */
@@ -10,9 +12,12 @@
   flex: 1;
   margin-left: 260px; /* Espacio para el sidebar */
   padding: 20px;
-  max-width: 1400px;
+  width: calc(100% - 260px);
+  max-width: 100%;
   background-color: #f8f9fa;
   min-height: 100vh;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .header {
@@ -98,9 +103,11 @@
 /* ============== LAYOUT PRINCIPAL ============== */
 .main-layout {
   display: grid;
-  grid-template-columns: 400px 1fr;
-  gap: 30px;
-  height: calc(100vh - 200px);
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  height: calc(100vh - 220px);
+  max-width: 100%;
+  overflow: hidden;
 }
 
 /* ============== LISTA DE CONSULTAS ============== */
@@ -111,6 +118,8 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  height: 100%;
+  max-height: 100%;
 }
 
 .list-header {
@@ -258,6 +267,8 @@
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  height: 100%;
+  max-height: 100%;
 }
 
 .chat-header {
@@ -369,8 +380,11 @@
 .chat-messages {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 20px;
   background: #f8f9fa;
+  max-height: calc(100vh - 380px);
+  min-height: 300px;
 }
 
 .chat-empty {
@@ -393,9 +407,21 @@
 /* Estilos de mensajes */
 .message {
   display: flex;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   align-items: flex-start;
   gap: 12px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .message.own {
@@ -463,6 +489,7 @@
 .chat-input-container {
   border-top: 1px solid #e9ecef;
   background: white;
+  flex-shrink: 0;
 }
 
 .chat-disabled {
@@ -477,10 +504,11 @@
 }
 
 .chat-input {
-  padding: 20px;
+  padding: 15px 20px;
   display: flex;
   align-items: flex-end;
   gap: 15px;
+  background: white;
 }
 
 .chat-input textarea {
@@ -492,6 +520,8 @@
   font-family: inherit;
   font-size: 0.95rem;
   transition: border-color 0.3s ease;
+  max-height: 80px;
+  min-height: 42px;
 }
 
 .chat-input textarea:focus {
@@ -538,7 +568,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 500px;
+  max-height: 100%;
   overflow: hidden;
 }
 
@@ -552,11 +582,8 @@
   height: 100% !important;
   width: 100% !important;
   background: white !important;
-  border-radius: 15px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
   padding: 60px 40px !important;
   margin: 0 !important;
-  min-height: 500px !important;
 }
 
 .empty-state {
@@ -596,14 +623,34 @@
 }
 
 /* ============== RESPONSIVE ============== */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
+  .consultas-container {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+  }
+
+  .main-layout {
+    grid-template-columns: 320px 1fr;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 968px) {
+  .consultas-container {
+    margin-left: 0;
+    width: 100%;
+    padding: 10px;
+  }
+
   .main-layout {
     grid-template-columns: 1fr;
     height: auto;
+    gap: 20px;
   }
 
-  .consultas-container {
-    padding: 10px;
+  .consultas-list {
+    height: auto;
+    max-height: 400px;
   }
 
   .header {
@@ -615,6 +662,11 @@
   }
 
   .chat-panel {
-    height: 70vh;
+    height: 600px;
+    max-height: 600px;
+  }
+
+  .chat-messages {
+    max-height: 400px;
   }
 }
