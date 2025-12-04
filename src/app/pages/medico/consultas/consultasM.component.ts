@@ -5,8 +5,6 @@ import { NavbarComponent } from '../../../components/navbar/nav/navbar.component
 import { DoctorSidebarComponent } from '../../../barraLateral/doctor/BarraD.component';
 import { CitasService, CitaMedica } from '../../../services/citas.service';
 import { ChatService, MensajeChat } from '../../../services/chat.service';
-import { VideoCallService } from '../../../services/video-call.service';
-import { VideoCallComponent } from '../../../components/video-call/video-call.component';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
 
@@ -42,7 +40,7 @@ interface Mensaje {
 @Component({
     selector: 'app-consultas-medicas',
     standalone: true,
-    imports: [CommonModule, FormsModule, DoctorSidebarComponent, VideoCallComponent],
+    imports: [CommonModule, FormsModule, DoctorSidebarComponent],
     templateUrl: './consultasM.component.html',
     styleUrls: ['./consultasM.component.css']
 })
@@ -61,18 +59,13 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
     chatConectado: boolean = false;
     usuarioActual: any = null;
 
-    // Video call state
-    mostrarVideollamada: boolean = false;
-    llamadaEnProgreso: boolean = false;
-
     private shouldScrollToBottom = false;
     private subscriptions: Subscription[] = [];
 
     constructor(
         private citasService: CitasService,
         private chatService: ChatService,
-        private authService: AuthService,
-        private videoCallService: VideoCallService
+        private authService: AuthService
     ) {}
 
     ngOnInit(): void {
@@ -325,21 +318,12 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
             // Abrir videollamada en nueva ventana usando el mismo formato que el paciente
             const roomId = `consulta-${this.consultaActiva.id}`;
             const url = `/videollamada?room=${roomId}&consultaId=${this.consultaActiva.id}&tipo=doctor`;
-            
+
             window.open(url, '_blank', 'width=1200,height=800');
-            
+
             // Notificar al paciente que se está iniciando la videollamada
             this.chatService.iniciarVideollamada(this.consultaActiva.id);
-            
-            this.mostrarVideollamada = true;
-            this.llamadaEnProgreso = true;
         }
-    }
-
-    cerrarVideollamada(): void {
-        this.mostrarVideollamada = false;
-        this.llamadaEnProgreso = false;
-        this.videoCallService.endCall();
     }
 
 

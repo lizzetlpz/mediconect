@@ -124,16 +124,16 @@
                     <div class="chat-actions">
                         <!-- Iniciar videollamada (solo para modalidad video) -->
                         <button *ngIf="esVideollamada(consultaActiva)"
-                                class="action-btn video-btn"
+                                class="video-call-btn"
                                 (click)="iniciarVideollamada()"
-                                [disabled]="!chatConectado || llamadaEnProgreso"
-                                title="Iniciar videollamada">
+                                [disabled]="!chatConectado"
+                                title="Unirse a videollamada">
                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
                                 </path>
                             </svg>
-                            {{ llamadaEnProgreso ? 'En llamada' : 'Videollamada' }}
+                            Unirse a videollamada
                         </button>
 
                         <!-- Finalizar consulta -->
@@ -190,17 +190,5 @@
         </div>
     </div>
 
-    <!-- Video Call Component (Modal) -->
-    <app-video-call
-        *ngIf="mostrarVideollamada && consultaActiva"
-        [consultaId]="consultaActiva.id"
-        [participantName]="consultaActiva.paciente.nombre"
-        [currentUserRole]="'doctor'"
-        [currentUserId]="usuarioActual?.id"
-        [canStartVideoCall]="true"
-        (callEnded)="cerrarVideollamada()"
-        (callStarted)="llamadaEnProgreso = true"
-        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1000; background: rgba(0,0,0,0.9);">
-    </app-video-call>
 </div>
 </div>

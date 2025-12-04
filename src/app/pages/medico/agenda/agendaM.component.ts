@@ -61,7 +61,7 @@ export class CitasMedicasComponent implements OnInit {
         // Formatear fecha si viene de la base de datos
         let fechaFormateada = cita.fecha;
         let horaFormateada = cita.hora;
-        
+
         // Usar fecha_cita y hora_cita si están disponibles
         if (cita.fecha_cita) {
             const fecha = new Date(cita.fecha_cita);

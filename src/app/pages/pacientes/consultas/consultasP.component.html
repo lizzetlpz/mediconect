@@ -127,7 +127,7 @@
               </div>
               <div class="chat-status">
                 <!-- Botón de Videollamada -->
-                <button 
+                <button
                   *ngIf="esVideollamada(consultaActiva) && consultaActiva.estado === 'en_progreso'"
                   class="btn-video-call"
                   (click)="unirseVideollamada(consultaActiva)"

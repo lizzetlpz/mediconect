@@ -308,11 +308,11 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
 
     unirseVideollamada(consulta: ConsultaPaciente): void {
         console.log('📞 Uniéndose a videollamada de la consulta:', consulta.id);
-        
+
         // Abrir videollamada en nueva ventana
         const roomId = `consulta-${consulta.id}`;
         const url = `/videollamada?room=${roomId}&consultaId=${consulta.id}&tipo=paciente`;
-        
+
         window.open(url, '_blank', 'width=1200,height=800');
     }
 

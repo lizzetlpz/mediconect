@@ -130,7 +130,7 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
     const sub = this.citasService.obtenerPacientesTratados(currentUser.id).subscribe({
       next: (pacientes: any[]) => {
         console.log('✅ Pacientes tratados obtenidos:', pacientes);
-        
+
         // Transformar los datos al formato esperado
         this.pacientes = pacientes.map((p: any) => ({
           id: p.id,
@@ -138,9 +138,9 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
           telefono: p.telefono,
           correo: p.correo
         }));
-        
+
         console.log('📋 Pacientes en el selector:', this.pacientes);
-        
+
         // También cargar citas para asociar recetas a citas específicas
         this.citasService.obtenerCitasMedico().subscribe({
           next: (citas: any[]) => {

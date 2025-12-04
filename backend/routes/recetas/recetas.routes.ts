@@ -226,7 +226,7 @@ router.post('/', verificarToken, async (req: AuthRequest, res: Response) => {
 
   } catch (error) {
     console.error('❌ Error creando receta:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       message: 'Error interno del servidor',
       error: error instanceof Error ? error.message : 'Error desconocido',
       stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined

@@ -118,7 +118,7 @@ router.get('/doctor/:doctor_id/pacientes', async (req: AuthRequest, res: Respons
 
         // Obtener pacientes de TODAS las fuentes donde el doctor los haya atendido o agregado
         const [pacientes] = await pool.query(
-            `SELECT DISTINCT 
+            `SELECT DISTINCT
                     u.usuario_id as id,
                     u.nombre,
                     u.apellido_paterno,

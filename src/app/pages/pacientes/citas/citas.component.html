@@ -223,8 +223,8 @@
             </div>
 
             <!-- Botón para unirse a videollamada -->
-            <div 
-                *ngIf="cita.modalidad === 'Videollamada' && (cita.estado === 'Confirmada' || cita.estado === 'En Progreso')" 
+            <div
+                *ngIf="cita.modalidad === 'Videollamada' && (cita.estado === 'Confirmada' || cita.estado === 'En Progreso')"
                 class="appointment-actions">
                 <button class="btn-join-video" (click)="unirseVideollamada(cita)">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">

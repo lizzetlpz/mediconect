@@ -188,11 +188,11 @@ export class CitasComponent implements OnInit {
 
   unirseVideollamada(cita: Cita): void {
     console.log('📞 Uniéndose a videollamada de la cita:', cita.id);
-    
+
     // Abrir videollamada en nueva ventana - usar mismo formato que consultas
     const roomId = `consulta-${cita.id}`;
     const url = `/videollamada?room=${roomId}&citaId=${cita.id}&tipo=paciente`;
-    
+
     window.open(url, '_blank', 'width=1200,height=800');
   }
 

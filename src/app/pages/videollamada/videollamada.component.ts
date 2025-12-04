@@ -30,9 +30,9 @@ export class VideollamadaComponent implements OnInit, OnDestroy {
         this.consultaId = params['consultaId'] || '';
         this.citaId = params['citaId'] || '';
         this.tipo = params['tipo'] || '';
-        
+
         this.participanteName = this.tipo === 'doctor' ? 'Doctor' : 'Paciente';
-        
+
         console.log('📞 Videollamada iniciada:', {
           roomId: this.roomId,
           consultaId: this.consultaId,
