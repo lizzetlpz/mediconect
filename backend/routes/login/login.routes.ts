@@ -3,7 +3,7 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getConnection } from '../../BD/SQLite/database';
-import resendService from '../../src/services/resend.service';
+import brevoService from '../../src/services/brevo.service';
 
 const router = Router();
 
@@ -102,7 +102,7 @@ router.post('/register', async (req: Request, res: Response) => {
     // Enviar email de verificación
     try {
       console.log('📧 Enviando email de verificación a:', emailFinal);
-      await resendService.enviarEmail({
+      await brevoService.enviarEmail({
         to: emailFinal,
         subject: '📧 Verifica tu cuenta - MediConnect',
         html: `
@@ -386,7 +386,7 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
 
     // Enviar email
     try {
-      await resendService.enviarEmail({
+      await brevoService.enviarEmail({
         to: user.email,
         subject: '📧 Nuevo código de verificación - MediConnect',
         html: `

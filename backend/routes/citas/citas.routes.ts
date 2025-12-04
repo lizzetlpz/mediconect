@@ -2,7 +2,7 @@
 import { Router, Response } from 'express';
 import { getConnection } from '../../BD/SQLite/database';
 import { AuthRequest, verificarToken } from '../../middleware/auth.middleware';
-import resendService from '../../src/services/resend.service';
+import brevoService from '../../src/services/brevo.service';
 
 const router = Router();
 
@@ -110,8 +110,8 @@ router.post('/', async (req: AuthRequest, res: Response) => {
                     const medicoNombre = cita.medico_apellido
                         ? `${cita.medico_nombre} ${cita.medico_apellido}`
                         : cita.medico_nombre;
-                    
-                    const emailEnviado = await resendService.enviarEmail({
+
+                    const emailEnviado = await brevoService.enviarEmail({
                         to: emailDestino,
                         subject: '✅ Cita Médica Confirmada - MediConnect',
                         html: `
@@ -627,7 +627,7 @@ router.get('/test-email', async (req: AuthRequest, res: Response) => {
         console.log('🧪 Probando configuración de email con Resend...');
 
         const emailDestino = (req.query['email'] as string) || 'medicoomx@gmail.com';
-        const resultado = await resendService.enviarEmail({
+        const resultado = await brevoService.enviarEmail({
             to: emailDestino,
             subject: '✅ Test de Email - MediConnect',
             html: '<h1>Test exitoso!</h1><p>El servicio de email con Resend está funcionando correctamente.</p>'

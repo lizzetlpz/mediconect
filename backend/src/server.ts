@@ -212,16 +212,16 @@ app.get('/api/health', (req, res) => {
 // Endpoint público para probar email
 app.get('/test-email', async (req, res) => {
   try {
-    console.log('🧪 Probando configuración de email con Resend...');
+    console.log('🧪 Probando configuración de email con Brevo...');
 
-    // Importar el servicio de Resend dinámicamente
-    const { default: resendService } = await import('../src/services/resend.service');
+    // Importar el servicio de Brevo dinámicamente
+    const { default: brevoService } = await import('../src/services/brevo.service');
 
     const emailDestino = (req.query['email'] as string) || 'medicoomx@gmail.com';
-    const resultado = await resendService.enviarEmail({
+    const resultado = await brevoService.enviarEmail({
       to: emailDestino,
       subject: '✅ Test de Email - MediConnect',
-      html: '<h1>Test exitoso!</h1><p>El servicio de email con Resend está funcionando correctamente.</p>'
+      html: '<h1>Test exitoso!</h1><p>El servicio de email con Brevo está funcionando correctamente.</p>'
     });
 
     if (resultado) {

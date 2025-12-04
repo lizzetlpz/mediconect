@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import resendService from '../../src/services/resend.service';
+import brevoService from '../../src/services/brevo.service';
 
 const router = Router();
 
@@ -11,7 +11,7 @@ router.get('/test-email', async (req, res): Promise<void> => {
     // Enviar email de prueba
     const testEmail = (req.query['email'] as string) || 'medicoomx@gmail.com';
 
-    const emailEnviado = await resendService.enviarEmail({
+    const emailEnviado = await brevoService.enviarEmail({
       to: testEmail,
       subject: '✅ Test de Email - MediConnect',
       html: `
