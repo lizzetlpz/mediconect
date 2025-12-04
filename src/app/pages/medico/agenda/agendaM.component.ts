@@ -60,6 +60,9 @@ export class CitasMedicasComponent implements OnInit {
     private procesarCita(cita: any): CitaMedica {
         // Formatear fecha si viene de la base de datos
         let fechaFormateada = cita.fecha;
+        let horaFormateada = cita.hora;
+        
+        // Usar fecha_cita y hora_cita si están disponibles
         if (cita.fecha_cita) {
             const fecha = new Date(cita.fecha_cita);
             fechaFormateada = fecha.toLocaleDateString('es-ES', {
@@ -69,9 +72,22 @@ export class CitasMedicasComponent implements OnInit {
             });
         }
 
+        if (cita.hora_cita) {
+            horaFormateada = cita.hora_cita;
+        }
+
+        // Normalizar modalidad
+        let modalidadNormalizada = cita.modalidad || 'texto';
+        if (modalidadNormalizada === 'videollamada') {
+            modalidadNormalizada = 'video';
+        }
+
         return {
             ...cita,
-            numero: cita.numero || `CITA-${cita.id}`,
+            numero: cita.numero || `CITA-${cita.id || cita.cita_id}`,
+            fecha: fechaFormateada,
+            hora: horaFormateada,
+            modalidad: modalidadNormalizada,
             fecha_formateada: fechaFormateada,
             paciente: {
                 nombre: cita.paciente?.nombre || `${cita.paciente_nombre || ''} ${cita.paciente_apellido || ''}`.trim() || 'Paciente',
@@ -142,6 +158,14 @@ export class CitasMedicasComponent implements OnInit {
             return 'video';
         } else {
             return 'chat';
+        }
+    }
+
+    getModalityText(modalidad: string): string {
+        if (modalidad === 'video' || modalidad === 'videollamada') {
+            return 'Videollamada';
+        } else {
+            return 'Texto';
         }
     }
 
