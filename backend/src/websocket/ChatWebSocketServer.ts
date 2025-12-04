@@ -132,30 +132,37 @@ export class ChatWebSocketServer {
 
       console.log(`👥 ${usuario.nombre} se unió a la consulta ${consultaId}`);
 
-      // Cargar historial de mensajes de la base de datos
-      const pool = getConnection();
-      const [mensajes] = await pool.query(
-        `SELECT m.*, u.nombre, u.apellido_paterno,
-         IF(u.rol_id = 2, 'medico', 'paciente') as remitente
-         FROM mensajes_chat m
-         JOIN usuarios u ON m.remitente_id = u.usuario_id
-         WHERE m.consulta_id = ?
-         ORDER BY m.timestamp ASC`,
-        [consultaId]
-      );
+      let mensajesFormateados: any[] = [];
 
-      const mensajesFormateados = (mensajes as any[]).map(m => ({
-        id: m.mensaje_id,
-        consultaId: m.consulta_id,
-        texto: m.mensaje,
-        remitente: m.remitente,
-        remitenteId: m.remitente_id,
-        nombre: `${m.nombre} ${m.apellido_paterno}`,
-        timestamp: m.timestamp,
-        leido: m.leido === 1
-      }));
+      // Intentar cargar historial de mensajes de la base de datos
+      try {
+        const pool = getConnection();
+        const [mensajes] = await pool.query(
+          `SELECT m.*, u.nombre, u.apellido_paterno,
+           IF(u.rol_id = 3, 'medico', 'paciente') as remitente
+           FROM mensajes_chat m
+           JOIN usuarios u ON m.remitente_id = u.usuario_id
+           WHERE m.consulta_id = ?
+           ORDER BY m.timestamp ASC`,
+          [consultaId]
+        );
 
-      console.log(`📚 Enviando ${mensajesFormateados.length} mensajes del historial`);
+        mensajesFormateados = (mensajes as any[]).map(m => ({
+          id: m.mensaje_id,
+          consultaId: m.consulta_id,
+          texto: m.mensaje,
+          remitente: m.remitente,
+          remitenteId: m.remitente_id,
+          nombre: `${m.nombre} ${m.apellido_paterno}`,
+          timestamp: m.timestamp,
+          leido: m.leido === 1
+        }));
+
+        console.log(`📚 Enviando ${mensajesFormateados.length} mensajes del historial`);
+      } catch (dbError: any) {
+        console.warn('⚠️ No se pudo cargar historial (tabla no existe?):', dbError.message);
+        // Continuar sin historial
+      }
 
       socket.send(JSON.stringify({
         tipo: 'historial_mensajes',
@@ -197,15 +204,22 @@ export class ChatWebSocketServer {
         nombre: mensajeData.nombre
       });
 
-      // Guardar mensaje en la base de datos
-      const pool = getConnection();
-      const [result] = await pool.query(
-        `INSERT INTO mensajes_chat (consulta_id, remitente_id, mensaje, timestamp, leido)
-         VALUES (?, ?, ?, NOW(), 0)`,
-        [mensajeData.consultaId, mensajeData.remitenteId, mensajeData.texto]
-      );
+      let mensajeId = Date.now();
 
-      const mensajeId = (result as any).insertId;
+      // Intentar guardar mensaje en la base de datos
+      try {
+        const pool = getConnection();
+        const [result] = await pool.query(
+          `INSERT INTO mensajes_chat (consulta_id, remitente_id, mensaje, timestamp, leido)
+           VALUES (?, ?, ?, NOW(), 0)`,
+          [mensajeData.consultaId, mensajeData.remitenteId, mensajeData.texto]
+        );
+        mensajeId = (result as any).insertId;
+        console.log('💾 Mensaje guardado en BD con ID:', mensajeId);
+      } catch (dbError: any) {
+        console.warn('⚠️ No se pudo guardar en BD (tabla no existe?):', dbError.message);
+        // Continuar sin guardar en BD
+      }
 
       const mensajeCompleto: MensajeChat = {
         id: mensajeId,
@@ -227,7 +241,7 @@ export class ChatWebSocketServer {
         mensaje: mensajeCompleto
       });
 
-      console.log('✅ Mensaje guardado en BD y enviado correctamente');
+      console.log('✅ Mensaje enviado correctamente');
     } catch (error) {
       console.error('❌ Error procesando nuevo mensaje:', error);
       this.enviarError(socket, 'Error al enviar mensaje');

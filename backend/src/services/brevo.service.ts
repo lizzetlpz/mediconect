@@ -33,7 +33,7 @@ export const enviarEmailBrevo = async (options: EmailOptions): Promise<boolean> 
         sendSmtpEmail.htmlContent = options.html;
 
         const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-        
+
         console.log('✅ Email enviado exitosamente con Brevo API');
         console.log('   Message ID:', result.body.messageId);
         return true;
