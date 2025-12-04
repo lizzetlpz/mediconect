@@ -212,13 +212,17 @@ app.get('/api/health', (req, res) => {
 // Endpoint público para probar email
 app.get('/test-email', async (req, res) => {
   try {
-    console.log('🧪 Probando configuración de email...');
+    console.log('🧪 Probando configuración de email con Resend...');
 
-    // Importar el servicio de email dinámicamente
-    const { default: emailService } = await import('../src/services/email.service');
+    // Importar el servicio de Resend dinámicamente
+    const { default: resendService } = await import('../src/services/resend.service');
 
     const emailDestino = (req.query['email'] as string) || 'medicoomx@gmail.com';
-    const resultado = await emailService.testearEnvioEmail(emailDestino);
+    const resultado = await resendService.enviarEmail(
+      emailDestino,
+      '✅ Test de Email - MediConnect',
+      '<h1>Test exitoso!</h1><p>El servicio de email con Resend está funcionando correctamente.</p>'
+    );
 
     if (resultado) {
       res.status(200).json({
