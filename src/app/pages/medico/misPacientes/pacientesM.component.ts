@@ -152,13 +152,11 @@ export class GestionPacientesComponent implements OnInit {
   onPacienteRegistrado(paciente: Paciente): void {
     console.log('✅ Paciente registrado:', paciente);
 
-    // Agregar el nuevo paciente a la lista
-    this.pacientes.unshift(paciente);
+    // Recargar la lista completa desde la base de datos
+    // Esto asegura que los datos estén sincronizados con la BD
+    this.cargarPacientes();
 
-    // Recalcular estadísticas
-    this.calcularEstadisticas();
-
-    console.log(`📊 Total pacientes: ${this.totalPacientes}`);
+    console.log(`📊 Recargando lista de pacientes desde BD...`);
   }
 
   /**

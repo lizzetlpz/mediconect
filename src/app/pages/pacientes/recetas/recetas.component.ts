@@ -17,7 +17,7 @@ export class RecetasPacienteComponent implements OnInit, OnDestroy {
   recetas: Receta[] = [];
   cargando = false;
   error: string | null = null;
-  
+
   private subscriptions: Subscription[] = [];
 
   constructor(
