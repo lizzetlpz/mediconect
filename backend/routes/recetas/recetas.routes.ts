@@ -63,10 +63,11 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
       return res.status(403).json({ message: 'Solo los médicos pueden crear recetas' });
     }
 
-    // Validar código médico
-    if (!codigo_medico) {
-      return res.status(400).json({ message: 'Código médico requerido' });
-    }
+    // Limpiar campos opcionales
+    const cleanCitaId = cita_id && cita_id !== 'undefined' && cita_id !== 'null' && cita_id !== '' ? cita_id : null;
+    const cleanObservaciones = observaciones && observaciones !== 'undefined' && observaciones !== 'null' && observaciones !== '' ? observaciones : null;
+    const cleanCodigoMedico = codigo_medico && codigo_medico !== 'undefined' && codigo_medico !== 'null' && codigo_medico !== '' ? codigo_medico : null;
+    const cleanFirmaDigital = firma_digital && firma_digital !== 'undefined' && firma_digital !== 'null' && firma_digital !== '' ? firma_digital : null;
 
     // Generar código único de validación
     const timestamp = Date.now().toString();
@@ -92,10 +93,10 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
         foto_receta, codigo_medico, firma_digital
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, ?)
     `, [
-      req.usuario_id, paciente_id, cita_id, codigo_validacion,
-      instrucciones, observaciones, dias_validez,
+      req.usuario_id, paciente_id, cleanCitaId, codigo_validacion,
+      instrucciones, cleanObservaciones, dias_validez,
       fecha_emision, fecha_vencimiento,
-      foto_receta, codigo_medico, firma_digital
+      foto_receta, cleanCodigoMedico, cleanFirmaDigital
     ]);
 
     const receta_id = (recetaResult as any).insertId;
@@ -158,6 +159,10 @@ router.post('/', verificarToken, async (req: AuthRequest, res: Response) => {
       return res.status(403).json({ message: 'Solo los médicos pueden crear recetas' });
     }
 
+    // Limpiar campos opcionales que puedan venir como string 'undefined', 'null', o vacíos
+    const cleanCitaId = cita_id && cita_id !== 'undefined' && cita_id !== 'null' && cita_id !== '' ? cita_id : null;
+    const cleanObservaciones = observaciones && observaciones !== 'undefined' && observaciones !== 'null' && observaciones !== '' ? observaciones : null;
+
     // Generar código único de validación
     const timestamp = Date.now().toString();
     const random = Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -177,7 +182,7 @@ router.post('/', verificarToken, async (req: AuthRequest, res: Response) => {
         fecha_emision, fecha_vencimiento, estado, codigo_validacion
       ) VALUES (?, ?, ?, ?, ?, ?, ?, 'activa', ?)
     `, [
-      req.usuario_id, paciente_id, cita_id || null, instrucciones, observaciones || null,
+      req.usuario_id, paciente_id, cleanCitaId, instrucciones, cleanObservaciones,
       fecha_emision, fecha_vencimiento, codigo_validacion
     ]);
 
