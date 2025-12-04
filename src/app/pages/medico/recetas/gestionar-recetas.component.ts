@@ -118,24 +118,43 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
   }
 
   cargarCitas(): void {
-    const sub = this.citasService.obtenerCitasMedico().subscribe({
-      next: (citas: any[]) => {
-        this.citas = citas;
-        // Extraer pacientes únicos de las citas
-        const pacientesMap = new Map();
-        citas.forEach((cita: any) => {
-          if (cita.paciente && !pacientesMap.has(cita.paciente.id)) {
-            pacientesMap.set(cita.paciente.id, {
-              id: cita.paciente.id,
-              nombre: cita.paciente.nombre,
-              telefono: cita.paciente.telefono
-            });
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      console.error('❌ No hay usuario autenticado');
+      return;
+    }
+
+    console.log('👥 Cargando pacientes del doctor ID:', currentUser.id);
+
+    // Cargar pacientes que el doctor ha tratado (desde consultas, citas e historial)
+    const sub = this.citasService.obtenerPacientesTratados(currentUser.id).subscribe({
+      next: (pacientes: any[]) => {
+        console.log('✅ Pacientes tratados obtenidos:', pacientes);
+        
+        // Transformar los datos al formato esperado
+        this.pacientes = pacientes.map((p: any) => ({
+          id: p.id,
+          nombre: `${p.nombre} ${p.apellido_paterno} ${p.apellido_materno || ''}`.trim(),
+          telefono: p.telefono,
+          correo: p.correo
+        }));
+        
+        console.log('📋 Pacientes en el selector:', this.pacientes);
+        
+        // También cargar citas para asociar recetas a citas específicas
+        this.citasService.obtenerCitasMedico().subscribe({
+          next: (citas: any[]) => {
+            this.citas = citas;
+            console.log('📅 Citas cargadas:', citas.length);
+          },
+          error: (error: any) => {
+            console.error('❌ Error cargando citas:', error);
           }
         });
-        this.pacientes = Array.from(pacientesMap.values());
       },
       error: (error: any) => {
-        console.error('Error cargando citas:', error);
+        console.error('❌ Error cargando pacientes tratados:', error);
+        this.pacientes = [];
       }
     });
     this.subscriptions.push(sub);

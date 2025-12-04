@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface CitaMedica {
@@ -97,6 +97,20 @@ export class CitasService {
         cita.estado === 'en_progreso' ||
         cita.estado === 'pendiente'
       ))
+    );
+  }
+
+  // Obtener pacientes que el médico ha tratado (desde consultas, citas e historial)
+  obtenerPacientesTratados(medicoId: number): Observable<any[]> {
+    console.log('📞 Llamando a endpoint de pacientes tratados para médico:', medicoId);
+    return this.http.get<any[]>(`${environment.apiUrl}/consultas/doctor/${medicoId}/pacientes`).pipe(
+      tap(pacientes => {
+        console.log('✅ Respuesta del servidor - Pacientes tratados:', pacientes);
+      }),
+      catchError(error => {
+        console.error('❌ Error en obtenerPacientesTratados:', error);
+        throw error;
+      })
     );
   }
 }
