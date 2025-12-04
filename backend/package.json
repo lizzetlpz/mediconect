@@ -19,7 +19,6 @@
   "license": "ISC",
   "dependencies": {
     "@types/multer": "^2.0.0",
-    "@types/nodemailer": "^7.0.4",
     "@types/ws": "^8.18.1",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
@@ -29,7 +28,6 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "mysql2": "^3.15.3",
-    "nodemailer": "^7.0.11",
     "pdfkit": "^0.14.0",
     "resend": "^6.5.2",
     "sqlite3": "^5.1.7",
