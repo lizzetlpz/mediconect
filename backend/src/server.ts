@@ -7,11 +7,12 @@ import dotenv from 'dotenv';
 // Cargar variables de entorno
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-// Verificar variables de entorno de email
-console.log('🔍 Verificando variables de entorno de email:');
-console.log('   Ruta .env:', path.join(__dirname, '..', '.env'));
-console.log('   EMAIL_USER:', process.env.EMAIL_USER || 'NO CONFIGURADO');
-console.log('   EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? '***configurado***' : 'NO CONFIGURADO');
+// Verificar variables de entorno de email (Brevo SMTP)
+console.log('🔍 Verificando variables de entorno de Brevo SMTP:');
+console.log('   BREVO_SMTP_HOST:', process.env.BREVO_SMTP_HOST || 'NO CONFIGURADO');
+console.log('   BREVO_SMTP_PORT:', process.env.BREVO_SMTP_PORT || 'NO CONFIGURADO');
+console.log('   BREVO_SMTP_USER:', process.env.BREVO_SMTP_USER || 'NO CONFIGURADO');
+console.log('   BREVO_SMTP_PASSWORD:', process.env.BREVO_SMTP_PASSWORD ? '✅ Configurado' : '❌ NO CONFIGURADO');
 import { getConnection } from '../BD/SQLite/database';
 import { ChatWebSocketServer } from './websocket/ChatWebSocketServer';
 import authRoutes from '../routes/login/login.routes';
