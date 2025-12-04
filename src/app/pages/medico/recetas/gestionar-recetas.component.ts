@@ -184,14 +184,14 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
     // Preparar datos de la receta
     const recetaData = {
       paciente_id: formValue.paciente_id,
-      cita_id: formValue.cita_id,
+      cita_id: formValue.cita_id || null,
       instrucciones: formValue.instrucciones,
-      observaciones: formValue.observaciones,
+      observaciones: formValue.observaciones || null,
       dias_validez: formValue.dias_validez,
       medicamentos: formValue.medicamentos,
       // Datos de autenticación médica
-      firma_digital: formValue.firma_digital,
-      codigo_medico: formValue.codigo_medico,
+      firma_digital: formValue.firma_digital || null,
+      codigo_medico: formValue.codigo_medico || null,
       tiene_foto: this.fotoReceta ? true : false
     };
 
@@ -201,13 +201,21 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
 
       // Agregar campos individuales a FormData
       formData.append('paciente_id', formValue.paciente_id.toString());
-      formData.append('cita_id', formValue.cita_id?.toString() || '');
+      if (formValue.cita_id) {
+        formData.append('cita_id', formValue.cita_id.toString());
+      }
       formData.append('instrucciones', formValue.instrucciones);
-      formData.append('observaciones', formValue.observaciones || '');
+      if (formValue.observaciones) {
+        formData.append('observaciones', formValue.observaciones);
+      }
       formData.append('dias_validez', formValue.dias_validez.toString());
       formData.append('medicamentos', JSON.stringify(formValue.medicamentos));
-      formData.append('firma_digital', formValue.firma_digital);
-      formData.append('codigo_medico', formValue.codigo_medico);
+      if (formValue.firma_digital) {
+        formData.append('firma_digital', formValue.firma_digital);
+      }
+      if (formValue.codigo_medico) {
+        formData.append('codigo_medico', formValue.codigo_medico);
+      }
       formData.append('foto_receta', this.fotoReceta);
 
       const sub = this.recetaService.crearRecetaConFoto(formData).subscribe({
