@@ -1,0 +1,23 @@
+# Imagen base de Node.js
+FROM node:18-alpine
+
+# Directorio de trabajo
+WORKDIR /app
+
+# Copiar package.json desde Backend
+COPY Backend/package*.json ./
+
+# Instalar dependencias
+RUN npm install
+
+# Copiar Backend
+COPY Backend/ .
+
+# Copiar services desde el frontend
+COPY src/app/services ./src/app/services
+
+# Puerto que usa tu backend
+EXPOSE 3000
+
+# Comando para iniciar
+CMD ["npx", "ts-node", "server.ts"]
