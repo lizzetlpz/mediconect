@@ -132,9 +132,34 @@ export class ChatWebSocketServer {
 
       console.log(`👥 ${usuario.nombre} se unió a la consulta ${consultaId}`);
 
+      // Cargar historial de mensajes de la base de datos
+      const pool = getConnection();
+      const [mensajes] = await pool.query(
+        `SELECT m.*, u.nombre, u.apellido_paterno,
+         IF(u.rol_id = 2, 'medico', 'paciente') as remitente
+         FROM mensajes_chat m
+         JOIN usuarios u ON m.remitente_id = u.usuario_id
+         WHERE m.consulta_id = ?
+         ORDER BY m.timestamp ASC`,
+        [consultaId]
+      );
+
+      const mensajesFormateados = (mensajes as any[]).map(m => ({
+        id: m.mensaje_id,
+        consultaId: m.consulta_id,
+        texto: m.mensaje,
+        remitente: m.remitente,
+        remitenteId: m.remitente_id,
+        nombre: `${m.nombre} ${m.apellido_paterno}`,
+        timestamp: m.timestamp,
+        leido: m.leido === 1
+      }));
+
+      console.log(`📚 Enviando ${mensajesFormateados.length} mensajes del historial`);
+
       socket.send(JSON.stringify({
         tipo: 'historial_mensajes',
-        mensajes: []
+        mensajes: mensajesFormateados
       }));
     } catch (error) {
       console.error('❌ Error uniéndose a consulta:', error);
@@ -172,8 +197,18 @@ export class ChatWebSocketServer {
         nombre: mensajeData.nombre
       });
 
+      // Guardar mensaje en la base de datos
+      const pool = getConnection();
+      const [result] = await pool.query(
+        `INSERT INTO mensajes_chat (consulta_id, remitente_id, mensaje, timestamp, leido)
+         VALUES (?, ?, ?, NOW(), 0)`,
+        [mensajeData.consultaId, mensajeData.remitenteId, mensajeData.texto]
+      );
+
+      const mensajeId = (result as any).insertId;
+
       const mensajeCompleto: MensajeChat = {
-        id: Date.now(),
+        id: mensajeId,
         consultaId: mensajeData.consultaId,
         texto: mensajeData.texto,
         remitente: mensajeData.remitente,
@@ -192,7 +227,7 @@ export class ChatWebSocketServer {
         mensaje: mensajeCompleto
       });
 
-      console.log('✅ Mensaje procesado y enviado correctamente');
+      console.log('✅ Mensaje guardado en BD y enviado correctamente');
     } catch (error) {
       console.error('❌ Error procesando nuevo mensaje:', error);
       this.enviarError(socket, 'Error al enviar mensaje');

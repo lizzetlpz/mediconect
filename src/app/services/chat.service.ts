@@ -43,7 +43,7 @@ export class ChatService {
     const user = this.authService.getCurrentUser();
     if (user) {
       this.usuarioId = user.id;
-      this.rol = user.rol_id === 2 ? 'paciente' : 'medico';
+      this.rol = user.rol_id === 3 ? 'paciente' : 'medico'; // rol_id 3 = Paciente, rol_id 2 = Médico
       console.log('💾 Usuario inicializado en chat:', {
         usuarioId: this.usuarioId,
         rol: this.rol,
