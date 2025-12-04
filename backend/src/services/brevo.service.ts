@@ -16,12 +16,14 @@ interface EmailOptions {
 // Crear transporter de nodemailer con Brevo SMTP
 const transporter = nodemailer.createTransport({
     host: 'smtp-relay.brevo.com',
-    port: 587,
-    secure: false, // true para puerto 465, false para otros puertos
+    port: 465,
+    secure: true, // true para puerto 465 (SSL)
     auth: {
         user: BREVO_SMTP_USER,
         pass: BREVO_SMTP_PASSWORD
-    }
+    },
+    connectionTimeout: 10000, // 10 segundos
+    greetingTimeout: 10000
 });
 
 export const enviarEmailBrevo = async (options: EmailOptions): Promise<boolean> => {
