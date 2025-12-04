@@ -29,12 +29,11 @@ export class ChatWebSocketServer {
   constructor(server: Server) {
     this.wss = new WebSocketServer({
       server,
-      path: '/chat',
       path: '/chat'
     });
 
     this.wss.on('connection', this.handleConnection.bind(this));
-    console.log('🔌 Servidor WebSocket de chat iniciado en puerto 3001');
+    console.log('🔌 Servidor WebSocket de chat iniciado en el mismo servidor HTTP');
   }
 
   private handleConnection(socket: WebSocket, request: IncomingMessage): void {
