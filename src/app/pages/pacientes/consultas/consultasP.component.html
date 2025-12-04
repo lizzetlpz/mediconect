@@ -89,6 +89,14 @@
               <span>{{ esVideollamada(consulta) ? 'Videollamada' : 'Chat' }}</span>
             </div>
           </div>
+
+          <!-- Botón para unirse a videollamada -->
+          <div *ngIf="esVideollamada(consulta) && consulta.estado === 'en_progreso'" class="consulta-actions">
+            <button class="btn-join-video-small" (click)="unirseVideollamada(consulta); $event.stopPropagation()">
+              <i class="fas fa-video"></i>
+              Unirse ahora
+            </button>
+          </div>
         </div>
       </div>
     </div>
