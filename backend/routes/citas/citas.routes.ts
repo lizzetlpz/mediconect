@@ -2,7 +2,7 @@
 import { Router, Response } from 'express';
 import { getConnection } from '../../BD/SQLite/database';
 import { AuthRequest, verificarToken } from '../../middleware/auth.middleware';
-import emailService from '../../src/services/email.service';
+import resendService from '../../src/services/resend.service';
 
 const router = Router();
 
@@ -107,18 +107,28 @@ router.post('/', async (req: AuthRequest, res: Response) => {
                 console.log('   Email destino final:', emailDestino);
 
                 if (emailDestino) {
-                    const emailEnviado = await emailService.enviarNotificacionCita({
-                        paciente_nombre: cita.paciente_nombre,
-                        paciente_email: emailDestino, // Usar el email del formulario o el registrado
-                        medico_nombre: cita.medico_apellido
-                            ? `${cita.medico_nombre} ${cita.medico_apellido}`
-                            : cita.medico_nombre,
-                        especialidad: cita.especialidad,
-                        fecha_cita: cita.fecha_cita,
-                        hora_cita: cita.hora_cita,
-                        motivo: cita.motivo,
-                        modalidad: cita.modalidad || 'texto',
-                        cita_id: citaId
+                    const medicoNombre = cita.medico_apellido
+                        ? `${cita.medico_nombre} ${cita.medico_apellido}`
+                        : cita.medico_nombre;
+                    
+                    const emailEnviado = await resendService.enviarEmail({
+                        to: emailDestino,
+                        subject: '✅ Cita Médica Confirmada - MediConnect',
+                        html: `
+                            <h1>Cita Confirmada</h1>
+                            <p>Hola <strong>${cita.paciente_nombre}</strong>,</p>
+                            <p>Tu cita médica ha sido confirmada:</p>
+                            <ul>
+                                <li><strong>Médico:</strong> ${medicoNombre}</li>
+                                <li><strong>Especialidad:</strong> ${cita.especialidad || 'No especificada'}</li>
+                                <li><strong>Fecha:</strong> ${cita.fecha_cita}</li>
+                                <li><strong>Hora:</strong> ${cita.hora_cita}</li>
+                                <li><strong>Motivo:</strong> ${cita.motivo}</li>
+                                <li><strong>Modalidad:</strong> ${cita.modalidad || 'texto'}</li>
+                                <li><strong>ID Cita:</strong> #${citaId}</li>
+                            </ul>
+                            <p>Recuerda conectarte 5 minutos antes de tu cita.</p>
+                        `
                     });
 
                     if (emailEnviado) {
@@ -614,10 +624,14 @@ router.delete('/:cita_id', async (req: AuthRequest, res: Response) => {
 // Endpoint de test para probar emails
 router.get('/test-email', async (req: AuthRequest, res: Response) => {
     try {
-        console.log('🧪 Probando configuración de email...');
+        console.log('🧪 Probando configuración de email con Resend...');
 
         const emailDestino = (req.query['email'] as string) || 'medicoomx@gmail.com';
-        const resultado = await emailService.testearEnvioEmail(emailDestino);
+        const resultado = await resendService.enviarEmail({
+            to: emailDestino,
+            subject: '✅ Test de Email - MediConnect',
+            html: '<h1>Test exitoso!</h1><p>El servicio de email con Resend está funcionando correctamente.</p>'
+        });
 
         if (resultado) {
             return res.status(200).json({

@@ -3,10 +3,9 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getConnection } from '../../BD/SQLite/database';
-import { EmailService } from '../../src/services/email.service';
+import resendService from '../../src/services/resend.service';
 
 const router = Router();
-const emailService = new EmailService();
 
 // ✅ Usar la misma clave que en .env y middleware
 const JWT_SECRET = process.env.JWT_SECRET || 'tu_secreto_super_seguro_cambiar_en_produccion';
@@ -103,11 +102,15 @@ router.post('/register', async (req: Request, res: Response) => {
     // Enviar email de verificación
     try {
       console.log('📧 Enviando email de verificación a:', emailFinal);
-      await emailService.enviarVerificacionCuenta(
-        emailFinal,
-        nombreFinal,
-        codigoVerificacion
-      );
+      await resendService.enviarEmail({
+        to: emailFinal,
+        subject: '📧 Verifica tu cuenta - MediConnect',
+        html: `
+          <h1>¡Bienvenido ${nombreFinal}!</h1>
+          <p>Tu código de verificación es: <strong>${codigoVerificacion}</strong></p>
+          <p>Este código es válido por 24 horas.</p>
+        `
+      });
       console.log('✅ Email de verificación enviado');
     } catch (emailError: any) {
       console.error('⚠️ Error al enviar email de verificación:', emailError.message);
@@ -383,11 +386,15 @@ router.post('/resend-verification', async (req: Request, res: Response) => {
 
     // Enviar email
     try {
-      await emailService.enviarVerificacionCuenta(
-        user.email,
-        user.nombre,
-        codigoVerificacion
-      );
+      await resendService.enviarEmail({
+        to: user.email,
+        subject: '📧 Nuevo código de verificación - MediConnect',
+        html: `
+          <h1>Hola ${user.nombre}!</h1>
+          <p>Tu nuevo código de verificación es: <strong>${codigoVerificacion}</strong></p>
+          <p>Este código es válido por 24 horas.</p>
+        `
+      });
       console.log('✅ Código de verificación reenviado a:', user.email);
     } catch (emailError: any) {
       console.error('⚠️ Error al reenviar email:', emailError.message);

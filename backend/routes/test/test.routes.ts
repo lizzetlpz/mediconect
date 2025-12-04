@@ -1,38 +1,24 @@
 import { Router } from 'express';
-import emailService from '../../src/services/email.service';
+import resendService from '../../src/services/resend.service';
 
 const router = Router();
 
 // Endpoint para probar la configuración de email
 router.get('/test-email', async (req, res): Promise<void> => {
   try {
-    console.log('🧪 Probando configuración de email...');
-
-    // Verificar configuración
-    const configOk = await emailService.verificarConfiguracion();
-
-    if (!configOk) {
-      res.status(500).json({
-        success: false,
-        message: 'Error en la configuración de email',
-        details: 'Revisa EMAIL_USER y EMAIL_PASSWORD en .env'
-      });
-      return;
-    }
+    console.log('🧪 Probando configuración de email con Resend...');
 
     // Enviar email de prueba
     const testEmail = (req.query['email'] as string) || 'medicoomx@gmail.com';
 
-    const emailEnviado = await emailService.enviarNotificacionCita({
-      paciente_nombre: 'Usuario de Prueba',
-      paciente_email: testEmail,
-      medico_nombre: 'Dr. Test',
-      especialidad: 'Medicina General',
-      fecha_cita: '2025-12-02',
-      hora_cita: '10:00',
-      motivo: 'Consulta de prueba',
-      modalidad: 'texto',
-      cita_id: 999
+    const emailEnviado = await resendService.enviarEmail({
+      to: testEmail,
+      subject: '✅ Test de Email - MediConnect',
+      html: `
+        <h1>Test exitoso!</h1>
+        <p>El servicio de email con Resend está funcionando correctamente.</p>
+        <p>Fecha: ${new Date().toLocaleString()}</p>
+      `
     });
 
     if (emailEnviado) {
