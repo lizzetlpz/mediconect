@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket } from 'ws';
-import { IncomingMessage } from 'http';
+import { IncomingMessage, Server } from 'http';
 import { getConnection } from '../../BD/SQLite/database';
 
 interface UsuarioConectado {
@@ -26,9 +26,10 @@ export class ChatWebSocketServer {
   private usuariosConectados = new Map<number, UsuarioConectado>();
   private consultasActivas = new Map<number, Set<number>>();
 
-  constructor() {
+  constructor(server: Server) {
     this.wss = new WebSocketServer({
-      port: 3001,
+      server,
+      path: '/chat',
       path: '/chat'
     });
 

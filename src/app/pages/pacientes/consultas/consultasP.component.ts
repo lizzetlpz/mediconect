@@ -307,7 +307,9 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
     }
 
     puedeIniciarChat(): boolean {
-        return this.consultaActiva?.estado === 'en_progreso';
+        const puede = this.consultaActiva?.estado === 'en_progreso';
+        console.log('🔍 puedeIniciarChat?', puede, 'Estado:', this.consultaActiva?.estado);
+        return puede;
     }
 
     salirDeConsulta(): void {

@@ -248,7 +248,7 @@ app.get('/test-email', async (req, res) => {
 });
 
 // ✅ CORRECCIÓN PRINCIPAL: Iniciar servidor HTTP escuchando en 0.0.0.0
-app.listen(PORT, '0.0.0.0', () => {
+const httpServer = app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n${'='.repeat(60)}`);
   console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
   console.log(`📋 API disponible en http://0.0.0.0:${PORT}/api`);
@@ -259,9 +259,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`${'='.repeat(60)}`);
 });
 
-// Iniciar servidor WebSocket para chat en tiempo real
-const chatServer = new ChatWebSocketServer();
-console.log('🔌 Servidor de chat WebSocket iniciado en puerto 3001');
+// Iniciar servidor WebSocket integrado en el mismo servidor HTTP
+const chatServer = new ChatWebSocketServer(httpServer);
+console.log('🔌 Servidor de chat WebSocket iniciado en el mismo puerto del servidor HTTP');
 
 export { upload };
 
