@@ -29,7 +29,7 @@ import pacientesRoutes from '../routes/pacientes/pacientes.routes';
 import recetasRoutes from '../routes/recetas/recetas.routes';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = parseInt(process.env.PORT || '3000', 10);
 
 console.log('🔧 PUERTO CONFIGURADO:', PORT);
 console.log('🔧 NODE_ENV:', process.env.NODE_ENV);
@@ -242,11 +242,12 @@ app.get('/test-email', async (req, res) => {
   }
 });
 
-// Iniciar servidor HTTP
-app.listen(PORT, () => {
+// ✅ CORRECCIÓN PRINCIPAL: Iniciar servidor HTTP escuchando en 0.0.0.0
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n${'='.repeat(60)}`);
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📋 API disponible en http://localhost:${PORT}/api`);
+  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+  console.log(`📋 API disponible en http://0.0.0.0:${PORT}/api`);
+  console.log(`🌐 Accesible públicamente en: https://mediconect-production.up.railway.app`);
   console.log(`🌐 Frontend disponible en https://mediconect.vercel.app`);
   console.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
   console.log(`📡 Modo: API-only (Backend separado)`);
