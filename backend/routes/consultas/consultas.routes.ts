@@ -110,6 +110,47 @@ router.get('/paciente/:paciente_id', async (req: AuthRequest, res: Response) => 
     }
 });
 
+// GET - Obtener pacientes únicos que un doctor ha tratado o agregado
+router.get('/doctor/:doctor_id/pacientes', async (req: AuthRequest, res: Response) => {
+    try {
+        const { doctor_id } = req.params;
+        const pool = getConnection();
+
+        // Obtener pacientes de TODAS las fuentes donde el doctor los haya atendido o agregado
+        const [pacientes] = await pool.query(
+            `SELECT DISTINCT 
+                    u.usuario_id as id,
+                    u.nombre,
+                    u.apellido_paterno,
+                    u.apellido_materno,
+                    u.telefono,
+                    u.email as correo
+             FROM usuarios u
+             WHERE u.rol_id = 2
+             AND u.activo = 1
+             AND u.usuario_id IN (
+                -- Pacientes con consultas del doctor
+                SELECT DISTINCT paciente_id FROM consultas WHERE doctor_id = ?
+                UNION
+                -- Pacientes con citas del doctor
+                SELECT DISTINCT paciente_id FROM citas WHERE medico_id = ?
+                UNION
+                -- Pacientes en el historial médico del doctor
+                SELECT DISTINCT paciente_id FROM historial_medico WHERE doctor_id = ?
+             )
+             ORDER BY u.nombre ASC`,
+            [doctor_id, doctor_id, doctor_id]
+        );
+
+        console.log('✅ Pacientes del doctor obtenidos:', (pacientes as any[]).length);
+        return res.status(200).json(pacientes);
+
+    } catch (error) {
+        console.error('❌ Error obteniendo pacientes del doctor:', error);
+        return res.status(500).json({ message: 'Error en el servidor' });
+    }
+});
+
 // GET - Obtener consultas por doctor
 router.get('/doctor/:doctor_id', async (req: AuthRequest, res: Response) => {
     try {
