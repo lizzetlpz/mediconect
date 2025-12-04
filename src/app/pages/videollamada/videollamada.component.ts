@@ -15,6 +15,8 @@ export class VideollamadaComponent implements OnInit, OnDestroy {
   citaId: string = '';
   tipo: string = '';
   participanteName: string = '';
+  participanteRemotoConectado: boolean = false;
+  mensajeEstado: string = '';
 
   constructor(private route: ActivatedRoute) {}
 
@@ -46,6 +48,13 @@ export class VideollamadaComponent implements OnInit, OnDestroy {
 
   private inicializarVideollamada(): void {
     console.log('🎥 Inicializando videollamada con sala:', this.roomId);
+    
+    // Simular detección de participante remoto después de 3 segundos
+    setTimeout(() => {
+      this.participanteRemotoConectado = true;
+      this.mensajeEstado = this.tipo === 'doctor' ? '✅ Paciente conectado' : '✅ Doctor conectado';
+      console.log('✅ Participante remoto detectado');
+    }, 3000);
     
     // Aquí se integraría con WebRTC, Jitsi, Daily.co, etc.
     // Por ahora, mostramos un mensaje informativo

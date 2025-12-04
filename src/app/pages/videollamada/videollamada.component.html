@@ -4,6 +4,9 @@
       <h1>📞 Videollamada</h1>
       <p class="room-info">Sala: {{ roomId }}</p>
       <p class="participant-info">Conectado como: <strong>{{ participanteName }}</strong></p>
+      <p class="status-info" *ngIf="participanteRemotoConectado" style="color: #10b981; font-weight: 600;">
+        {{ mensajeEstado }}
+      </p>
     </div>
     <button class="btn-hang-up" (click)="colgarLlamada()">
       <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -17,10 +20,15 @@
     <!-- Video remoto (participante remoto) -->
     <div class="video-remote">
       <div class="video-placeholder">
-        <div class="avatar-large">
+        <div class="avatar-large" [class.connected]="participanteRemotoConectado">
           {{ participanteName === 'Doctor' ? 'P' : 'D' }}
         </div>
-        <p class="waiting-text">Esperando al {{ participanteName === 'Doctor' ? 'paciente' : 'doctor' }}...</p>
+        <p class="waiting-text" *ngIf="!participanteRemotoConectado">
+          Esperando al {{ participanteName === 'Doctor' ? 'paciente' : 'doctor' }}...
+        </p>
+        <p class="connected-text" *ngIf="participanteRemotoConectado">
+          {{ participanteName === 'Doctor' ? 'Paciente' : 'Doctor' }} conectado ✓
+        </p>
       </div>
     </div>
 
