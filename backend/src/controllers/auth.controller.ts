@@ -5,7 +5,8 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { getConnection } from '../../BD/SQLite/database';
 import { AuthRequest } from '../../middleware/auth.middleware';
-import emailService from '../services/email.service';
+// import emailService from '../services/email.service'; // Gmail (deprecado)
+import resendService from '../services/resend.service'; // Resend (nuevo)
 
 // LOGIN
 export const login = async (req: Request, res: Response) => {
@@ -270,7 +271,7 @@ export const register = async (req: Request, res: Response) => {
 
         // Enviar email de verificación
         try {
-            const emailEnviado = await emailService.enviarEmail({
+            const emailEnviado = await resendService.enviarEmail({
                 to: emailFinal.toLowerCase(),
                 subject: 'Verificar tu cuenta en MediConnect',
                 html: `
@@ -490,7 +491,7 @@ export const reenviarVerificacion = async (req: Request, res: Response) => {
         );
 
         // Enviar email
-        await emailService.enviarEmail({
+        await resendService.enviarEmail({
             to: email,
             subject: 'Código de verificación - MediConnect',
             html: `
