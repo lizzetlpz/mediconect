@@ -1,0 +1,484 @@
+/* ============================================ */
+/* ARCHIVO: recetas.component.css */
+/* ============================================ */
+
+.dashboard-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  width: calc(100% - 260px);
+}
+
+.recetas-container {
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ============================================ */
+/* HEADER */
+/* ============================================ */
+
+.recetas-header {
+  margin-bottom: 32px;
+}
+
+.header-content h1 {
+  margin: 0 0 8px 0;
+  color: #0f172a;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.header-content p {
+  margin: 0;
+  color: #64748b;
+  font-size: 16px;
+}
+
+/* ============================================ */
+/* LOADING & ERROR STATES */
+/* ============================================ */
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e2e8f0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading p {
+  color: #64748b;
+  font-size: 16px;
+  margin: 0;
+}
+
+.error-message {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.error-message svg {
+  width: 64px;
+  height: 64px;
+  stroke: #ef4444;
+  margin-bottom: 16px;
+}
+
+.error-message p {
+  color: #64748b;
+  font-size: 16px;
+  margin: 0 0 24px 0;
+}
+
+.btn-retry {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-retry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* ============================================ */
+/* EMPTY STATE */
+/* ============================================ */
+
+.estado-vacio {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.icono-vacio {
+  font-size: 72px;
+  margin-bottom: 24px;
+  opacity: 0.5;
+}
+
+.estado-vacio h3 {
+  margin: 0 0 12px 0;
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.estado-vacio p {
+  margin: 0;
+  color: #64748b;
+  font-size: 16px;
+}
+
+/* ============================================ */
+/* RECETAS GRID */
+/* ============================================ */
+
+.recetas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+.receta-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  transition: all 0.2s;
+  border: 1px solid #e2e8f0;
+}
+
+.receta-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================ */
+/* RECETA HEADER */
+/* ============================================ */
+
+.receta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.receta-info h3 {
+  margin: 0 0 4px 0;
+  color: #0f172a;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.fecha {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.estado-activa {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.estado-utilizada {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.estado-vencida {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* ============================================ */
+/* MEDICO INFO */
+/* ============================================ */
+
+.medico-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 12px;
+}
+
+.medico-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.medico-avatar svg {
+  width: 24px;
+  height: 24px;
+  stroke: white;
+}
+
+.medico-label {
+  margin: 0 0 4px 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.medico-nombre {
+  margin: 0;
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ============================================ */
+/* MEDICAMENTOS */
+/* ============================================ */
+
+.medicamentos-section {
+  margin-bottom: 20px;
+}
+
+.medicamentos-section h4 {
+  margin: 0 0 12px 0;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.medicamento-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.medicamento-item:last-child {
+  margin-bottom: 0;
+}
+
+.med-info {
+  flex: 1;
+}
+
+.med-nombre {
+  margin: 0 0 4px 0;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.med-detalles {
+  margin: 0 0 6px 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.med-instrucciones {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+}
+
+.med-cantidad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: white;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+/* ============================================ */
+/* INSTRUCCIONES & OBSERVACIONES */
+/* ============================================ */
+
+.instrucciones-section,
+.observaciones-section {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #fefce8;
+  border-left: 4px solid #eab308;
+  border-radius: 8px;
+}
+
+.observaciones-section {
+  background: #fef2f2;
+  border-left-color: #ef4444;
+}
+
+.instrucciones-section h4,
+.observaciones-section h4 {
+  margin: 0 0 8px 0;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.instrucciones-section p,
+.observaciones-section p {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ============================================ */
+/* VALIDEZ */
+/* ============================================ */
+
+.validez-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: #f0fdf4;
+  border-radius: 10px;
+  color: #166534;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.validez-section svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  flex-shrink: 0;
+}
+
+/* ============================================ */
+/* ACTIONS */
+/* ============================================ */
+
+.receta-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+}
+
+.btn-secondary {
+  background: white;
+  color: #3b82f6;
+  border: 2px solid #3b82f6;
+}
+
+.btn-secondary:hover {
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.btn-primary svg,
+.btn-secondary svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+}
+
+/* ============================================ */
+/* RESPONSIVE */
+/* ============================================ */
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .recetas-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .recetas-container {
+    padding: 20px 16px;
+  }
+
+  .header-content h1 {
+    font-size: 24px;
+  }
+
+  .header-content p {
+    font-size: 14px;
+  }
+
+  .receta-card {
+    padding: 16px;
+  }
+
+  .receta-actions {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+}

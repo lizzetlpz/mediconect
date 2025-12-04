@@ -88,6 +88,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/pacientes/consultas/consultasP.component').then(m => m.ConsultasPacienteComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'paciente/recetas',
+    loadComponent: () => import('./pages/pacientes/recetas/recetas.component').then(m => m.RecetasPacienteComponent),
+    canActivate: [AuthGuard]
+  },
 
   // Redirecciones alternativas
   { path: 'doctor-dashboard', redirectTo: 'doctor/dashboard', pathMatch: 'full' },

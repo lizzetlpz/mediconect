@@ -1,0 +1,133 @@
+<div class="dashboard-wrapper">
+  <app-patient-sidebar></app-patient-sidebar>
+
+  <div class="main-content">
+    <div class="recetas-container">
+      
+      <!-- Header -->
+      <div class="recetas-header">
+        <div class="header-content">
+          <h1>💊 Mis Recetas Médicas</h1>
+          <p>Consulta las recetas que tus médicos te han prescrito</p>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading" *ngIf="cargando">
+        <div class="spinner"></div>
+        <p>⏳ Cargando tus recetas...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-message" *ngIf="error && !cargando">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <p>{{ error }}</p>
+        <button (click)="cargarRecetas()" class="btn-retry">Reintentar</button>
+      </div>
+
+      <!-- Empty State -->
+      <div class="estado-vacio" *ngIf="!cargando && !error && recetas.length === 0">
+        <div class="icono-vacio">💊</div>
+        <h3>No tienes recetas médicas</h3>
+        <p>Cuando un médico te prescriba medicamentos, aparecerán aquí</p>
+      </div>
+
+      <!-- Recetas List -->
+      <div class="recetas-grid" *ngIf="!cargando && !error && recetas.length > 0">
+        <div class="receta-card" *ngFor="let receta of recetas">
+          
+          <!-- Header de la receta -->
+          <div class="receta-header">
+            <div class="receta-info">
+              <h3>Receta #{{ receta.codigo_validacion || receta.receta_id }}</h3>
+              <p class="fecha">{{ formatearFecha(receta.fecha_creacion) }}</p>
+            </div>
+            <span class="estado-badge" [ngClass]="getEstadoClass(receta.estado)">
+              {{ getEstadoIcon(receta.estado) }} {{ receta.estado || 'Activa' }}
+            </span>
+          </div>
+
+          <!-- Información del médico -->
+          <div class="medico-info">
+            <div class="medico-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div>
+              <p class="medico-label">Prescrito por</p>
+              <p class="medico-nombre">{{ receta.medico_nombre || 'Médico' }}</p>
+            </div>
+          </div>
+
+          <!-- Medicamentos -->
+          <div class="medicamentos-section">
+            <h4>📋 Medicamentos</h4>
+            <div class="medicamento-item" *ngFor="let med of receta.medicamentos">
+              <div class="med-info">
+                <p class="med-nombre">{{ med.nombre }}</p>
+                <p class="med-detalles">
+                  {{ med.concentracion }} - {{ med.forma_farmaceutica }}
+                </p>
+                <p class="med-instrucciones">
+                  <strong>Dosis:</strong> {{ med.frecuencia }} durante {{ med.duracion }}
+                </p>
+              </div>
+              <div class="med-cantidad">
+                <span>{{ med.cantidad }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instrucciones -->
+          <div class="instrucciones-section" *ngIf="receta.instrucciones">
+            <h4>📝 Instrucciones Generales</h4>
+            <p>{{ receta.instrucciones }}</p>
+          </div>
+
+          <!-- Observaciones -->
+          <div class="observaciones-section" *ngIf="receta.observaciones">
+            <h4>⚠️ Observaciones</h4>
+            <p>{{ receta.observaciones }}</p>
+          </div>
+
+          <!-- Validez -->
+          <div class="validez-section">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>Válida por {{ receta.dias_validez || 30 }} días</span>
+          </div>
+
+          <!-- Acciones -->
+          <div class="receta-actions">
+            <button class="btn-secondary" (click)="descargarReceta(receta)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Descargar
+            </button>
+            <button class="btn-primary" (click)="imprimirReceta(receta)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              Imprimir
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

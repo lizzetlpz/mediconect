@@ -63,13 +63,32 @@ const upload = multer({
 
 // Middlewares
 const corsOptions = {
-  origin: [
-    'https://mediconect.vercel.app',
-    'https://mediconect-lake.vercel.app',
-    'https://mediconect-production.up.railway.app',
-    'http://localhost:4200',
-    'http://localhost:3000'
-  ],
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Permitir requests sin origin (como Postman, curl, etc.)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    // Lista de orígenes permitidos o patrones
+    const allowedOrigins = [
+      'https://mediconect.vercel.app',
+      'https://mediconect-lake.vercel.app',
+      'https://mediconect-production.up.railway.app',
+      'http://localhost:4200',
+      'http://localhost:3000'
+    ];
+
+    // Permitir cualquier URL que termine con .vercel.app
+    const isVercelApp = origin.endsWith('.vercel.app');
+    const isAllowedOrigin = allowedOrigins.includes(origin);
+
+    if (isVercelApp || isAllowedOrigin) {
+      callback(null, true);
+    } else {
+      console.warn('❌ Origen bloqueado por CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
