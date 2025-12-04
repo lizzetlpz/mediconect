@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-const BREVO_SMTP_USER = process.env.BREVO_SMTP_LOGIN || '9d4915001@smtp-brevo.com';
+const BREVO_SMTP_USER = process.env.BREVO_SMTP_USER || '9d4915001@smtp-brevo.com';
 const BREVO_SMTP_PASSWORD = process.env.BREVO_SMTP_PASSWORD;
 
 if (!BREVO_SMTP_PASSWORD) {
