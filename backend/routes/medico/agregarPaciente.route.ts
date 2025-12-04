@@ -488,6 +488,21 @@ router.post('/registrar', async (req: AuthRequest, res: Response) => {
             console.log('✅ Información médica insertada');
         }
 
+        // ✅ IMPORTANTE: Crear registro en historial_medico para vincular al doctor
+        // Esto asegura que el paciente aparezca en "Mis Pacientes" del doctor
+        console.log('🔗 Vinculando paciente con el doctor en historial_medico...');
+        
+        const doctor_id = req.usuario_id;
+        
+        await pool.query(
+            `INSERT INTO historial_medico
+            (paciente_id, doctor_id, fecha_consulta, motivo_consulta, diagnostico, notas_medico)
+            VALUES (?, ?, NOW(), 'Paciente agregado manualmente', 'Nuevo paciente registrado', 'Paciente agregado por el médico')`,
+            [usuario_id, doctor_id]
+        );
+        
+        console.log('✅ Paciente vinculado al doctor');
+
         console.log('🎉 Paciente registrado exitosamente\n');
 
         return res.status(201).json({
