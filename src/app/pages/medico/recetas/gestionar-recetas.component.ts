@@ -67,9 +67,9 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
       instrucciones: ['', [Validators.required, Validators.minLength(10)]],
       observaciones: [''],
       dias_validez: [30, [Validators.required, Validators.min(1), Validators.max(365)]],
-      // Nuevos campos para autenticación médica
-      firma_digital: ['', Validators.required],
-      codigo_medico: ['', [Validators.required, Validators.minLength(6)]],
+      // Campos de autenticación médica (opcionales)
+      firma_digital: [''],
+      codigo_medico: [''],
       foto_receta: [''],
       medicamentos: this.fb.array([this.crearMedicamento()])
     });
@@ -175,11 +175,6 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
     if (this.recetaForm.invalid) {
       this.marcarCamposComoTocados();
       alert('Por favor complete todos los campos obligatorios');
-      return;
-    }
-
-    if (!this.validarAutenticacionMedica()) {
-      alert('La autenticación médica es obligatoria. Complete la firma digital y código médico.');
       return;
     }
 
