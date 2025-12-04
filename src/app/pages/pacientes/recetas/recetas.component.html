@@ -1,5 +1,5 @@
 <div class="dashboard-wrapper">
-  <app-patient-sidebar></app-patient-sidebar>
+  <appP></appP>
 
   <div class="main-content">
     <div class="recetas-container">
@@ -43,8 +43,8 @@
           <!-- Header de la receta -->
           <div class="receta-header">
             <div class="receta-info">
-              <h3>Receta #{{ receta.codigo_validacion || receta.receta_id }}</h3>
-              <p class="fecha">{{ formatearFecha(receta.fecha_creacion) }}</p>
+              <h3>Receta #{{ receta.codigo_validacion || receta.id }}</h3>
+              <p class="fecha">{{ formatearFecha(receta.fecha_emision) }}</p>
             </div>
             <span class="estado-badge" [ngClass]="getEstadoClass(receta.estado)">
               {{ getEstadoIcon(receta.estado) }} {{ receta.estado || 'Activa' }}
@@ -102,7 +102,7 @@
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
-            <span>Válida por {{ receta.dias_validez || 30 }} días</span>
+            <span>Válida hasta {{ formatearFecha(receta.fecha_vencimiento) }}</span>
           </div>
 
           <!-- Acciones -->

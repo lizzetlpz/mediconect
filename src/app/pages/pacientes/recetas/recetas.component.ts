@@ -54,13 +54,12 @@ export class RecetasPacienteComponent implements OnInit, OnDestroy {
   }
 
   descargarReceta(receta: Receta): void {
-    console.log('📥 Descargando receta:', receta.receta_id);
-    // Implementar descarga de PDF si tienes backend para generarlo
+    console.log('📥 Descargando receta:', receta.codigo_validacion);
     alert('Función de descarga en desarrollo');
   }
 
   imprimirReceta(receta: Receta): void {
-    console.log('🖨️ Imprimiendo receta:', receta.receta_id);
+    console.log('🖨️ Imprimiendo receta:', receta.codigo_validacion);
     window.print();
   }
 
@@ -90,7 +89,7 @@ export class RecetasPacienteComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatearFecha(fecha: string): string {
+  formatearFecha(fecha: Date | string | undefined): string {
     if (!fecha) return 'N/A';
     const date = new Date(fecha);
     return date.toLocaleDateString('es-MX', {
@@ -99,59 +98,5 @@ export class RecetasPacienteComponent implements OnInit, OnDestroy {
       day: 'numeric'
     });
   }
-
-  cerrarDetalles(): void {
-    this.recetaSeleccionada = null;
-  }
-
-  descargarReceta(receta: Receta): void {
-    // Implementar descarga de PDF
-    console.log('📥 Descargando receta:', receta.receta_id);
-    alert('Funcionalidad de descarga en desarrollo');
-  }
-
-  imprimirReceta(receta: Receta): void {
-    // Implementar impresión
-    console.log('🖨️ Imprimiendo receta:', receta.receta_id);
-    window.print();
-  }
-
-  getEstadoClase(estado: string): string {
-    switch (estado) {
-      case 'activa':
-        return 'estado-activa';
-      case 'usada':
-        return 'estado-usada';
-      case 'vencida':
-        return 'estado-vencida';
-      case 'cancelada':
-        return 'estado-cancelada';
-      default:
-        return '';
-    }
-  }
-
-  getEstadoTexto(estado: string): string {
-    switch (estado) {
-      case 'activa':
-        return '✅ Activa';
-      case 'usada':
-        return '✔️ Usada';
-      case 'vencida':
-        return '⏰ Vencida';
-      case 'cancelada':
-        return '❌ Cancelada';
-      default:
-        return estado;
-    }
-  }
-
-  formatearFecha(fecha: string): string {
-    const date = new Date(fecha);
-    return date.toLocaleDateString('es-MX', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  }
 }
+
