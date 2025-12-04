@@ -27,7 +27,7 @@ export const enviarEmailBrevo = async (options: EmailOptions): Promise<boolean> 
         apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, BREVO_API_KEY);
 
         const sendSmtpEmail = new brevo.SendSmtpEmail();
-        sendSmtpEmail.sender = { name: 'MediConnect', email: 'noreply@mediconnect.com' };
+        sendSmtpEmail.sender = { name: 'MediConnect', email: 'mediicomx@gmail.com' };
         sendSmtpEmail.to = [{ email: options.to }];
         sendSmtpEmail.subject = options.subject;
         sendSmtpEmail.htmlContent = options.html;
