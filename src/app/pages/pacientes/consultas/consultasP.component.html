@@ -118,6 +118,16 @@
                 </div>
               </div>
               <div class="chat-status">
+                <!-- Botón de Videollamada -->
+                <button 
+                  *ngIf="esVideollamada(consultaActiva) && consultaActiva.estado === 'en_progreso'"
+                  class="btn-video-call"
+                  (click)="unirseVideollamada(consultaActiva)"
+                  title="Unirse a videollamada">
+                  <i class="fas fa-video"></i>
+                  Unirse a videollamada
+                </button>
+
                 <div class="connection-indicator" [class.connected]="chatConectado" [class.disconnected]="!chatConectado">
                   <i class="fas fa-circle"></i>
                   {{ chatConectado ? 'Conectado' : 'Desconectado' }}

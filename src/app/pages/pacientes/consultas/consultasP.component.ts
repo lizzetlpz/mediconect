@@ -306,6 +306,16 @@ export class ConsultasPacienteComponent implements OnInit, AfterViewChecked, OnD
         return consulta.modalidad === 'video' || consulta.modalidad === 'videollamada';
     }
 
+    unirseVideollamada(consulta: ConsultaPaciente): void {
+        console.log('📞 Uniéndose a videollamada de la consulta:', consulta.id);
+        
+        // Abrir videollamada en nueva ventana
+        const roomId = `consulta-${consulta.id}`;
+        const url = `/videollamada?room=${roomId}&consultaId=${consulta.id}&tipo=paciente`;
+        
+        window.open(url, '_blank', 'width=1200,height=800');
+    }
+
     puedeIniciarChat(): boolean {
         const puede = this.consultaActiva?.estado === 'en_progreso';
         console.log('🔍 puedeIniciarChat?', puede, 'Estado:', this.consultaActiva?.estado);

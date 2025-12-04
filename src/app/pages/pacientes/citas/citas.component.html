@@ -221,6 +221,18 @@
                     <p class="note-text">{{ cita.notas || '-' }}</p>
                 </div>
             </div>
+
+            <!-- Botón para unirse a videollamada -->
+            <div 
+                *ngIf="(cita.modalidad === 'Videollamada' || cita.modalidad === 'video' || cita.modalidad === 'videollamada') && (cita.estado === 'confirmada' || cita.estado === 'en_progreso')" 
+                class="appointment-actions">
+                <button class="btn-join-video" (click)="unirseVideollamada(cita)">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    Unirse a videollamada
+                </button>
+            </div>
         </div>
     </div>
   </div>
