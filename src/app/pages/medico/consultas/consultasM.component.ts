@@ -320,17 +320,17 @@ export class ConsultasMedicasComponent implements OnInit, AfterViewChecked, OnDe
 
     iniciarVideollamada(): void {
         if (this.consultaActiva && this.chatConectado) {
-            console.log('Iniciando videollamada para consulta:', this.consultaActiva.id);
+            console.log('📞 Iniciando videollamada para consulta:', this.consultaActiva.id);
 
+            // Abrir videollamada en nueva ventana usando el mismo formato que el paciente
+            const roomId = `consulta-${this.consultaActiva.id}`;
+            const url = `/videollamada?room=${roomId}&consultaId=${this.consultaActiva.id}&tipo=doctor`;
+            
+            window.open(url, '_blank', 'width=1200,height=800');
+            
             // Notificar al paciente que se está iniciando la videollamada
             this.chatService.iniciarVideollamada(this.consultaActiva.id);
-
-            // Iniciar videollamada como médico (caller)
-            this.videoCallService.startCall(
-                this.consultaActiva.id,
-                this.usuarioActual.id || 1,
-                'medico'
-            );
+            
             this.mostrarVideollamada = true;
             this.llamadaEnProgreso = true;
         }
