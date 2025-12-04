@@ -218,11 +218,11 @@ app.get('/test-email', async (req, res) => {
     const { default: resendService } = await import('../src/services/resend.service');
 
     const emailDestino = (req.query['email'] as string) || 'medicoomx@gmail.com';
-    const resultado = await resendService.enviarEmail(
-      emailDestino,
-      '✅ Test de Email - MediConnect',
-      '<h1>Test exitoso!</h1><p>El servicio de email con Resend está funcionando correctamente.</p>'
-    );
+    const resultado = await resendService.enviarEmail({
+      to: emailDestino,
+      subject: '✅ Test de Email - MediConnect',
+      html: '<h1>Test exitoso!</h1><p>El servicio de email con Resend está funcionando correctamente.</p>'
+    });
 
     if (resultado) {
       res.status(200).json({
