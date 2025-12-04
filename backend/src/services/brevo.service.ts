@@ -1,10 +1,9 @@
-import nodemailer from 'nodemailer';
+import * as brevo from '@getbrevo/brevo';
 
-const BREVO_SMTP_USER = process.env.BREVO_SMTP_USER || '9d4915001@smtp-brevo.com';
-const BREVO_SMTP_PASSWORD = process.env.BREVO_SMTP_PASSWORD;
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
 
-if (!BREVO_SMTP_PASSWORD) {
-    console.error('⚠️ BREVO_SMTP_PASSWORD no está configurada en las variables de entorno');
+if (!BREVO_API_KEY) {
+    console.error('⚠️ BREVO_API_KEY no está configurada en las variables de entorno');
 }
 
 interface EmailOptions {
@@ -13,44 +12,37 @@ interface EmailOptions {
     html: string;
 }
 
-// Crear transporter de nodemailer con Brevo SMTP
-const transporter = nodemailer.createTransport({
-    host: 'smtp-relay.brevo.com',
-    port: 465,
-    secure: true, // true para puerto 465 (SSL)
-    auth: {
-        user: BREVO_SMTP_USER,
-        pass: BREVO_SMTP_PASSWORD
-    },
-    connectionTimeout: 10000, // 10 segundos
-    greetingTimeout: 10000
-});
-
 export const enviarEmailBrevo = async (options: EmailOptions): Promise<boolean> => {
     try {
-        console.log('📧 Intentando enviar email con Brevo SMTP...');
+        console.log('📧 Intentando enviar email con Brevo API...');
         console.log('   Para:', options.to);
         console.log('   Asunto:', options.subject);
-        console.log('   SMTP User:', BREVO_SMTP_USER);
 
-        if (!BREVO_SMTP_PASSWORD) {
-            console.error('❌ BREVO_SMTP_PASSWORD no está configurada');
+        if (!BREVO_API_KEY) {
+            console.error('❌ BREVO_API_KEY no está configurada');
             return false;
         }
 
-        const info = await transporter.sendMail({
-            from: '"MediConnect" <noreply@mediconnect.com>',
-            to: options.to,
-            subject: options.subject,
-            html: options.html
-        });
+        const apiInstance = new brevo.TransactionalEmailsApi();
+        apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, BREVO_API_KEY);
 
-        console.log('✅ Email enviado exitosamente con Brevo SMTP');
-        console.log('   Message ID:', info.messageId);
+        const sendSmtpEmail = new brevo.SendSmtpEmail();
+        sendSmtpEmail.sender = { name: 'MediConnect', email: 'noreply@mediconnect.com' };
+        sendSmtpEmail.to = [{ email: options.to }];
+        sendSmtpEmail.subject = options.subject;
+        sendSmtpEmail.htmlContent = options.html;
+
+        const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
+        
+        console.log('✅ Email enviado exitosamente con Brevo API');
+        console.log('   Message ID:', result.body.messageId);
         return true;
 
     } catch (error: any) {
-        console.error('❌ Error al enviar email con Brevo SMTP:', error.message);
+        console.error('❌ Error al enviar email con Brevo API:', error.message);
+        if (error.response) {
+            console.error('   Response:', error.response.text);
+        }
         return false;
     }
 };

@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "@types/multer": "^2.0.0",
     "@types/nodemailer": "^6.4.21",
     "@types/ws": "^8.18.1",
