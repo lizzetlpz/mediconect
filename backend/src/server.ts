@@ -62,15 +62,13 @@ const upload = multer({
 
 // Middlewares
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? [
-        'https://mediconect.vercel.app',
-        'https://mediconect-lake.vercel.app',
-        'https://mediconect-production.up.railway.app',
-        'https://vercel.app',
-        'https://*.vercel.app'
-      ]
-    : ['http://localhost:4200', 'http://localhost:3000'],
+  origin: [
+    'https://mediconect.vercel.app',
+    'https://mediconect-lake.vercel.app',
+    'https://mediconect-production.up.railway.app',
+    'http://localhost:4200',
+    'http://localhost:3000'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
