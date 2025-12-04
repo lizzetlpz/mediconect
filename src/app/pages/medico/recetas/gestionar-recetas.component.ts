@@ -238,7 +238,21 @@ export class GestionarRecetasComponent implements OnInit, OnDestroy {
 
     } else {
       // Sin foto, usar método normal
-      const sub = this.recetaService.crearReceta(recetaData).subscribe({
+      // Limpiar campos opcionales que sean null o undefined
+      const cleanedData: any = {
+        paciente_id: recetaData.paciente_id,
+        instrucciones: recetaData.instrucciones,
+        dias_validez: recetaData.dias_validez,
+        medicamentos: recetaData.medicamentos
+      };
+
+      // Solo agregar campos opcionales si tienen valor
+      if (recetaData.cita_id) cleanedData.cita_id = recetaData.cita_id;
+      if (recetaData.observaciones) cleanedData.observaciones = recetaData.observaciones;
+      if (recetaData.firma_digital) cleanedData.firma_digital = recetaData.firma_digital;
+      if (recetaData.codigo_medico) cleanedData.codigo_medico = recetaData.codigo_medico;
+
+      const sub = this.recetaService.crearReceta(cleanedData).subscribe({
         next: (receta) => {
           console.log('✅ Receta creada exitosamente:', receta);
           alert('✅ Receta creada exitosamente con autenticación médica');

@@ -141,7 +141,8 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
 
     res.status(500).json({
       message: 'Error interno del servidor',
-      error: process.env.NODE_ENV === 'development' ? error : undefined
+      error: error instanceof Error ? error.message : 'Error desconocido',
+      stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
     });
   }
 });
@@ -149,6 +150,7 @@ router.post('/con-foto', verificarToken, upload.single('foto_receta'), async (re
 // ============== CREAR RECETA (Solo médicos) ==============
 router.post('/', verificarToken, async (req: AuthRequest, res: Response) => {
   try {
+    console.log('📥 Datos recibidos en POST /recetas:', req.body);
     const { paciente_id, cita_id, medicamentos, instrucciones, observaciones, dias_validez = 30 } = req.body;
 
     // Verificar que el usuario es médico
@@ -219,7 +221,11 @@ router.post('/', verificarToken, async (req: AuthRequest, res: Response) => {
 
   } catch (error) {
     console.error('❌ Error creando receta:', error);
-    res.status(500).json({ message: 'Error interno del servidor' });
+    res.status(500).json({ 
+      message: 'Error interno del servidor',
+      error: error instanceof Error ? error.message : 'Error desconocido',
+      stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+    });
   }
 });
 
