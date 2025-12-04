@@ -40,7 +40,7 @@
                 [class.error]="recetaForm.get('paciente_id')?.invalid && recetaForm.get('paciente_id')?.touched">
                 <option value="">Seleccionar paciente</option>
                 <option *ngFor="let paciente of pacientes" [value]="paciente.id">
-                  {{ paciente.nombre }} (ID: {{ paciente.id }})
+                  {{ paciente.nombre }}
                 </option>
               </select>
             </div>
