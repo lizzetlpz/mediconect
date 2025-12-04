@@ -55,7 +55,7 @@ export class RecetasPacienteComponent implements OnInit, OnDestroy {
 
   descargarReceta(receta: Receta): void {
     console.log('📥 Descargando receta:', receta.codigo_validacion);
-    alert('Función de descarga en desarrollo');
+    this.recetaService.descargarReceta(receta);
   }
 
   imprimirReceta(receta: Receta): void {
